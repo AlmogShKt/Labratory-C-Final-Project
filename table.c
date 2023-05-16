@@ -8,6 +8,8 @@
 
 /*   */
 
+/*  ddd */
+
 void search_symbol(symbol_table current_table, char *symbol) {
     return;
 }
