@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include "util.h"
 
 char convert_to_base64(char binary_number[]) {
     char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -12,4 +15,40 @@ char convert_to_base64(char binary_number[]) {
     printf("%c\n", base64_number);
     return base64_number;
 
+}
+
+
+void remove_extra_spaces_str(char str[]){
+    int i, j, blank;
+    char str_temp[SIZE];
+    blank = 0;
+    i = j = 0;
+    while(*(str+i) != '\0'){
+        /* coping content until first white-space is found */
+        while(*(str+i) != '\0' && !isspace(*(str+i))){
+            *(str_temp + j) = *(str+i);
+            i++;
+            j++;
+        }
+        if(*(str+i) == '\0'){
+            *(str_temp + j) = *(str+i);
+            strcpy(str,str_temp);
+            return;
+        }
+        /* white-space is found, ww copy this one and skipping all other white-spaces */
+        blank = 1;
+        *(str_temp + j) = *(str+i);
+        i++;
+        j++;
+        while(*(str+i) != '\0' && isspace(*(str+i))){
+            i++;
+        }
+        if(*(str+i) == '\0') {
+            *(str_temp + j) = *(str + i);
+            strcpy(str, str_temp);
+            return;
+        }
+        /* new non-white-spaces are found */
+        blank = 0;
+    }
 }
