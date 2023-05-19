@@ -30,11 +30,7 @@ void make_node(node **new_node, char *name, char *content){
     *new_node = temp;
 }
 
-node *search_tree(node *head, char *name, char *content, int *error){
-    /* reached the end of the tree and not found, or an empty tree */
-    if(head == NULL){
-        return NULL;
-    }
+node *search_tree(node *head, char *name, char *content, int *error, int *found){
     /* node exists already */
     if(strcmp(name,head->name) == 0){
         /* the content of the same node name is not the same */
@@ -43,42 +39,37 @@ node *search_tree(node *head, char *name, char *content, int *error){
             *error = 1;
             return NULL;
         }
+        *found = 1;
         return head;
     }
     else if(strcmp(name,head->name)>0){
-        return search_tree(head->right_child,name, content);
+        /* reached a leaf in the right child of head*/
+        if(head->right_child->right_child == NULL && head->right_child->left_child == NULL){
+            return head;
+        }
+        return search_tree(head->right_child,name, content, error, found);
     }
     else {
-        return search_tree(head->left_child,name, content);
+        /* reached a leaf in the left child of head*/
+        if(head->left_child->right_child == NULL && head->left_child->left_child == NULL){
+            return head;
+        }
+        return search_tree(head->left_child,name, content, error, found);
     }
 }
 
 void add_to_tree(node **head, char *name, char *content){
-    int error;
-    node *new_node;
-    error = 0;
-    if(search_tree(*head,name,content,&error) == NULL && error == 0){
+    int error, found;
+    node *new_node, *temp;
+    error = found = 0;
+    if((temp = search_tree(*head,name,content,&error,&found)) != NULL && error == 0 && found == 0){
         make_node(&new_node,name,content);
-        if(new_node == NULL){
+        if(strcmp(name,temp->name) < 0){
+            temp->left_child = new_node;
             return;
         }
-    }
-    /* reached the end of the tree or an empty tree */
-    if((*head) == NULL){
-        *head = new_node;
-    }
-    /* node exists already */
-    if(strcmp(new_node->name,(*head)->name) == 0){
-        /* the content of the same node name is not the same */
-        if(strcmp(new_node->content,(*head)->content) != 0) {
-            printf("Macro has more than one definition\n");
+        else {
+            temp->right_child = new_node;
         }
-        return;
-    }
-    else if(strcmp(new_node->name,(*head)->name)>0){
-        add_to_tree(&((*head)->right_child),new_node);
-    }
-    else {
-        add_to_tree(&((*head)->left_child),new_node);
     }
 }
