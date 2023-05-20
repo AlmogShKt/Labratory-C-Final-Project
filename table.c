@@ -1,10 +1,13 @@
-/* Implements a basic table ("dictionary") data structure. sorted by value, ascending. */
+ /* Implements a basic table ("dictionary") data structure. sorted by value, ascending. */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "table.h"
 #include "util.h"
 
+/*   */
+
+/*  ddd */
 
 void search_symbol(symbol_table current_table, char *symbol) {
     return;
