@@ -5,8 +5,9 @@
 #include "util.h"
 
 int main(){
-    FILE *fp, *fp1;
-    char file_name[SIZE];
+    FILE *fp, *fp1, *fp2;
+    char file_name[MAX_LINE_LENGTH];
+    node *head;
     strcpy(file_name,"input");
     fp = fopen(file_name,"r");
     if(fp == NULL){
@@ -21,7 +22,10 @@ int main(){
         exit (1);
     }
     remove_extra_spaces_file(fp1,file_name);
-
+    fclose(fp1);
+    fp2 = fopen(file_name,"r");
+    head = malloc(sizeof(node));
+    search_mcros(fp2,&head);
 
     return 0;
 }

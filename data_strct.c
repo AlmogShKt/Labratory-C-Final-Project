@@ -10,23 +10,24 @@ void make_node(node **new_node, char *name, char *content){
         printf("make_node malloc failed\n");
         return;
     }
-    temp->name = malloc(SIZE * sizeof(char));
+    temp->name = malloc(MAX_LINE_LENGTH * sizeof(char));
     if(temp->name == NULL){
         printf("make_node name malloc failed\n");
         free(temp);
         return;
     }
     strcpy(temp->name,name);
-    temp->content = malloc(SIZE * sizeof(char));
+    temp->content = malloc(MAX_LINE_LENGTH * sizeof(char));
+    /* todo - size of malloc per content length (send length manually) */
     if(temp->content == NULL){
         printf("make_node content malloc failed\n");
         free(temp->name);
         free(temp);
         return;
     }
+    strcpy(temp->content,content);
     temp->right_child = NULL;
     temp->left_child = NULL;
-    strcpy(temp->content,content);
     *new_node = temp;
 }
 

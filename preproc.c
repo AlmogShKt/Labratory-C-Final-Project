@@ -32,7 +32,7 @@ int is_line_blank(char str[]){
 
 void remove_blank_lines(FILE *fp, char file_name[]){
     int i;
-    char str[SIZE];
+    char str[MAX_LINE_LENGTH];
     FILE *fp_temp;
     str[0] = '\0';
     strcat(file_name,"1.tmp");
@@ -41,7 +41,7 @@ void remove_blank_lines(FILE *fp, char file_name[]){
         printf("fopen in 'remove_blank_lines' failed");
         return;
     }
-    while(fgets(str,SIZE,fp) != NULL){
+    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
         if(is_line_blank(str)){
             ;
         }
@@ -54,9 +54,9 @@ void remove_blank_lines(FILE *fp, char file_name[]){
 }
 
 void remove_extra_spaces_file(FILE *fp, char file_name[]){
-    int *c;
+    char *c;
     int i;
-    char str[SIZE];
+    char str[MAX_LINE_LENGTH];
     FILE *fp_temp;
     str[0] = '\0';
     c = strchr(file_name,'1');
@@ -67,26 +67,29 @@ void remove_extra_spaces_file(FILE *fp, char file_name[]){
         printf("fopen in 'remove_extra_spaces_file' failed");
         return;
     }
-    while(fgets(str,SIZE,fp) != NULL){
+    fgets(str,MAX_LINE_LENGTH,fp);
+    while(!feof(fp)){
         remove_extra_spaces_str(str);
         fprintf(fp_temp,"%s",str);
+        fgets(str,MAX_LINE_LENGTH,fp);
     }
     fclose(fp);
     fclose(fp_temp);
 }
 
 char *copy_text(FILE *fp, fpos_t **pos, int length){
-    /* the function assumes that pos + length < end */
+    /* the function assumes that pos + length < end. this was checked by save_mcro_content function*/
     int i;
     char *str;
-    if(fsetpos(fp,pos) != 0){
-        printf("fset in copy_text failed\n");
+    if(fsetpos(fp,*pos) != 0){
+        printf("fsetpos in copy_text failed\n");
         return NULL;
     }
     str = malloc((length+1) * sizeof(char));{
         if(str == NULL){
             printf("malloc in copy_text failed\n");
             free(str);
+            /* todo - why free if malloc failed? */
             return NULL;
         }
     }
@@ -101,13 +104,13 @@ char *copy_text(FILE *fp, fpos_t **pos, int length){
 char *save_mcro_content(FILE *fp, fpos_t **pos){
     int mcro_length;
     char *mcro;
-    char str[SIZE];
+    char str[MAX_LINE_LENGTH];
     if(fsetpos(fp,*pos) != 0){
         printf("setting position to read macro failed\n");
         return NULL;
     }
     mcro_length = 0;
-    fgets(str,SIZE,fp);
+    fgets(str,MAX_LINE_LENGTH,fp);
     while(!feof(fp) && (strcmp(str,"endmcro")) != 0){
         mcro_length += strlen(str);
     }
@@ -119,34 +122,64 @@ char *save_mcro_content(FILE *fp, fpos_t **pos){
     return mcro;
 }
 
-void search_mcro(FILE *fp){
-    char str[SIZE];
-    char *found, *token, *name, *extra_text;
+int valid_mcro_decl(char *str, char **name){
+    char *extra_text;
+    if(strcmp(strtok(str," "),"mcro") == 0) {
+        *name = strtok(NULL, " \n");
+        if (*name == NULL) {
+            printf("%s\tmcro without name\n", str);
+            return 0;
+        }
+        extra_text = strtok(NULL, "\n");
+        if (extra_text != NULL) {
+            printf("%s\textra text after macro name\n", str);
+            return 0;
+        }
+        return 1;
+    }
+    printf("no mcro declaration in line\n");
+    return 0;
+}
+
+void search_mcros(FILE *fp, node **head){
+    char str[MAX_LINE_LENGTH];
+    char *name, *content, *extra_text;
     fpos_t *pos;
-    fgets(str,SIZE,fp);
+    fgets(str,MAX_LINE_LENGTH,fp);
     while(!feof(fp)){
-        if(found = strstr(str,"mcro")){
-            token = strtok(found," ");
-            name = strtok(NULL," \n");
-            if(name == NULL){
-                printf("mcro without name\n");
+        if(strcmp(strtok(str," "),"mcro") == 0){
+            if(!valid_mcro_decl(str,&name)){
                 continue;
-            }
-            extra_text = strtok(NULL,"\n");
-            if(extra_text != NULL){
-                printf("extra text after macro name\n");
-                continue;
+                /* todo: problem - does not read new line */
             }
             fgetpos(fp,pos);
-            save_mcro_content(fp,&pos);
+            content = save_mcro_content(fp,&pos);
+            /* adding the new mcro into the mcro_BST */
+            add_to_tree(head,name,content);
             /* going to the end of the macro */
-
-
-            /*
-             * need to take the macro into the tree
-             */
             fsetpos(fp,pos);
         }
+        fgets(str,MAX_LINE_LENGTH,fp);
     }
+}
 
+void replace_mcros(FILE *fp,node *head, char file_name[]){
+    char *c;
+    char str[MAX_LINE_LENGTH];
+    char *token, *mcro;
+    FILE *fp_outout;
+    c = strchr(file_name,'2');
+    *c = '\0';
+    strcat(file_name,".am");
+    /* todo - first detele .as and only after add .am */
+    fp_outout = fopen(file_name,"w");
+    fgets(str,MAX_LINE_LENGTH,fp);
+    while(!feof(fp)){
+        if(strcmp((token = strtok(str," \n")),"mcro") == 0){
+            if(!valid_mcro_decl(str,&mcro)){
+                continue;
+            }
+
+        }
+    }
 }

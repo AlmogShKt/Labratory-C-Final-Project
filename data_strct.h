@@ -5,5 +5,9 @@ typedef struct node{
     struct node *right_child;
 }node;
 
-#define SIZE 80
+#define MAX_LINE_LENGTH 80
+
+void make_node(node **new_node, char *name, char *content);
+node *search_tree(node *head, char *name, char *content, int *error, int *found);
+void add_to_tree(node **head, char *name, char *content);
 

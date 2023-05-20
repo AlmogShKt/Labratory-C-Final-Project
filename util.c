@@ -20,7 +20,7 @@ char convert_to_base64(char binary_number[]) {
 
 void remove_extra_spaces_str(char str[]){
     int i, j, blank;
-    char str_temp[SIZE];
+    char str_temp[MAX_LINE_LENGTH];
     blank = 0;
     i = j = 0;
     while(*(str+i) != '\0'){
