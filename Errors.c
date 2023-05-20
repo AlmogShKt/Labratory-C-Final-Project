@@ -36,6 +36,7 @@ void print_internal_error(int error_code) {
  * @param error_line the line in the assemble file the error was found
  */
 void print_external_error(int error_code, int error_line) {
+    /*todo: add file name */
     printf("~~ERROR~~:ID: %d | in line %d there is error: %s", error_code, error_line, errors[error_code].error_msg);
 }
 

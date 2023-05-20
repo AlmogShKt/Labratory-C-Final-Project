@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 #include "table.h"
 #include "util.h"
 
@@ -25,7 +24,7 @@ void set_new_entry(char *symbol, int symbol_addrs, symbol_type sym_typ, table *n
 void add_item_to_table(char *symbol, int symbol_addrs, symbol_type sym_typ, table *current_table) {
     table new_entry, current_entry, prev_entry;
     char *new_symbol = NULL;
-
+    /*! use symbol */
     new_entry = (table) handle_malloc(sizeof(symbol_table));
     set_new_entry(new_symbol, symbol_addrs, sym_typ, &new_entry);
 
@@ -50,6 +49,9 @@ void add_item_to_table(char *symbol, int symbol_addrs, symbol_type sym_typ, tabl
     }
 
     /*Then set the new entry in the right place (sorted by the address value)*/
+    new_entry->next_entry = (table *) current_entry;
+    prev_entry->next_entry = (table *) new_entry;
+
 
 
 
