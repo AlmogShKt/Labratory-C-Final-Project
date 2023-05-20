@@ -1,13 +1,16 @@
 #include <stdio.h>
+#include "util.h"
+#include <stdlib.h>
+#include "Errors.h"
 #include <string.h>
 #include <ctype.h>
-#include "util.h"
-/*
+
+
 char convert_to_base64(char binary_number[]) {
     char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    int decimal = 0;
+    int decimal = 0, i;
     char base64_number;
-    for (int i = 0; i < 6; i++) {
+    for (i = 0; i < 6; i++) {
         decimal += (binary_number[i] - '0') << (5 - i);
     }
 
@@ -16,7 +19,7 @@ char convert_to_base64(char binary_number[]) {
     return base64_number;
 
 }
-*/
+
 
 void remove_extra_spaces_str(char str[]){
     int i, j, blank;
@@ -55,4 +58,19 @@ void remove_extra_spaces_str(char str[]){
 
 int is_space_or_tab(char c){
     return (isspace(c) && c != '\n');
+
+
+/**
+ * Trying to allocate memory and check is success
+ * @param object_size the object size
+ * @return a pointer to the address
+ */
+void *handle_malloc(long object_size) {
+    void *object_ptr = malloc(object_size);
+    if (object_ptr == NULL) {
+        print_internal_error(ERROR_CODE_1);
+        exit(1);
+    }
+    return object_ptr;
+
 }

@@ -8,20 +8,18 @@
 
 /*__________*/
 /*Symbols table*/
-#define MAX_SYMBOL_LENGTH 31
+
+/** pointer to table entry is just a table. */
+typedef struct symbol_table_entry *table;
 
 /*Define the symbol table entries*/
-typedef struct symbol_table{
-    /*The Symbol - char - up to 30*/
-    char *symbol[MAX_SYMBOL_LENGTH];
+typedef struct symbol_table_entry {
+    /*The Symbol - char - up to 31*/
+    char *symbol[MAX_LABEL_LENGTH];
     int symbol_address;
     symbol_type symbol_type;
-    struct symbol_table *next;
-}symbol_table;
-
-
-
-
+    table *next_entry;
+} symbol_table;
 
 
 #endif

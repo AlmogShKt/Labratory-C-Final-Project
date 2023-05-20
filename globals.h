@@ -22,6 +22,7 @@ typedef enum symbol_type {
     ENTRY_SYMBOL = 0,
     DATA_SYMBOL = 1,
     EXTERN_SYMBOL = 2,
+    /*! Code?! maybe just a regular line? 'code' ?*/
     CODE_SYMBOL = 3
 } symbol_type;
 
@@ -29,14 +30,14 @@ typedef enum symbol_type {
 typedef enum opcodes_values {
     /*The format is the name of the command 'OPCODENAME_C', C stands for Code*/
 
-    /*First group*/
+    /*1st group*/
     MOV_C = 0,
     CMP_C = 1,
     ADD_C = 2,
     SUB_C = 3,
     LEA_C = 6,
 
-    /*Second group*/
+    /*2nd group*/
     NOT_C = 4,
     CLR_C = 5,
     INC_C = 7,
@@ -91,8 +92,8 @@ typedef struct immediate_direct_word {
 /* Defines a machine word of registers operands(direct register addressing)*/
 typedef struct register_word {
     unsigned int ARE: 2;
-    unsigned int destination_register: 6;
-    unsigned int source_register: 6;
+    unsigned int destination_register: 5;
+    unsigned int source_register: 5;
 } register_word;
 
 /* Defines a general machine word - first word, immediate or direct addressing word,
@@ -103,6 +104,7 @@ typedef struct machine_word {
         instruction_machine_word *f_word;
         immediate_direct_word *id_word;
         register_word *r_word;
+        /*! label word??!*/
     } word;
 } machine_word;
 
@@ -110,6 +112,5 @@ typedef struct machine_word {
 typedef struct label_word {
     unsigned int data: 12;
 } label_word;
-
 
 #endif
