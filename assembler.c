@@ -25,8 +25,8 @@ int handle_file(char file_name[]);
 int main(int argc, char *argv[]) {
     int file_index;
     /*? What is the max file name?*/
-    char file_name[MAX_LABEL_LENGTH];
-    FILE *file_ptr;
+    char file_name[MAX_LABEL_LENGTH], *full_file_name;
+
 
     /*In case that .as file name was not provided in the arguments*/
     if (argc <= 1) {
@@ -45,24 +45,55 @@ int main(int argc, char *argv[]) {
             exit(FAILED);
         }
 
+        /*Create the full file name*/
+        full_file_name = merge_str_names(file_name, ".as");
+
         /*Check if the file is exist */
-        if (isFileExist(file_name)) {
-            strcpy(argv[file_index], (const char *) file_name);
-            file_ptr = fopen(file_name, "r");
-            handle_file(file_name);
+        if (isFileExist(full_file_name)) {
+            strcpy(argv[file_index], (const char *) full_file_name);
+            handle_file(full_file_name);
         } else {
             /*The file is not exist*/
             print_internal_error(ERROR_CODE_4);
         }
     }
 
+    free(full_file_name);
     return SUCCESS;
+}
+
+
+int handle_file(char full_file_name[]) {
+    FILE *file_ptr;
+    long ic = IC_INIT_VALUE, dc = 0;
+    table symbol_table = NULL;
+
+
+    file_ptr = fopen(full_file_name, "r");
+
+
+    /*Pre Process*/
+
+
+
+    /*First Pass*/
+    start_first_pass();
+
+    /*Second Pass*/
+    start_first_pass();
 }
 
 int start_first_pass() {
 
 
-    return 0;
+    return SUCCESS;
 }
+
+int start_second_pass() {
+
+
+    return SUCCESS;
+}
+
 
 
