@@ -23,6 +23,12 @@ typedef enum ERROR_CODES {
     ERROR_CODE_11
 } ERROR_CODES;
 
+typedef enum EXIT_CODE {
+    SUCCESS,
+    FAILED
+} EXIT_CODE;
+
+
 void print_external_error(int error_code, int error_line);
 
 void print_internal_error(int error_code);

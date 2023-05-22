@@ -21,32 +21,32 @@ char convert_to_base64(char binary_number[]) {
 }
 
 
-void remove_extra_spaces_str(char str[]){
+void remove_extra_spaces_str(char str[]) {
     int i, j, blank;
     char str_temp[MAX_LINE_LENGTH];
     blank = 0;
     i = j = 0;
-    while(*(str+i) != '\0'){
+    while (*(str + i) != '\0') {
         /* coping content until first white-space is found */
-        while(*(str+i) != '\0' && !is_space_or_tab(*(str+i))){
-            *(str_temp + j) = *(str+i);
+        while (*(str + i) != '\0' && !is_space_or_tab(*(str + i))) {
+            *(str_temp + j) = *(str + i);
             i++;
             j++;
         }
-        if(*(str+i) == '\0'){
-            *(str_temp + j) = *(str+i);
-            strcpy(str,str_temp);
+        if (*(str + i) == '\0') {
+            *(str_temp + j) = *(str + i);
+            strcpy(str, str_temp);
             return;
         }
         /* white-space is found, copy this one and skipping all other white-spaces */
         blank = 1;
-        *(str_temp + j) = *(str+i);
+        *(str_temp + j) = *(str + i);
         i++;
         j++;
-        while(*(str+i) != '\0' && is_space_or_tab(*(str+i))){
+        while (*(str + i) != '\0' && is_space_or_tab(*(str + i))) {
             i++;
         }
-        if(*(str+i) == '\0') {
+        if (*(str + i) == '\0') {
             *(str_temp + j) = *(str + i);
             strcpy(str, str_temp);
             return;
@@ -56,8 +56,9 @@ void remove_extra_spaces_str(char str[]){
     }
 }
 
-int is_space_or_tab(char c){
+int is_space_or_tab(char c) {
     return (isspace(c) && c != '\n');
+}
 
 
 /**
@@ -74,3 +75,20 @@ void *handle_malloc(long object_size) {
     return object_ptr;
 
 }
+
+
+/**
+ * @brief This function checks if the provided file is exist in the system
+ * @param path the path to file
+ * @return 0 if the file dose not exist , 1 if the file exist
+ */
+int isFileExist(char file_name[]) {
+    FILE *file_ptr = fopen(file_name, "r");
+    if (file_ptr == NULL) {
+        /*File does not exist*/
+        return 0;
+    }
+    fclose(file_ptr);
+    return 1;
+}
+
