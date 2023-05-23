@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     char file_name[MAX_LABEL_LENGTH], *full_file_name;
 
 
-    /*In case that .as file name was not provided in the arguments*/
+    /*In case that .as files name was not provided in the arguments*/
     if (argc <= 1) {
         print_internal_error(ERROR_CODE_2);
         exit(FAILED);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     /*For each file was provided*/
     for (file_index = 1; file_index < argc; file_index++) {
         /*Copy the file name to local variable*/
-        strcpy(argv[file_index], (const char *) file_name);
+        strcpy(file_name, argv[file_index]);
 
         /*Check if the file name is too long*/
         if (strlen(file_name) > MAX_LABEL_LENGTH) {
@@ -68,15 +68,18 @@ int handle_file(char file_name[]) {
     /*If error found, we cant process the file*/
     int error_found = FALSE;
     table symbol_table = NULL;
-
-
-
+    machine_word a;
 
 
 
 
 
     /*Pre Process*/
+
+
+
+
+    /*End of PRE*/
 
 
 
@@ -103,7 +106,12 @@ int start_first_pass(int *ic, int *dc, char file_name[], table symbol_table) {
             /* Handle the case of too long line, not all the char was get in to the buffer, so we cant handle this line - file */
             if (!feof(file_ptr) && !strchr(current_line_data, '\n')) {
                 print_external_error(ERROR_CODE_6, current_line_struct);
+                /*! Handle left overs*/
+
             } else {
+                /* Handle first process */
+
+
                 continue;
             }
         }
