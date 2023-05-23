@@ -20,7 +20,7 @@ char *strallocat(char *s0, char *s1) {
     return str;
 }
 
-int main() {
+int main2() {
     char *a;
     a = merge_str_names("Almog", "shtaigmann");
     printf("%s\n", a);

@@ -113,4 +113,21 @@ typedef struct label_word {
     unsigned int data: 12;
 } label_word;
 
+
+/* Define a line struct*/
+typedef struct line_data {
+    /*The file name will help us to print relevant errors*/
+    char *file_name;
+    /*The line number will helps us to track the current line number and to print errors*/
+    short number;
+    /*The content of the line*/
+    char *data;
+
+} line_data;
+
+/*Finals for file extensions names */
+#define AS_FILE_EXT ".as"
+#define TXT_FILE_EXT ".txt"
+#define AM_FILE_EXT ".am"
+
 #endif

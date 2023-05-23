@@ -2,13 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "Errors.h"
-#include "data_strct.h"
 #include "globals.h"
 #include "table.h"
 #include "util.h"
 
 
-int start_first_pass();
+int start_first_pass(int *ic, int *dc, char file_name[], table symbol_table);
 
 int start_second_pass();
 
@@ -17,8 +16,8 @@ int handle_file(char file_name[]);
 
 /**
  *
- * The main is initiating the whole process. for each file name will be 3 runs.
- * 1: macro
+ * The main function is initiating the whole process. for each file name will be 3 runs.
+ * 1: macros
  * 2: first pass
  * 3: second pass
  * */
@@ -46,14 +45,14 @@ int main(int argc, char *argv[]) {
         }
 
         /*Create the full file name*/
-        full_file_name = merge_str_names(file_name, ".as");
+        full_file_name = merge_str_names(file_name, AS_FILE_EXT);
 
         /*Check if the file is exist */
         if (isFileExist(full_file_name)) {
-            strcpy(argv[file_index], (const char *) full_file_name);
-            handle_file(full_file_name);
+            handle_file(file_name);
         } else {
             /*The file is not exist*/
+            printf("--%s--\n", full_file_name);
             print_internal_error(ERROR_CODE_4);
         }
     }
@@ -63,13 +62,18 @@ int main(int argc, char *argv[]) {
 }
 
 
-int handle_file(char full_file_name[]) {
+int handle_file(char file_name[]) {
     FILE *file_ptr;
     long ic = IC_INIT_VALUE, dc = 0;
+    /*If error found, we cant process the file*/
+    int error_found = FALSE;
     table symbol_table = NULL;
 
 
-    file_ptr = fopen(full_file_name, "r");
+
+
+
+
 
 
     /*Pre Process*/
@@ -77,23 +81,51 @@ int handle_file(char full_file_name[]) {
 
 
     /*First Pass*/
-    start_first_pass();
-
-    /*Second Pass*/
-    start_first_pass();
-}
-
-int start_first_pass() {
+    start_first_pass((int *) &ic, (int *) &dc, file_name, (table) &symbol_table);
 
 
     return SUCCESS;
 }
+
+
+int start_first_pass(int *ic, int *dc, char file_name[], table symbol_table) {
+    FILE *file_ptr = NULL;
+    line_data current_line_struct;
+    char *full_file_name, current_line_data[MAX_LINE_LENGTH];
+
+    full_file_name = merge_str_names(file_name, AM_FILE_EXT);
+    current_line_struct.file_name = full_file_name;
+
+    if (isFileExist(full_file_name)) {
+        file_ptr = fopen(full_file_name, "w");
+        for (current_line_struct.number = 0;
+             fgets(current_line_data, MAX_LINE_LENGTH, file_ptr) != NULL; current_line_struct.number++) {
+            /* Handle the case of too long line, not all the char was get in to the buffer, so we cant handle this line - file */
+            if (!feof(file_ptr) && !strchr(current_line_data, '\n')) {
+                print_external_error(ERROR_CODE_6, current_line_struct);
+            } else {
+                continue;
+            }
+        }
+    } else {
+        print_internal_error(ERROR_CODE_5);
+    }
+
+
+    return SUCCESS;
+}
+
 
 int start_second_pass() {
 
 
     return SUCCESS;
 }
+
+
+
+
+
 
 
 
