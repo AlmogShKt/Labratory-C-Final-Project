@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "util.h"
 #include <stdlib.h>
-#include "Errors.h"
 #include <string.h>
-#include <ctype.h>
+#include "util.h"
+#include "globals.h"
+/* #include "Errors.h" */
 
 
 char convert_to_base64(char binary_number[]) {
@@ -20,43 +20,6 @@ char convert_to_base64(char binary_number[]) {
 
 }
 
-
-void remove_extra_spaces_str(char str[]){
-    int i, j, blank;
-    char str_temp[MAX_LINE_LENGTH];
-    i = j = 0;
-    while(*(str+i) != '\0'){
-        /* coping content until first white-space is found */
-        while(*(str+i) != '\0' && !is_space_or_tab(*(str+i))){
-            *(str_temp + j) = *(str+i);
-            i++;
-            j++;
-        }
-        if(*(str+i) == '\0'){
-            *(str_temp + j) = *(str+i);
-            strcpy(str,str_temp);
-            return;
-        }
-        /* white-space is found, copy one space and skipping all other white-spaces */
-        *(str_temp + j) = ' ';
-        i++;
-        j++;
-        while(*(str+i) != '\0' && is_space_or_tab(*(str+i))){
-            i++;
-        }
-        if(*(str+i) == '\0') {
-            *(str_temp + j) = *(str + i);
-            strcpy(str, str_temp);
-            return;
-        }
-        /* a new non-white-space is found */
-    }
-}
-
-int is_space_or_tab(char c) {
-    return (isspace(c) && c != '\n');
-}
-
 /**
  * Trying to allocate memory and check is success
  * @param object_size the object size
@@ -65,7 +28,7 @@ int is_space_or_tab(char c) {
 void *handle_malloc(long object_size) {
     void *object_ptr = malloc(object_size);
     if (object_ptr == NULL) {
-//        print_internal_error(ERROR_CODE_1);
+    /* print_internal_error(ERROR_CODE_1);  */
         exit(1);
     }
     return object_ptr;

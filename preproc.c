@@ -1,55 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include <String.h>
+#include <string.h>
 #include "preproc.h"
 #include "util.h"
 #include "globals.h"
-
-char *remove_extra_spaces_file(FILE *fp, char file_name[]){
-    char *new_file_name;
-    int i;
-    char str[MAX_LINE_LENGTH];
-    new_file_name = add_new_file(file_name,".t01");
-    FILE *fp_temp;
-    fp_temp = fopen(new_file_name,"w");
-    if(fp_temp == NULL){
-        printf("fopen in 'remove_extra_spaces_file' failed");
-        return NULL;
-    }
-    while(!feof(fp)){
-        fgets(str,MAX_LINE_LENGTH,fp);
-        if(*str == ';'){
-            *str = '\n';
-            *(str+1) = '\0';
-        }
-        else {
-            remove_extra_spaces_str(str);
-        }
-        fprintf(fp_temp,"%s",str);
-    }
-    putc('\n',fp_temp);
-    fclose(fp);
-    fclose(fp_temp);
-    return new_file_name;
-}
-
-char *copy_text(FILE *fp, fpos_t *pos, int length){
-    /* the function assumes that pos + length < end. this was checked by save_mcro_content function*/
-    int i;
-    char *str;
-    if(fsetpos(fp,pos) != 0){
-        printf("fsetpos in copy_text failed\n");
-        return NULL;
-    }
-    str = handle_malloc((length+1) * sizeof(char));
-    for(i = 0; i < length; i++){
-        *(str+i) = getc(fp);
-    }
-    *(str+i) = '\0';
-    fgetpos(fp,pos);
-    return str;
-}
+#include "handle_text.h"
 
 char *save_mcro_content(FILE *fp, fpos_t *pos){
     int mcro_length;
@@ -76,7 +31,7 @@ char *save_mcro_content(FILE *fp, fpos_t *pos){
 }
 
 int valid_mcro_decl(char *str, char **name){
-    char *extra_text, *temp_name, *extra;
+    char *temp_name, *extra;
     temp_name = strtok(NULL, " \n");
     if (temp_name == NULL) {
         printf("mcro without name\n");
@@ -87,7 +42,8 @@ int valid_mcro_decl(char *str, char **name){
         printf("extra text after macro name\n");
         return 0;
     }
-    *name = temp_name;
+    *name = handle_malloc((strlen(temp_name)+1) * sizeof(char));
+    strcpy(*name,temp_name);
     return 1;
 }
 
@@ -172,7 +128,7 @@ char *replace_mcro(char *str,node *mcro){
     return new_str;
 }
 
-char *replace_mcros(FILE *fp, char file_name[], node *head){
+char *replace_all_mcros(FILE *fp, char file_name[], node *head){
     node *mcro;
     char *pos, *new_str, *file_temp, *final_file_name;
     char str[MAX_LINE_LENGTH];
@@ -208,6 +164,7 @@ char *replace_mcros(FILE *fp, char file_name[], node *head){
                     exit(1);
                 }
                 fprintf(fp_final,"%s",new_str);
+                free(new_str);
             }
             else {
                 fprintf(fp_final, "%s", str);
@@ -225,5 +182,40 @@ char *replace_mcros(FILE *fp, char file_name[], node *head){
     fclose(fp_temp);
     remove(file_temp);
     fclose(fp_final);
+    free(file_temp);
     return final_file_name;
+}
+
+void mcro_exec(char file_name[]){
+    node *head;
+    FILE *fp;
+    char *new_file1, *new_file2, *final_file;
+    fp = fopen(file_name,"r");
+    if(fp == NULL){
+        printf("fopen 0 in main failed\n");
+        exit(1);
+    }
+    new_file1 = remove_extra_spaces_file(fp,file_name);
+    fclose(fp);
+    fp = fopen(new_file1,"r");
+    if(fp == NULL){
+        printf("fopen 1 in main failed\n");
+        exit(1);
+    }
+    head = NULL;
+    add_mcros(fp,&head);
+    rewind(fp);
+    new_file2 = remove_mcros_decl(fp,new_file1);
+    fclose(fp);
+    fp = fopen(new_file2,"r");
+    if(fp == NULL){
+        printf("fopen 2 in main failed\n");
+        exit(1);
+    }
+    final_file = replace_all_mcros(fp,new_file2,head);
+    free(new_file1);
+    free(new_file2);
+    free(final_file);
+    fclose(fp);
+    free_list(head);
 }
