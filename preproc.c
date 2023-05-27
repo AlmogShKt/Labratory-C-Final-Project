@@ -4,18 +4,20 @@
 #include "preproc.h"
 #include "util.h"
 #include "globals.h"
+#include "globals.h"
 #include "handle_text.h"
+#include "Errors.h"
 
 char *save_mcro_content(FILE *fp, fpos_t *pos){
     int mcro_length;
     char *mcro;
     char str[MAX_LINE_LENGTH];
     if(fsetpos(fp,pos) != 0){
-        printf("setting position to read macro failed\n");
+        print_internal_error(ERROR_CODE_11);
         return NULL;
     }
     mcro_length = 0;
-
+    str[0] = '\0';
     while(!feof(fp) && (strcmp(str,"endmcro\n")) != 0){
         fgets(str,MAX_LINE_LENGTH,fp);
         if(strcmp(str,"endmcro\n") != 0){
@@ -23,7 +25,7 @@ char *save_mcro_content(FILE *fp, fpos_t *pos){
         }
     }
     if(strcmp(str,"endmcro\n") != 0){
-        printf("macro without 'endmcro'\n");
+        print_internal_error(ERROR_CODE_12);
         return NULL;
     }
     mcro = copy_text(fp,pos,mcro_length);
@@ -34,12 +36,12 @@ int valid_mcro_decl(char *str, char **name){
     char *temp_name, *extra;
     temp_name = strtok(NULL, " \n");
     if (temp_name == NULL) {
-        printf("mcro without name\n");
+        print_internal_error(ERROR_CODE_9);
         return 0;
     }
     extra = strtok(NULL, "\n");
     if (extra != NULL) {
-        printf("extra text after macro name\n");
+        print_internal_error(ERROR_CODE_10);
         return 0;
     }
     *name = handle_malloc((strlen(temp_name)+1) * sizeof(char));
@@ -47,50 +49,72 @@ int valid_mcro_decl(char *str, char **name){
     return 1;
 }
 
-void add_mcros(FILE *fp, node **head){
+void add_mcros(char *file_name, node **head){
+    FILE *fp;
     char str[MAX_LINE_LENGTH];
     char *name, *content;
     fpos_t pos;
+    fp = fopen(file_name,"r");
+    if(fp == NULL){
+        print_internal_error(ERROR_CODE_8);
+        return;
+    }
     while(!feof(fp)){
         fgets(str,MAX_LINE_LENGTH,fp);
         if(strcmp(strtok(str," "),"mcro") == 0){
             if(!valid_mcro_decl(str,&name)){
                 continue;
             }
-            /* debugging search_mcros */
             fgetpos(fp,&pos);
             content = save_mcro_content(fp,&pos);
-            /* adding the new mcro into the mcro_BST */
-            add_to_list(head,name,content);
+            if(content == NULL){
+                continue;
+            }
             /* going to the end of the macro */
             fsetpos(fp,&pos);
+            /* adding the new mcro into the mcro_BST */
+            add_to_list(head,name,content);
         }
     }
+    fclose(fp);
 }
 
-char *remove_mcros_decl(FILE *fp, char file_name[]){
+char *remove_mcros_decl(char file_name[]){
     char *token, *new_file;
     char str[MAX_LINE_LENGTH];
     char str_copy[MAX_LINE_LENGTH];
-    FILE *fp_out;
+    FILE *fp, *fp_out;
+    fp = fopen(file_name,"r");
+    if(fp == NULL){
+        print_internal_error(ERROR_CODE_8);
+        return NULL;
+    }
     new_file = add_new_file(file_name,".t02");
     fp_out = fopen(new_file,"w");
+    if(fp_out == NULL){
+        print_internal_error(ERROR_CODE_7);
+        abrupt_close(4,"file",fp,"%s",new_file);
+        return NULL;
+    }
     do{
         fgets(str,MAX_LINE_LENGTH,fp);
         if(feof(fp)){
             break;
         }
-        strcpy(str_copy,str);
+        strcpy(str_copy,str);   /* copying the line so we can manipulate one copy */
         token = strtok(str," \n");
+        /* blank line */
         if(token == NULL){
             fprintf(fp_out,"\n");
             continue;
         }
+        /* mcro was found */
         if(strcmp(token,"mcro") == 0){
             while(strcmp(token,"endmcro") != 0){
                 fprintf(fp_out,"\n");
                 fgets(str,MAX_LINE_LENGTH,fp);
                 token = strtok(str," \n");
+                /* blank lines */
                 while(token == NULL){
                     fprintf(fp_out,"\n");
                     fgets(str,MAX_LINE_LENGTH,fp);
@@ -117,10 +141,9 @@ char *replace_mcro(char *str,node *mcro){
     pos = strstr(str_beg,mcro->name);
     *pos = '\0';
     strcpy(str_end,pos+strlen(mcro->name));
-    new_str = malloc((strlen(str_beg) + strlen(mcro->content) + strlen(str_end) + 1) * sizeof(char));
+    new_str = handle_malloc((strlen(str_beg) + strlen(mcro->content) + strlen(str_end) + 1) * sizeof(char));
     if(new_str == NULL){
-        printf("malloc in replace_mcro failed");
-        exit(1);
+        return NULL;
     }
     strcpy(new_str,str_beg);
     strcat(new_str,mcro->content);
@@ -128,30 +151,36 @@ char *replace_mcro(char *str,node *mcro){
     return new_str;
 }
 
-char *replace_all_mcros(FILE *fp, char file_name[], node *head){
+char *replace_all_mcros(char file_name[], node *head){
     node *mcro;
     char *pos, *new_str, *file_temp, *final_file_name;
     char str[MAX_LINE_LENGTH];
     FILE *fp_temp, *fp_final;
     file_temp = add_new_file(file_name,".tmp");
     final_file_name = add_new_file(file_name,".am");
-    copy_file(file_temp,file_name);
-    fclose(fp);
+    if(!copy_file(file_temp,file_name)){
+        /* copying file failed - closing open files and freeing allocated memory */
+        print_internal_error(ERROR_CODE_14);
+        abrupt_close(4,"%s",file_temp,"%s",final_file_name);
+        return NULL;
+    }
     mcro = head;
     while(mcro != NULL){
         fp_temp = fopen(file_temp,"r");
         if(fp_temp == NULL){
-
-            exit(1);
+            print_internal_error(ERROR_CODE_8);
+            abrupt_close(4,"%s",file_temp,"%s",final_file_name);
+            return NULL;
         }
         fp_final = fopen(final_file_name,"w");
-        if(fp_temp == NULL){
-            printf("fopen failed\n");
-            exit(1);
+        if(fp_final == NULL){
+            print_internal_error(ERROR_CODE_7);
+            abrupt_close(6,"file",fp_temp,"%s",file_temp,"%s",final_file_name);
+            return NULL;
         }
         while(!feof(fp_temp)){
             fgets(str,MAX_LINE_LENGTH,fp_temp);
-            if(feof(fp)){
+            if(feof(fp_temp)){
                 break;
             }
             pos = strstr(str,mcro->name);
@@ -160,8 +189,8 @@ char *replace_all_mcros(FILE *fp, char file_name[], node *head){
                 *(str+strlen(str)-1) = '\0';
                 new_str = replace_mcro(str,mcro);
                 if (new_str == NULL) {
-                    printf("replace_mcro failed\n");
-                    exit(1);
+                    abrupt_close(8,"file",fp_final,"file",fp_temp,"%s",file_temp,"%s",final_file_name);
+                    return NULL;
                 }
                 fprintf(fp_final,"%s",new_str);
                 free(new_str);
@@ -179,43 +208,37 @@ char *replace_all_mcros(FILE *fp, char file_name[], node *head){
         remove(file_temp);
         rename(final_file_name,file_temp);
     }
-    fclose(fp_temp);
     remove(file_temp);
-    fclose(fp_final);
     free(file_temp);
     return final_file_name;
 }
 
 void mcro_exec(char file_name[]){
     node *head;
-    FILE *fp;
     char *new_file1, *new_file2, *final_file;
-    fp = fopen(file_name,"r");
-    if(fp == NULL){
-        printf("fopen 0 in main failed\n");
-        exit(1);
-    }
-    new_file1 = remove_extra_spaces_file(fp,file_name);
-    fclose(fp);
-    fp = fopen(new_file1,"r");
-    if(fp == NULL){
-        printf("fopen 1 in main failed\n");
-        exit(1);
+    new_file1 = remove_extra_spaces_file(file_name);
+    if(new_file1 == NULL){
+        return;
     }
     head = NULL;
-    add_mcros(fp,&head);
-    rewind(fp);
-    new_file2 = remove_mcros_decl(fp,new_file1);
-    fclose(fp);
-    fp = fopen(new_file2,"r");
-    if(fp == NULL){
-        printf("fopen 2 in main failed\n");
-        exit(1);
+    add_mcros(new_file1,&head);
+    new_file2 = remove_mcros_decl(new_file1);
+    if(new_file2 == NULL){
+        free_list(head);
+        abrupt_close(2,"%s",new_file1);
+        print_internal_error(ERROR_CODE_15);
+        return;
     }
-    final_file = replace_all_mcros(fp,new_file2,head);
     free(new_file1);
+    final_file = replace_all_mcros(new_file2,head);
+    if(final_file == NULL){
+        free_list(head);
+        abrupt_close(4,"%s",new_file2);
+        print_internal_error(ERROR_CODE_15);
+        return;
+    }
     free(new_file2);
     free(final_file);
-    fclose(fp);
     free_list(head);
+    printf("Macros expansion in file %s completed successfully\n",file_name);
 }

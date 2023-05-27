@@ -3,6 +3,7 @@
 #include <string.h>
 #include "data_strct.h"
 #include "util.h"
+#include "Errors.h"
 
 node *make_node(char *name, char *content){
     node *temp;
@@ -35,24 +36,29 @@ void add_to_list(node **head, char *name, char *content){
     int found;
     node *new_node, *temp;
     found = 0;
-    /* temp is the immediate parent of the new node in the list */
+    /* temp is the immediate parent of the new node in the list
+     * or if the mcro name already exists in the list, temp is the mcro with the same name.
+     * */
     temp = search_list(*head,name,&found);
+    /* the list has already a mcro with the same name */
     if(found && strcmp(temp->content,content) != 0){
-        /* the content of the same node name is not the same */
-        printf("macro %s has more than one definition\n",name);
-        exit(1);
+        /* the content of the same node name is not the same - skipping this mcro definition */
+        print_internal_error(ERROR_CODE_13);
+        free(name);
+        free(content);
+        return;
     }
     if(!found){
         new_node = make_node(name,content);
         /* list is empty */
         if(temp == NULL){
+            /* new node was added to the head of the list */
             *head = new_node;
-            printf("new node %s was added to the head of the list\n",name);
         }
         /* list is not empty - the new node has a potential parent */
         else{
+            /* new node %s was added down the list */
             temp->next = new_node;
-            printf("new node %s was added down the list\n",name);
         }
     }
 }

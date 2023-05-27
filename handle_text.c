@@ -5,19 +5,29 @@
 #include "util.h"
 #include "globals.h"
 #include "handle_text.h"
+#include "Errors.h"
 
-char *remove_extra_spaces_file(FILE *fp, char file_name[]){
+char *remove_extra_spaces_file(char file_name[]){
     char *new_file_name;
     char str[MAX_LINE_LENGTH];
-    FILE *fp_temp;
-    new_file_name = add_new_file(file_name,".t01");
-    fp_temp = fopen(new_file_name,"w");
-    if(fp_temp == NULL){
-        printf("fopen in 'remove_extra_spaces_file' failed");
+    FILE *fp, *fp_temp;
+    fp = fopen(file_name,"r");
+    if(fp == NULL){
+        print_internal_error(ERROR_CODE_2);
         return NULL;
     }
-    while(!feof(fp)){
-        fgets(str,MAX_LINE_LENGTH,fp);
+    new_file_name = add_new_file(file_name,".t01");
+    if(new_file_name == NULL){
+        abrupt_close(2,"file",fp);
+        return NULL;
+    }
+    fp_temp = fopen(new_file_name,"w");
+    if(fp_temp == NULL){
+        abrupt_close(4,"file",fp,"%s",new_file_name);
+        print_internal_error(ERROR_CODE_7);
+        return NULL;
+    }
+    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
         if(*str == ';'){
             *str = '\n';
             *(str+1) = '\0';

@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "util.h"
 #include "globals.h"
-/* #include "Errors.h" */
+#include "Errors.h"
 
 
 char convert_to_base64(char binary_number[]) {
@@ -28,16 +29,14 @@ char convert_to_base64(char binary_number[]) {
 void *handle_malloc(long object_size) {
     void *object_ptr = malloc(object_size);
     if (object_ptr == NULL) {
-    /* print_internal_error(ERROR_CODE_1);  */
-        exit(1);
+        print_internal_error(ERROR_CODE_1);
     }
     return object_ptr;
-
 }
 
 char *add_new_file(char *file_name, char *ending){
     char *c, *new_file_name;
-    new_file_name = malloc(MAX_LINE_LENGTH * sizeof(char));
+    new_file_name = handle_malloc(MAX_LINE_LENGTH * sizeof(char));
     strcpy(new_file_name,file_name);
     c = strchr(new_file_name,'.');
     *c = '\0';
@@ -45,11 +44,20 @@ char *add_new_file(char *file_name, char *ending){
     return new_file_name;
 }
 
-void copy_file(char *file_name_dest, char *file_name_orig){
+int copy_file(char *file_name_dest, char *file_name_orig){
     char str[MAX_LINE_LENGTH];
     FILE *fp, *fp_dest;
     fp = fopen(file_name_orig,"r");
+    if(fp == NULL){
+        print_internal_error(ERROR_CODE_8);
+        return 0;
+    }
     fp_dest = fopen(file_name_dest,"w");
+    if(fp_dest == NULL){
+        print_internal_error(ERROR_CODE_7);
+        fclose(fp);
+        return 0;
+    }
     while(!feof(fp)){
         fgets(str,MAX_LINE_LENGTH,fp);
         if(feof(fp)){
@@ -59,4 +67,26 @@ void copy_file(char *file_name_dest, char *file_name_orig){
     }
     fclose(fp);
     fclose(fp_dest);
+    return 1;
+}
+
+void abrupt_close(int num_args, ...){
+    int i;
+    char *str;
+    FILE *fp;
+    va_list args;
+    va_start(args,num_args);
+    for (i = 0; i < num_args; i++){
+        /* next argument is a string whose allocated memory needs to be freed*/
+        if(strcmp(va_arg(args,char*),"%s") == 0){
+            str = va_arg(args,char*);
+            free(str);
+        }
+        /* next argument is a file pointer that needs to be closed */
+        else {
+            fp = va_arg(args,FILE*);
+            fclose(fp);
+        }
+    }
+    va_end(args);
 }
