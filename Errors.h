@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "Errors.h"
+#include "data_strct.h"
 #include "globals.h"
 #include "table.h"
 #include "util.h"

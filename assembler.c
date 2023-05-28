@@ -1,7 +1,3 @@
-
-#ifdef abc
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -26,7 +22,6 @@ int handle_file(char file_name[]);
  * 3: second pass
  * */
 
-
 int main(int argc, char *argv[]) {
     int file_index;
     /*? What is the max file name?*/
@@ -47,6 +42,8 @@ int main(int argc, char *argv[]) {
         /*Check if the file name is too long*/
         if (strlen(file_name) > MAX_LABEL_LENGTH) {
             print_internal_error(ERROR_CODE_3);
+
+            /*! Change exit to continue */
             exit(FAILED);
         }
 
@@ -135,11 +132,3 @@ int start_second_pass() {
 
     return SUCCESS;
 }
-
-
-
-
-
-
-
-#endif
