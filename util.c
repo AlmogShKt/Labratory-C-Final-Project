@@ -92,3 +92,15 @@ int isFileExist(char file_name[]) {
     return 1;
 }
 
+/**
+ * Take 2 string and create 1 that contain both of them, str1+str2
+ * @param str_name_1 the first string
+ * @param str_name_2 the second string
+ * @return new string
+ */
+char *merge_str_names(char *str_name_1, char *str_name_2) {
+    char *full_str_name = (char *) malloc(strlen(str_name_1) + strlen(str_name_2) + 1);
+    strcpy(full_str_name, str_name_1);
+    strcat(full_str_name, str_name_2);
+    return full_str_name;
+}

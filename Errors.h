@@ -2,8 +2,16 @@
 #define LABRATORY_C_FINAL_PROJECT_ERRORS_H
 
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "Errors.h"
+#include "data_strct.h"
+#include "globals.h"
+#include "table.h"
+#include "util.h"
 
-typedef struct Error{
+typedef struct Error {
     int error_id;
     char *error_msg;
 } Error;
@@ -29,10 +37,9 @@ typedef enum EXIT_CODE {
 } EXIT_CODE;
 
 
-void print_external_error(int error_code, int error_line);
+void print_external_error(int error_code, line_data line);
 
 void print_internal_error(int error_code);
-
 
 
 #endif
