@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "table.h"
 #include "util.h"
+#include "preproc.h"
 
 
 int start_first_pass(int *ic, int *dc, char file_name[], table symbol_table);
