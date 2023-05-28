@@ -1,3 +1,4 @@
+
 /* Contains major function that are related to the first pass */
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,4 +27,3 @@ int handle_first_pass(line_data current_line_struct, int *IC, int *DC, table sym
 
     return SUCCESS;
 }
-

@@ -14,10 +14,10 @@ void remove_extra_spaces_str(char str[]);
 int is_space_or_tab(char c);
 
 void *handle_malloc(long object_size);
+char *add_new_file(char *file_name, char *ending);
+int copy_file(char *file_name_dest, char *file_name_orig);
+void abrupt_close(int num_args, ...);
 
 int isFileExist(char file_name[]);
 
 char *merge_str_names(char *str_name_1, char *str_name_2);
-
-
-#endif

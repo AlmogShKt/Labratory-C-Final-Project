@@ -1,10 +1,11 @@
+#include <stdio.h>
 #include "data_strct.h"
 
-#define MAX_LINE_LENGTH 80
-
-int is_line_blank(char str[]);
-void remove_blank_lines(FILE *fp, char file_name[]);
-void remove_extra_spaces_file(FILE *fp, char file_name[]);
-char *copy_text(FILE *fp, fpos_t **pos, int length);
-char *save_mcro_content(FILE *fp, fpos_t **pos);
-void search_mcros(FILE *fp, node **head);
+char *copy_text(FILE *fp, fpos_t *pos, int length);
+char *save_mcro_content(FILE *fp, fpos_t *pos);
+void add_mcros(char *file_name, node **head);
+int valid_mcro_decl(char *str, char **name);
+char *replace_all_mcros(char file_name[], node *head);
+char *remove_mcros_decl(char file_name[]);
+char *replace_mcro(char *str,node *mcro);
+void mcro_exec(char file_name[]);
