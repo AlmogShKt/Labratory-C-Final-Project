@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
         /*Check if the file name is too long*/
         if (strlen(file_name) > MAX_LABEL_LENGTH) {
             print_internal_error(ERROR_CODE_3);
+            /*! Change exit to continue */
             exit(FAILED);
         }
 
