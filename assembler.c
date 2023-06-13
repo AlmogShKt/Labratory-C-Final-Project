@@ -1,3 +1,6 @@
+
+#ifdef aaa
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -133,3 +136,5 @@ int start_second_pass() {
 
     return SUCCESS;
 }
+
+#endif

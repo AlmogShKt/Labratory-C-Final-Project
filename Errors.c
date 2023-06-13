@@ -23,7 +23,7 @@ Error errors[] = {
         {ERROR_CODE_13, "Macro has more than one definition"},
         {ERROR_CODE_14, "Failed to copy file during macros expansion"},
         {ERROR_CODE_15, "Macros expansion in an .as file failed"},
-        {ERROR_CODE_16, ""},
+        {ERROR_CODE_16, "Macro call before declaration"},
         {ERROR_CODE_17, ""},
         {ERROR_CODE_18, ""},
 
