@@ -33,19 +33,18 @@ typedef enum ERROR_CODES {
     ERROR_CODE_14,
     ERROR_CODE_15,
     ERROR_CODE_16,
-    ERROR_CODE_17,
-    ERROR_CODE_18,
-    ERROR_CODE_19,
-    ERROR_CODE_20,
-    ERROR_CODE_21,
-    ERROR_CODE_22,
-    ERROR_CODE_23,
-    ERROR_CODE_24,
-    ERROR_CODE_25,
-    ERROR_CODE_26,
-    ERROR_CODE_27,
-    ERROR_CODE_28,
-    ERROR_CODE_29
+    /* enumeration skip for future macro related errors */
+    ERROR_CODE_30 = 30,
+    ERROR_CODE_31,
+    ERROR_CODE_32,
+    ERROR_CODE_33,
+    ERROR_CODE_34,
+    ERROR_CODE_35,
+    ERROR_CODE_36,
+    ERROR_CODE_37,
+    ERROR_CODE_38,
+
+
 
 } ERROR_CODES;
 

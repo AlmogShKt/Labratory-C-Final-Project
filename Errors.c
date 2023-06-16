@@ -24,8 +24,13 @@ Error errors[] = {
         {ERROR_CODE_14, "Failed to copy file during macros expansion"},
         {ERROR_CODE_15, "Macros expansion in an .as file failed"},
         {ERROR_CODE_16, "Macro call before declaration"},
-        {ERROR_CODE_17, ""},
-        {ERROR_CODE_18, ""},
+        {ERROR_CODE_30, "Line is too long"},
+        {ERROR_CODE_31, "Command line without opcode"},
+        {ERROR_CODE_32, "Line contains extra text"},
+        {ERROR_CODE_33, ""},
+        {ERROR_CODE_34, ""},
+        {ERROR_CODE_35, ""},
+        {ERROR_CODE_36, ""},
 
 };
 

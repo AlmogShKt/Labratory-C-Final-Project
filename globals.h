@@ -11,6 +11,9 @@
 /* Default IC value */
 #define IC_INIT_VALUE 100
 
+/* arbitrary very big number for line length */
+#define SIZE 1000
+
 /* Defines a better way to work with Ture / False values  - using enum*/
 typedef enum booleans {
     TRUE = 1,
@@ -69,6 +72,11 @@ typedef enum registers {
     R7,
     NONE_REG = -1
 } reg;
+
+typedef struct code_conv {
+    unsigned int line;
+    unsigned short *binary_code;
+}code_conv ;
 
 
 typedef struct instruction_machine_word {
@@ -129,5 +137,13 @@ typedef struct line_data {
 #define AS_FILE_EXT ".as"
 #define TXT_FILE_EXT ".txt"
 #define AM_FILE_EXT ".am"
+
+typedef struct command_parts {
+    char *label;
+    char *opcode;
+    char *source;
+    char *dest;
+    char *extra;
+} command_parts;
 
 #endif
