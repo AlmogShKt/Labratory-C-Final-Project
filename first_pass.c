@@ -10,6 +10,27 @@
 #include "util.h"
 #include "first_pass.h"
 
+op_code OPCODES[] = {
+        {"mov",2},
+        {"cmp",2},
+        {"add",2},
+        {"sub",2},
+        {"not",1},
+        {"clr",1},
+        {"lea",2},
+        {"inc",1},
+        {"dec",1},
+        {"jmp",1},
+        {"bne",1},
+        {"red",1},
+        {"prn",1},
+        {"jsr",1},
+        {"rts",0},
+        {"stop",0}
+};
+
+char *REGS[] = {"r0","r1","r2","r3","r4","r5","r6","r7"};
+
 int lines_too_long(char *file_name){
     char str[SIZE];
     FILE *fp;
@@ -54,51 +75,51 @@ int is_instr(char *str){
     return 1;
 }
 
-int is_opcode(char *str){
-    if((strcmp(str,"mov") && strcmp(str,"cmp") && strcmp(str,"add") && strcmp(str,"sub") && \
-    strcmp(str,"lea") && strcmp(str,"not") && strcmp(str,"clr") && strcmp(str,"inc") && \
-    strcmp(str,"dec") && strcmp(str,"jmp") && strcmp(str,"bne") && strcmp(str,"red") && \
-    strcmp(str,"prn") && strcmp(str,"jsr") && strcmp(str,"rts") && strcmp(str,"stop")) != 0) {
-        return 0;
+int what_opcode(char *str){
+    int i;
+    for (i = 0; i < OPCODES_COUNT; i++) {
+        if (strcmp(str, OPCODES[i].opcode) == 0) {
+            return i;
+        }
     }
-    return 1;
+    return -1;
 }
 
-int is_reg(char *str){
-    if(strcmp(str,"r0") && strcmp(str,"r1") && strcmp(str,"r2") && strcmp(str,"r3") && \
-    strcmp(str,"r4") && strcmp(str,"r5") && strcmp(str,"r6") && strcmp(str,"r7") != 0){
-        return 0;
+int what_reg(char *str) {
+    int i;
+    for (i = 0; i < REG_COUNT; i++) {
+        if (strcmp(str, REGS[i]) == 0) {
+            return i;
+        }
     }
-    return 1;
+    return -1;
 }
 
-
-int legal_label(char *str){
-    if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && !is_reg(str) && !is_opcode(str)){
+int legal_label_decl(char *str){
+    if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0)){
         while(*(++str) != '\0' && (isalpha(*str) || isdigit(*str))){
             ;
         }
-        if(*str == ':' && *(++str) == '\0'){
+        if(*(str) == ':' && *(str+1) == '\0'){
+            *str = '\0';
             return 1;
         }
     }
     return 0;
 }
 
-int arg_count(char *opcode){
-    if(strcmp(opcode,"rts") && strcmp(opcode,"stop") == 0){
-        return 0;
+
+
+int legal_label(char *str){
+    if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0)){
+        while(*(++str) != '\0' && (isalpha(*str) || isdigit(*str))){
+            ;
+        }
     }
-    if(strcmp(opcode,"not") && strcmp(opcode,"clr") && strcmp(opcode,"inc") && strcmp(opcode,"dec") && \
-    strcmp(opcode,"jmp") && strcmp(opcode,"bne") && strcmp(opcode,"red") && strcmp(opcode,"prn") && \
-    strcmp(opcode,"jsr") == 0){
+    if(*str == '\0'){
         return 1;
     }
-    if(strcmp(opcode,"mov") && strcmp(opcode,"cmp") && strcmp(opcode,"add") && strcmp(opcode,"sub") && \
-    strcmp(opcode,"lea") == 0) {
-        return 2;
-    }
-    return -1;
+    return 0;
 }
 
 int extra_text(){
@@ -110,23 +131,50 @@ int extra_text(){
     return 0;
 }
 
+int is_reg_or_label(char *str){
+    if((*str == '@' && what_reg(str+1) >= 0) || legal_label(str)){
+        return 1;
+    }
+    return 0;
+}
+
+int legal_arg(char *str, int opcode){
+
+    switch(opcode) {
+        case 4: {
+            if(is_reg_or_label(str)){
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+
+
+        default: {
+            return 0;
+        }
+    }
+}
+
+
 command_parts *read_command(char *str, int *error_code){
     int args;
     char *token;
     command_parts *command = malloc(sizeof(command_parts));
     token = strtok(str," \n");
     /* there is a legal label in the line */
-    if(legal_label(token)){
+    if(legal_label_decl(token)){
         command->label = token;
         token = strtok(NULL," \n");
-        if(is_opcode(token)){
-            command->opcode = token;
+        if((command->opcode = what_opcode(token)) != -1){
+            ;
         }
         else {
             *error_code = ERROR_CODE_31;
             return NULL;
         }
-        args = arg_count(command->opcode);
+        args = OPCODES[command->opcode].arg_num;
         switch(args){
             case 0: {
                 if(extra_text()){
@@ -135,11 +183,34 @@ command_parts *read_command(char *str, int *error_code){
                 break;
             }
             case 1: {
-
+                /* in opcodes with only one argument the source is always NULL */
+                command->source = NULL;
+                token = strtok(NULL,"\n");
+                if(legal_arg(token,command->opcode)){
+                    if(*token == '@'){
+                        command->dest = token+1;
+                    }
+                    else {
+                        command->dest = token;
+                    }
+                }
+                else {
+                    *error_code = ERROR_CODE_33;
+                }
+                /* don't need to check for extra text because token ended at \n */
+                command->extra = NULL;
                 break;
             }
             case 2: {
-
+                token = (str," ,\n");
+                if(legal_arg(token,command->opcode)){
+                    if(*token == '@'){
+                        command->dest = token+1;
+                    }
+                    else {
+                        command->dest = token;
+                    }
+                }
                 break;
             }
             default: {
@@ -149,9 +220,8 @@ command_parts *read_command(char *str, int *error_code){
 
     }
     /* command line with legal opcode without a label */
-    else if(is_opcode(token)){
+    else if((command->opcode = what_opcode(token)) != -1){
         command->label = NULL;
-        command->opcode = token;
     }
     /* command line without opcode */
     else {
@@ -185,4 +255,16 @@ int incr_mem(code_conv *code){
         return 0;
     }
     return 1;
+}
+
+int exe_first_pass(char *file_name){
+    int num_files, error_code;
+    command_parts *command;
+    char str[MAX_LINE_LENGTH];
+    FILE *fp;
+    error_code = 0;
+    fp = fopen(file_name,"r");
+    fgets(str,MAX_LINE_LENGTH,fp);
+    command = read_command(str,&error_code);
+    return 0;
 }

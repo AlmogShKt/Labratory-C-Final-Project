@@ -1,9 +1,10 @@
+#ifdef aaa
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "preproc.h"
 #include "util.h"
-#include "globals.h"
 #include "globals.h"
 #include "handle_text.h"
 #include "Errors.h"
@@ -275,3 +276,5 @@ void mcro_exec(char file_name[]){
     free_list(head);
     printf("Macros expansion in file %s completed successfully\n",file_name);
 }
+
+#endif

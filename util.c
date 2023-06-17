@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include "util.h"
-#include "globals.h"
 #include "Errors.h"
 
 

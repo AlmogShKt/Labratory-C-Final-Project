@@ -1,7 +1,7 @@
 #ifndef LABRATORY_C_FINAL_PROJECT_UTIL_H
 #define LABRATORY_C_FINAL_PROJECT_UTIL_H
 
-#define MAX_LINE_LENGTH 80
+#include "globals.h"
 
 /* Moves the index to the next position in the string where the character is not a whitespace ot tab */
 #define SKIP_WHITE_SPACE(string, index) \

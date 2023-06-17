@@ -1,3 +1,6 @@
+#ifndef PREPROC
+#define PREPROC
+
 #include <stdio.h>
 #include "data_strct.h"
 
@@ -10,3 +13,5 @@ char *remove_mcros_decl(char file_name[]);
 char *replace_mcro(char *str,node *mcro);
 int mcro_call_before_decl(char file_name[], node *head);
 void mcro_exec(char file_name[]);
+
+#endif

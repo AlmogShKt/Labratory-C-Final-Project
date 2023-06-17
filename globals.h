@@ -14,6 +14,10 @@
 /* arbitrary very big number for line length */
 #define SIZE 1000
 
+#define OPCODES_COUNT 16
+
+#define REG_COUNT 8
+
 /* Defines a better way to work with Ture / False values  - using enum*/
 typedef enum booleans {
     TRUE = 1,
@@ -28,6 +32,7 @@ typedef enum symbol_type {
     /*! Code?! maybe just a regular line? 'code' ?*/
     CODE_SYMBOL = 3
 } symbol_type;
+
 
 /* Commands opcode */
 typedef enum opcodes_values {
@@ -138,12 +143,5 @@ typedef struct line_data {
 #define TXT_FILE_EXT ".txt"
 #define AM_FILE_EXT ".am"
 
-typedef struct command_parts {
-    char *label;
-    char *opcode;
-    char *source;
-    char *dest;
-    char *extra;
-} command_parts;
 
 #endif
