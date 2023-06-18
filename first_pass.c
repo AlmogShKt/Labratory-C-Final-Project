@@ -138,23 +138,73 @@ int is_reg_or_label(char *str){
     return 0;
 }
 
-int legal_arg(char *str, int opcode){
+int is_reg_or_label_or_num(char *str){
+    char *ptr;
+    return (is_reg_or_label(str) || (strtol(str,&ptr,10) && (*ptr == '\0')));
+}
 
-    switch(opcode) {
+void remove_asp(char **str){
+    if(**str == '@'){
+        (*str)++;
+    }
+}
+
+int legal_arg(char *str, command_parts *command, int *error_code){
+    char *str1, *str2;
+    /* empty argument */
+    if(str == NULL){
+        *error_code = ERROR_CODE_34;
+        return 0;
+    }
+    /* eliminating lines with two arguments and a missing comma */
+    if(OPCODES[command->opcode].arg_num == 2) {
+        if(strstr(str,",") == NULL) {
+            *error_code = ERROR_CODE_35;
+            return 0;
+        }
+        else {
+            str1 = strtok(str,",");
+            str2 = strtok(NULL,"\n");
+            /* space before comma */
+            if(*(str1+strlen(str1)-1) == ' '){
+                /* eliminate the space at the end of str1 */
+                *(str1+strlen(str1)-1) = '\0';
+            }
+            /* space after comma */
+            else if(*(str2) == ' '){
+                /* eliminate the space at the beginning of str2 */
+                str2++;
+            }
+            /* no space at all near the comma */
+        }
+    }
+    switch(command->opcode) {
+        case 0: {
+            if(is_reg_or_label_or_num(str1) && is_reg_or_label(str2)){
+                remove_asp(&str1);
+                remove_asp(&str2);
+                command->source = str1;
+                command->dest = str2;
+            }
+            break;
+        }
         case 4: {
             if(is_reg_or_label(str)){
-                return 1;
+                command->source = NULL;
+                remove_asp(&str);
+                command->dest = str;
             }
-            else {
-                return 0;
-            }
+            break;
+
         }
 
 
         default: {
+            *error_code = ERROR_CODE_33;
             return 0;
         }
     }
+    return 1;
 }
 
 
@@ -164,60 +214,23 @@ command_parts *read_command(char *str, int *error_code){
     command_parts *command = malloc(sizeof(command_parts));
     token = strtok(str," \n");
     /* there is a legal label in the line */
-    if(legal_label_decl(token)){
+    if(legal_label_decl(token)) {
         command->label = token;
-        token = strtok(NULL," \n");
-        if((command->opcode = what_opcode(token)) != -1){
-            ;
-        }
-        else {
+        token = strtok(NULL, " \n");
+        if ((command->opcode = what_opcode(token)) != -1) { ;
+        } else {
             *error_code = ERROR_CODE_31;
             return NULL;
         }
-        args = OPCODES[command->opcode].arg_num;
-        switch(args){
-            case 0: {
-                if(extra_text()){
-                    *error_code = ERROR_CODE_32;
-                }
-                break;
+        if (OPCODES[command->opcode].arg_num == 0) {
+            if (extra_text()) {
+                *error_code = ERROR_CODE_32;
+            } else {
+                command->source = command->dest = NULL;
             }
-            case 1: {
-                /* in opcodes with only one argument the source is always NULL */
-                command->source = NULL;
-                token = strtok(NULL,"\n");
-                if(legal_arg(token,command->opcode)){
-                    if(*token == '@'){
-                        command->dest = token+1;
-                    }
-                    else {
-                        command->dest = token;
-                    }
-                }
-                else {
-                    *error_code = ERROR_CODE_33;
-                }
-                /* don't need to check for extra text because token ended at \n */
-                command->extra = NULL;
-                break;
-            }
-            case 2: {
-                token = (str," ,\n");
-                if(legal_arg(token,command->opcode)){
-                    if(*token == '@'){
-                        command->dest = token+1;
-                    }
-                    else {
-                        command->dest = token;
-                    }
-                }
-                break;
-            }
-            default: {
-                return NULL;
-            }
+        } else {
+            legal_arg(strtok(NULL, "\n"), command, error_code);
         }
-
     }
     /* command line with legal opcode without a label */
     else if((command->opcode = what_opcode(token)) != -1){

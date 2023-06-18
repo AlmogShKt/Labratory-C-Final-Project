@@ -27,9 +27,9 @@ Error errors[] = {
         {ERROR_CODE_30, "Line is too long"},
         {ERROR_CODE_31, "Command line without opcode"},
         {ERROR_CODE_32, "Line contains extra text"},
-        {ERROR_CODE_33, "Label illegal"},
-        {ERROR_CODE_34, ""},
-        {ERROR_CODE_35, ""},
+        {ERROR_CODE_33, "Illegal argument"},
+        {ERROR_CODE_34, "Missing argument"},
+        {ERROR_CODE_35, "Missing comma between argument in a command line with two arguments"},
         {ERROR_CODE_36, ""},
 
 };
