@@ -14,6 +14,11 @@ typedef struct command_parts {
     char *extra;
 } command_parts;
 
+typedef struct label_address {
+    int address;
+    char *label_name;
+}label_address;
+
 int lines_too_long(char *file_name);
 int is_instr(char *str);
 int what_opcode(char *str);

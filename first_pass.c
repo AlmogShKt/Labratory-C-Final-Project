@@ -179,26 +179,79 @@ int legal_arg(char *str, command_parts *command, int *error_code){
         }
     }
     switch(command->opcode) {
-        case 0: {
+        case 1: {
+            if(is_reg_or_label_or_num(str1) && is_reg_or_label_or_num(str2)){
+                remove_asp(&str1);
+                remove_asp(&str2);
+                command->source = str1;
+                command->dest = str2;
+            }
+            else {
+                *error_code = ERROR_CODE_33;
+                return 0;
+            }
+            break;
+        }
+        case 0:
+        case 2:
+        case 3: {
             if(is_reg_or_label_or_num(str1) && is_reg_or_label(str2)){
                 remove_asp(&str1);
                 remove_asp(&str2);
                 command->source = str1;
                 command->dest = str2;
             }
+            else {
+                *error_code = ERROR_CODE_33;
+                return 0;
+            }
             break;
         }
-        case 4: {
+        case 6: {
+            if(legal_label(str1) && is_reg_or_label(str2)){
+                remove_asp(&str1);
+                remove_asp(&str2);
+                command->source = str1;
+                command->dest = str2;
+            }
+            else {
+                *error_code = ERROR_CODE_33;
+                return 0;
+            }
+            break;
+        }
+        case 4:
+        case 5:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 13: {
             if(is_reg_or_label(str)){
                 command->source = NULL;
                 remove_asp(&str);
                 command->dest = str;
             }
+            else {
+                *error_code = ERROR_CODE_33;
+                return 0;
+            }
             break;
-
         }
-
-
+        case 12: {
+            if(is_reg_or_label_or_num(str)){
+                command->source = NULL;
+                remove_asp(&str);
+                command->dest = str;
+            }
+            else {
+                *error_code = ERROR_CODE_33;
+                return 0;
+            }
+            break;
+        }
+        /* case 14,15 are dealt with in previous stage */
         default: {
             *error_code = ERROR_CODE_33;
             return 0;
@@ -209,10 +262,12 @@ int legal_arg(char *str, command_parts *command, int *error_code){
 
 
 command_parts *read_command(char *str, int *error_code){
+
     int args;
     char *token;
     command_parts *command = malloc(sizeof(command_parts));
     token = strtok(str," \n");
+    *error_code = 0;
     /* there is a legal label in the line */
     if(legal_label_decl(token)) {
         command->label = token;
@@ -235,6 +290,7 @@ command_parts *read_command(char *str, int *error_code){
     /* command line with legal opcode without a label */
     else if((command->opcode = what_opcode(token)) != -1){
         command->label = NULL;
+        legal_arg(strtok(NULL, "\n"), command, error_code);
     }
     /* command line without opcode */
     else {
@@ -270,14 +326,54 @@ int incr_mem(code_conv *code){
     return 1;
 }
 
+int insert_label_table(label_address **label_table, int line, command_parts *command, int IC){
+    label_address *p_temp;
+    line++;
+    p_temp = *label_table;
+    *label_table = realloc(*label_table,line * sizeof(label_address));
+    if(*label_table == NULL){
+        free(p_temp);
+        return 0;
+    }
+    (*label_table+line-1)->address = IC;
+    (*label_table+line-1)->label_name = malloc((strlen(command->label)+1)*sizeof(char));
+    if((*label_table+line-1)->label_name == NULL){
+        return 0;
+    }
+    strcpy((*label_table+line-1)->label_name,command->label);
+    return 1;
+}
+
 int exe_first_pass(char *file_name){
-    int num_files, error_code;
+    int num_files, error_code, IC;
     command_parts *command;
+    line_data line;
     char str[MAX_LINE_LENGTH];
     FILE *fp;
+    label_address *label_table;
+    int label_table_line;
     error_code = 0;
     fp = fopen(file_name,"r");
-    fgets(str,MAX_LINE_LENGTH,fp);
-    command = read_command(str,&error_code);
+    line.file_name = file_name;
+    line.number = 0;
+    label_table_line = 0;
+    label_table = NULL;
+    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
+        strcpy(line.data,str);
+        (line.number)++;
+        printf("%s ",str);
+        command = read_command(str,&error_code);
+        if(error_code == 0){
+            printf("line %d: label - %s, opcode = %d, source - %s, dest - %s\n",
+                   line.number, command->label, command->opcode, command->source, command->dest);
+        }
+        else {
+            print_external_error(error_code,line);
+        }
+        if(command->label != NULL){
+            insert_label_table(&label_table,label_table_line,command,IC);
+        }
+        free(command);
+    }
     return 0;
 }
