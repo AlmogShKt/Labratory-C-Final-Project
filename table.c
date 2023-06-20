@@ -4,22 +4,27 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "table.h"
 #include "globals.h"
+#include "lexer.h"
 
-/*__________*/
-/*Symbols table*/
-
-/** pointer to table entry is just a table. */
-typedef struct symbol_table_entry *table;
-
-/*Define the symbol table entries*/
-typedef struct symbol_table_entry {
-    /*The Symbol - char - up to 31*/
-    char *symbol[MAX_LABEL_LENGTH];
-    int symbol_address;
-    symbol_type symbol_type;
-    table *next_entry;
-} symbol_table;
+int insert_label_table(label_address **label_table, int line, command_parts *command, int IC){
+    label_address *p_temp;
+    line++; /* number of lines in table */
+    p_temp = *label_table;
+    *label_table = realloc(*label_table,line * sizeof(label_address));
+    if(*label_table == NULL){
+        free(p_temp);
+        return 0;
+    }
+    (*label_table+line-1)->address = IC;
+    (*label_table+line-1)->label_name = malloc((strlen(command->label)+1)*sizeof(char));
+    if((*label_table+line-1)->label_name == NULL){
+        return 0;
+    }
+    strcpy((*label_table+line-1)->label_name,command->label);
+    return 1;
+}
 
 
 #endif
