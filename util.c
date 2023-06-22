@@ -5,6 +5,34 @@
 #include "util.h"
 #include "Errors.h"
 
+void rev_str(char *str){
+
+}
+
+char *short_to_binary(unsigned short num){
+    char *res, *ptr;
+    int i;
+    res = handle_malloc((WORD_LEN+1) * sizeof(char));
+    if(res == NULL){
+        print_internal_error(ERROR_CODE_1);
+        return NULL;
+    }
+    ptr = res;
+    for(i = 0; i < WORD_LEN; i++){
+        *(ptr+i) = '0';
+    }
+    *(ptr+WORD_LEN) = '\0';
+    ptr = res + WORD_LEN - 1;
+    while (num != 0){
+        *ptr = (num % 2) + '0';
+        num /= 2;
+        if(num != 0){
+            ptr--;
+        }
+    }
+    return res;
+}
+
 
 char convert_to_base64(char binary_number[]) {
     char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

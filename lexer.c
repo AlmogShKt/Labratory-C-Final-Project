@@ -53,6 +53,9 @@ int is_instr(char *str){
 }
 
 int what_opcode(char *str){
+    if(str == NULL){
+        return -1;
+    }
     int i;
     for (i = 0; i < OPCODES_COUNT; i++) {
         if (strcmp(str, OPCODES[i].opcode) == 0) {
@@ -64,6 +67,9 @@ int what_opcode(char *str){
 
 int what_reg(char *str) {
     int i;
+    if(str == NULL){
+        return -1;
+    }
     for (i = 0; i < REG_COUNT; i++) {
         if (strcmp(str, REGS[i]) == 0) {
             return i;
@@ -73,6 +79,9 @@ int what_reg(char *str) {
 }
 
 int legal_label_decl(char *str){
+    if(str == NULL){
+        return 0;
+    }
     if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0)){
         while(*(++str) != '\0' && (isalpha(*str) || isdigit(*str))){
             ;
@@ -86,6 +95,9 @@ int legal_label_decl(char *str){
 }
 
 int legal_label(char *str){
+    if(str == NULL){
+        return 0;
+    }
     if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0)){
         while(*(++str) != '\0' && (isalpha(*str) || isdigit(*str))){
             ;
@@ -113,9 +125,14 @@ int is_reg_or_label(char *str){
     return 0;
 }
 
+int is_num(char *str){
+    char *ptr;
+    return (strtol(str,&ptr,10) && (*ptr == '\0'));
+}
+
 int is_reg_or_label_or_num(char *str){
     char *ptr;
-    return (is_reg_or_label(str) || (strtol(str,&ptr,10) && (*ptr == '\0')));
+    return (is_reg_or_label(str) || is_num(str));
 }
 
 void remove_asp(char **str){

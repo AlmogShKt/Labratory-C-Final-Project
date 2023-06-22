@@ -33,9 +33,32 @@ int incr_mem(code_conv *code){
     return 1;
 }
 
-short command_to_binary(command_parts *command){
-    if(command->)
+unsigned short command_to_short(command_parts *command){
+    unsigned short n_src, n_op, n_dest;
+    n_src = n_op = n_dest = 0;
+    if(what_reg(command->source) >= 0){
+        n_src = REG_ADDRESSING << SOURCE_BITS_SHIFT;
+    }
+    else if(legal_label(command->source)){
+        n_src = (short)(LABEL_ADDRESSING << SOURCE_BITS_SHIFT);
+    }
+    else if(is_num(command->source)){
+        n_src = (short)(DIRECT_ADDRESSING << SOURCE_BITS_SHIFT);
+    }
+    if(what_reg(command->dest) >= 0){
+        n_dest = (short)(REG_ADDRESSING << DEST_BITS_SHIFT);
+    }
+    else if(legal_label(command->dest)){
+        n_dest = (short)(LABEL_ADDRESSING << DEST_BITS_SHIFT);
+    }
+    else if(is_num(command->dest)){
+        n_dest = (short)(DIRECT_ADDRESSING << DEST_BITS_SHIFT);
+    }
+    n_op = (short)(command->opcode) << OPCODE_BITS_SHIFT;
+    return ((n_src | n_op) | n_dest);
 }
+
+
 
 int exe_first_pass(char *file_name){
     int num_files, error_code, IC;
@@ -53,6 +76,7 @@ int exe_first_pass(char *file_name){
     label_table = NULL;
     IC = IC_INIT_VALUE;
     while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
+        char *bin_num;
         //strcpy(line.data,str);
         (line.number)++;
         printf("%s ",str);
@@ -63,11 +87,16 @@ int exe_first_pass(char *file_name){
         }
         else {
             print_external_error(error_code,line);
+            free(command);
+            return 1;
         }
 
         if(command->label != NULL){
             insert_label_table(&label_table,label_table_line,command,IC);
         }
+        bin_num = short_to_binary(command_to_short(command));
+        printf("binary code is: %s\n",bin_num);
+
 
         free(command);
     }

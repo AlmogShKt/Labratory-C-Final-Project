@@ -18,6 +18,8 @@
 
 #define REG_COUNT 8
 
+#define WORD_LEN 12
+
 /* Defines a better way to work with Ture / False values  - using enum*/
 typedef enum booleans {
     TRUE = 1,
