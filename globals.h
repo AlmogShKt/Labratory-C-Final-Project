@@ -20,6 +20,12 @@
 
 #define WORD_LEN 12
 
+#define ARE_BITS 2
+
+#define RELOCATABLE_VALUE 2
+
+#define EXTERNAL_VALUE 1
+
 /* Defines a better way to work with Ture / False values  - using enum*/
 typedef enum booleans {
     TRUE = 1,
@@ -79,11 +85,6 @@ typedef enum registers {
     R7,
     NONE_REG = -1
 } reg;
-
-typedef struct code_conv {
-    unsigned int line;
-    unsigned short *binary_code;
-}code_conv ;
 
 
 typedef struct instruction_machine_word {

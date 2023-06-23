@@ -9,9 +9,17 @@ void rev_str(char *str){
 
 }
 
-char *short_to_binary(unsigned short num){
+unsigned short twos_compliment(unsigned short pos_num){
+    return ~pos_num+1;
+}
+
+char *short_to_binary(unsigned short num, int bits_for_num){
     char *res, *ptr;
     int i;
+    if(num < 0){
+        num = twos_compliment(num);
+    }
+    num = num << (WORD_LEN - bits_for_num);
     res = handle_malloc((WORD_LEN+1) * sizeof(char));
     if(res == NULL){
         print_internal_error(ERROR_CODE_1);
@@ -22,7 +30,7 @@ char *short_to_binary(unsigned short num){
         *(ptr+i) = '0';
     }
     *(ptr+WORD_LEN) = '\0';
-    ptr = res + WORD_LEN - 1;
+    ptr = res + WORD_LEN-1;
     while (num != 0){
         *ptr = (num % 2) + '0';
         num /= 2;

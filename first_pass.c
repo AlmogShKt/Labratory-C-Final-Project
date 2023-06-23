@@ -11,22 +11,12 @@
 #include "first_pass.h"
 #include "lexer.h"
 
-int first_pass(line_data source, code_conv *code){
-    code->line = IC_INIT_VALUE;
-    code->binary_code = handle_malloc(sizeof(unsigned short));
-    if(code->binary_code == NULL){
-        return 0;
-    }
-
-
-    return 1;
-}
-
-int incr_mem(code_conv *code){
-    unsigned short *ptr;
-    ptr = code->binary_code;
-    code->binary_code = realloc(code->binary_code,code->line-IC_INIT_VALUE+1);
-    if(code->binary_code == NULL){
+int inc_mem(code_conv **code, int IC){
+    code_conv *ptr;
+    ptr = *code;
+    *code = realloc(*code,(IC+1) * sizeof(code_conv));
+    if(*code == NULL){
+        print_internal_error(ERROR_CODE_1);
         free(ptr);
         return 0;
     }
@@ -58,10 +48,87 @@ unsigned short command_to_short(command_parts *command){
     return ((n_src | n_op) | n_dest);
 }
 
+unsigned short reg_to_short(command_parts *command, int reg_src){
+    static int already_done;
+    int reg1, reg2;
+    unsigned short n_reg_src, n_reg_dest;
+    n_reg_src = n_reg_dest = 0;
+    if(reg_src){
+        if((reg1 = what_reg(command->source)) >= 0) {
+            n_reg_src = reg1 << SOURCE_BITS_SHIFT_REG;
+        }
+        if((reg2 = what_reg(command->dest)) >= 0) {
+            n_reg_dest = reg2 << DEST_BITS_SHIFT_REG;
+        }
+        already_done = 1;
+        return (n_reg_src | n_reg_dest);
+    }
+    else if(already_done == 0){
+        if((reg2 = what_reg(command->dest)) >= 0) {
+            n_reg_dest = reg2 << DEST_BITS_SHIFT_REG;
+        }
+        return n_reg_dest;
+    }
+    already_done = 0;
+    return DOUBLE_REGS_VALUE;
+}
 
+int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC){
+    int bit_for_num = WORD_LEN;
+    char *bin_num;
+    if(inc_mem(code,*IC) == 0){
+        return 0;
+    }
+    (*code+*IC)->short_num = num;
+    if(str == NULL){
+        (*code+*IC)->label = NULL;
+    }
+    else {
+        (*code+*IC)->label = handle_malloc((strlen(str)+1) * sizeof(char));
+        if((*code+*IC)->label == NULL){
+            return 0;
+        }
+        strcpy((*code+*IC)->label,str);
+    }
+    bin_num = short_to_binary((*code + *IC)->short_num,bit_for_num);
+    printf("Address %d binary code is: %s\n", *IC, bin_num);
+    return 1;
+}
+
+int add_extra_machine_code_line(code_conv **code, command_parts *command, int *IC, int is_src){
+    unsigned short num;
+    char *arg;
+    arg = (is_src) ? command->source : command->dest;
+    if(what_reg(arg) > 0 && (num = reg_to_short(command,is_src)) != DOUBLE_REGS_VALUE){
+        (*IC)++;
+        if(add_machine_code_line(code, num, NULL, IC) == 0){
+            return 0;
+        }
+    }
+    else if(legal_label(arg)) {
+        (*IC)++;
+        if(add_machine_code_line(code, RELOCATABLE_VALUE, arg, IC) == 0) {
+            return 0;
+        }
+    }
+    else if(is_num(arg)){
+        (*IC)++;
+        if(add_machine_code_line(code, atoi(arg), NULL, IC) == 0) {
+            return 0;
+        }
+    }
+    /* added successfully or had nothing to add */
+    return 1;
+
+}
+
+int remove_label_table(label_address *label_table){
+    return 1;
+}
 
 int exe_first_pass(char *file_name){
     int num_files, error_code, IC;
+    code_conv *code;
     command_parts *command;
     line_data line;
     char str[MAX_LINE_LENGTH];
@@ -74,31 +141,47 @@ int exe_first_pass(char *file_name){
     line.number = 0;
     label_table_line = 0;
     label_table = NULL;
-    IC = IC_INIT_VALUE;
+    code = handle_malloc(IC_INIT_VALUE * sizeof(code_conv));
+    for (IC = 0; IC < IC_INIT_VALUE; IC++){
+        (code+IC)->short_num = 0;
+        (code+IC)->label = NULL;
+    }
+    IC--;
     while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
-        char *bin_num;
-        //strcpy(line.data,str);
         (line.number)++;
+        /* skipping empty line */
+        if(strcmp(str,"\n") == 0){
+            continue;
+        }
+        //strcpy(line.data,str);
         printf("%s ",str);
         command = read_command(str,&error_code);
         if(error_code == 0){
             printf("line %d: label - %s, opcode = %d, source - %s, dest - %s\n",
                    line.number, command->label, command->opcode, command->source, command->dest);
+            IC++;
         }
         else {
             print_external_error(error_code,line);
             free(command);
-            return 1;
+            return 0;
         }
 
         if(command->label != NULL){
-            insert_label_table(&label_table,label_table_line,command,IC);
+            insert_label_table(&label_table,++label_table_line,command,IC);
         }
-        bin_num = short_to_binary(command_to_short(command));
-        printf("binary code is: %s\n",bin_num);
+        if(add_machine_code_line(&code, command_to_short(command), NULL, &IC) == 0){
+            free(command);
+            return 0;
+        }
+        if(add_extra_machine_code_line(&code,command,&IC,1) == 0 || \
+            add_extra_machine_code_line(&code,command,&IC,0) == 0){
+            free(command);
+            return 0;
+        }
 
 
         free(command);
     }
-    return 0;
+    return 1;
 }
