@@ -16,6 +16,7 @@ typedef struct Error {
 } Error;
 
 typedef enum ERROR_CODES {
+    /* macro related errors or general errors */
     ERROR_CODE_0 = 0,
     ERROR_CODE_1,
     ERROR_CODE_2,
@@ -34,6 +35,7 @@ typedef enum ERROR_CODES {
     ERROR_CODE_15,
     ERROR_CODE_16,
     /* enumeration skip for future macro related errors */
+    /* reading command related errors */
     ERROR_CODE_30 = 30,
     ERROR_CODE_31,
     ERROR_CODE_32,
@@ -51,6 +53,18 @@ typedef enum ERROR_CODES {
     ERROR_CODE_44,
     ERROR_CODE_45,
     ERROR_CODE_46,
+    /* enumeration skip for future command reading related errors */
+    /* reading instruction .data or .string lines related errors */
+    ERROR_CODE_50 = 50,
+    ERROR_CODE_51,
+    ERROR_CODE_52,
+    ERROR_CODE_53,
+    ERROR_CODE_54,
+    ERROR_CODE_55,
+    ERROR_CODE_56,
+    ERROR_CODE_57,
+
+
 
 
 

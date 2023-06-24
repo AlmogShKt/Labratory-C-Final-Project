@@ -14,6 +14,12 @@ typedef struct command_parts {
     char *extra;
 } command_parts;
 
+typedef struct inst_parts {
+    char *label;
+    short *nums;
+    int len;    /* the number of data in *nums including '0' at the end of a string */
+} inst_parts;
+
 int lines_too_long(char *file_name);
 int is_instr(char *str);
 int what_opcode(char *str);
@@ -27,6 +33,9 @@ int is_reg_or_label_or_num(char *str);
 void remove_asp(char **str);
 int legal_arg(char *str, command_parts *command, int *error_code);
 command_parts *read_command(char *str, int *error_code);
+int capture_nums(char *str, inst_parts *inst, int *error_code);
+inst_parts *read_instruction(char *str, int *error_code);
+int inc_array(inst_parts **inst, int len);
 
 
 

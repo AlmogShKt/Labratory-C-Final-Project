@@ -9,6 +9,6 @@ typedef struct label_address {
     char *label_name;
 }label_address;
 
-int insert_label_table(label_address **label_table, int line, command_parts *command, int IC);
+int insert_label_table(label_address **label_table, int lines, char *label, int IC);
 
 #endif

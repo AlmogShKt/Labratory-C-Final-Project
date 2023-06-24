@@ -73,6 +73,7 @@ void remove_extra_spaces_str(char str[]){
         }
         if(*(str+i) == '\0'){
             *(str_temp + j) = *(str+i);
+            remove_spaces_next_to_comma(str_temp);
             strcpy(str,str_temp);
             return;
         }
@@ -85,6 +86,7 @@ void remove_extra_spaces_str(char str[]){
         }
         if(*(str+i) == '\0') {
             *(str_temp + j) = *(str + i);
+            remove_spaces_next_to_comma(str_temp);
             strcpy(str, str_temp);
             return;
         }
@@ -96,3 +98,20 @@ int is_space_or_tab(char c) {
     return (isspace(c) && c != '\n');
 }
 
+void remove_spaces_next_to_comma(char *str){
+    char *ptr;
+    if((ptr = strchr(str,',')) != NULL){
+        /* space before the comma */
+        if(*(ptr-1) == ' '){
+            memmove(ptr-1,ptr,strlen(ptr)+1);
+            if(*(ptr) == ' '){
+                /* also space after the comma */
+                memmove(ptr,ptr+1,strlen(ptr+1)+1);
+            }
+        }
+        if(*(ptr+1) == ' '){
+            /* only space after the comma */
+            memmove(ptr+1,ptr+2,strlen(ptr+2)+1);
+        }
+    }
+}

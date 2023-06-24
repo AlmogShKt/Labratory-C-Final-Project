@@ -45,7 +45,23 @@ Error errors[] = {
         {ERROR_CODE_34, "Missing argument"},
         {ERROR_CODE_35, "Missing comma between argument in a command line with two arguments"},
         {ERROR_CODE_36, ""},
-
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {ERROR_CODE_50, "Instruction '.data' line contains non-number info"},
+        {ERROR_CODE_51, "Comma after the last number in a '.data' line"},
+        {ERROR_CODE_52, "Missing '\"' after '.string'"},
+        {ERROR_CODE_53, "Extra text after the string end in '.string' line"},
 };
 
 /**

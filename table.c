@@ -8,7 +8,7 @@
 #include "globals.h"
 #include "lexer.h"
 
-int insert_label_table(label_address **label_table, int lines, command_parts *command, int IC){
+int insert_label_table(label_address **label_table, int lines, char *label, int IC){
     label_address *p_temp;
     p_temp = *label_table;
     *label_table = realloc(*label_table,lines * sizeof(label_address));
@@ -17,11 +17,11 @@ int insert_label_table(label_address **label_table, int lines, command_parts *co
         return 0;
     }
     (*label_table+lines-1)->address = IC;
-    (*label_table+lines-1)->label_name = malloc((strlen(command->label)+1)*sizeof(char));
+    (*label_table+lines-1)->label_name = malloc((strlen(label)+1)*sizeof(char));
     if((*label_table+lines-1)->label_name == NULL){
         return 0;
     }
-    strcpy((*label_table+lines-1)->label_name,command->label);
+    strcpy((*label_table+lines-1)->label_name,label);
     return 1;
 }
 

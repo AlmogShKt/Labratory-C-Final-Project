@@ -1,4 +1,4 @@
-#ifdef aaa
+// #ifdef aaa
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -277,4 +277,4 @@ void mcro_exec(char file_name[]){
     printf("Macros expansion in file %s completed successfully\n",file_name);
 }
 
-#endif
+// #endif

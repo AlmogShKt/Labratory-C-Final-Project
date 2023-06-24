@@ -13,13 +13,12 @@ unsigned short twos_compliment(unsigned short pos_num){
     return ~pos_num+1;
 }
 
-char *short_to_binary(unsigned short num, int bits_for_num){
+char *short_to_binary(unsigned short num){
     char *res, *ptr;
     int i;
     if(num < 0){
         num = twos_compliment(num);
     }
-    num = num << (WORD_LEN - bits_for_num);
     res = handle_malloc((WORD_LEN+1) * sizeof(char));
     if(res == NULL){
         print_internal_error(ERROR_CODE_1);

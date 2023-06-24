@@ -24,4 +24,5 @@ typedef struct code_conv {
 int inc_mem(code_conv **code, int IC);
 unsigned short command_to_short(command_parts *command);
 int exe_first_pass(char *file_name);
+int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC);
 #endif

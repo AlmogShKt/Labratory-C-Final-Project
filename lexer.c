@@ -252,8 +252,122 @@ int legal_arg(char *str, command_parts *command, int *error_code){
     return 1;
 }
 
-command_parts *read_command(char *str, int *error_code){
+int inc_array(inst_parts **inst, int len){
+    short *ptr;
+    ptr = (*inst)->nums;
+    (*inst)->nums = realloc((*inst)->nums,(len+1) * sizeof(short));
+    if((*inst)->nums == NULL){
+        print_internal_error(ERROR_CODE_1);
+        free(ptr);
+        return 0;
+    }
+    return 1;
+}
 
+int capture_nums(char *str, inst_parts *inst, int *error_code){
+    char *token;
+    int len;
+    len = 0;
+    while((token = strtok(NULL,",\n")) != NULL){
+        if(is_num(token)){
+            if(inc_array(&inst,++len) == 0){
+                return 0;
+            }
+            *(inst->nums+len-1) = (short)(atoi(token));
+        }
+        else {
+            if(strcmp(token,"\n") == 0){
+                /* comma AFTER the last number */
+                *error_code = ERROR_CODE_51;
+                return 0;
+            }
+            *error_code = ERROR_CODE_50;
+            return 0;
+        }
+    }
+    inst->len = len;
+    return 1;
+}
+
+int capture_string(char *str, inst_parts *inst, int *error_code){
+    int flag;   /* if at least one char was saved */
+    char *token;
+    int len;
+    len = inst->len = 0;
+    if(*(token = strtok(NULL,"\n")) != '"'){
+        /* there was no first '"' */
+        *error_code = ERROR_CODE_52;
+        return 0;
+    }
+    token++;
+    if(strchr(token,'"') == NULL){
+        /* there was no second '"' */
+        *error_code = ERROR_CODE_52;
+        return 0;
+    }
+    flag = 0;
+    while(*(token+len) != '"'){
+        if(inc_array(&inst,++len) == 0){
+            return 0;
+        }
+        *(inst->nums+len-1) = (short)(*(token+len-1));
+        flag = 1;
+    }
+    if(*(token+len+1) != '\0' && *(token+len+1) != ' '){
+        /* extra text after the string end */
+        *error_code = ERROR_CODE_53;
+        if(flag == 1){
+            free(inst->nums);
+        }
+        return 0;
+    }
+    /* add \0 sign as the end of the string */
+    if(inc_array(&inst,++len) == 0){
+        return 0;
+    }
+    *(inst->nums+len-1) = 0;
+    inst->len = len;
+    return 1;
+}
+
+inst_parts *read_instruction(char *str, int *error_code){
+    int num_count;
+    inst_parts *inst;
+    char *token;
+    *error_code = 0;
+    if(strstr(str,".") == NULL){
+        return 0;
+    }
+    token = strtok(str," \n");
+    inst = handle_malloc(sizeof(inst_parts));
+    inst->label = NULL;
+    inst->nums = NULL;
+    num_count = 0;
+    if(legal_label_decl(token)){
+        inst->label = token;
+        token = strtok(NULL," \n");
+    }
+    else if(strcmp(token,".data") == 0 || strcmp(token,".string") == 0) {
+        inst->label == NULL;
+    }
+    if(strcmp(token,".data") == 0 || strcmp(token,".string") == 0){
+        if(strcmp(token,".data") == 0){
+            if(capture_nums(str,inst,error_code) == 0){
+                free(inst);
+                return 0;
+            }
+        }
+        else {
+            if(capture_string(str,inst,error_code) == 0){
+                free(inst);
+                return 0;
+            }
+        }
+    }
+    return inst;
+}
+
+command_parts *read_command(char *str, int *error_code){
     int args;
     char *token;
     command_parts *command = malloc(sizeof(command_parts));
@@ -263,8 +377,10 @@ command_parts *read_command(char *str, int *error_code){
     if(legal_label_decl(token)) {
         command->label = token;
         token = strtok(NULL, " \n");
-        if ((command->opcode = what_opcode(token)) != -1) { ;
-        } else {
+        if ((command->opcode = what_opcode(token)) != -1) {
+            ;
+        }
+        else {
             *error_code = ERROR_CODE_31;
             return NULL;
         }
