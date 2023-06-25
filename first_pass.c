@@ -187,9 +187,8 @@ int exe_first_pass(char *file_name){
         (code+IC)->label = NULL;
     }
     IC--;
-    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
+    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL && IC <= IC_MAX){
         (line.number)++;
-        /* skipping empty line */
         if(strcmp(str,"\n") == 0){
             continue;
         }
@@ -244,6 +243,10 @@ int exe_first_pass(char *file_name){
             }
             free(command);
         }
+    }
+    if(IC > IC_MAX){
+        print_internal_error(ERROR_CODE_54);
+        return 0;
     }
     replace_labels(code,label_table,label_table_line,IC);
     print_binary_code(code,IC);

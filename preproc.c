@@ -242,26 +242,26 @@ int mcro_call_before_decl(char file_name[], node *head){
     return check;
 }
 
-void mcro_exec(char file_name[]){
+int mcro_exec(char file_name[]){
     node *head;
     char *new_file1, *new_file2, *final_file;
     new_file1 = remove_extra_spaces_file(file_name);
     if(new_file1 == NULL){
-        return;
+        return 0;
     }
     head = NULL;
     add_mcros(new_file1,&head);
     if(mcro_call_before_decl(new_file1,head)){
         free_list(head);
         abrupt_close(2,"%s",new_file1);
-        return;
+        return 0;
     }
     new_file2 = remove_mcros_decl(new_file1);
     if(new_file2 == NULL){
         free_list(head);
         abrupt_close(2,"%s",new_file1);
         print_internal_error(ERROR_CODE_15);
-        return;
+        return 0;
     }
     free(new_file1);
     final_file = replace_all_mcros(new_file2,head);
@@ -269,12 +269,13 @@ void mcro_exec(char file_name[]){
         free_list(head);
         abrupt_close(4,"%s",new_file2);
         print_internal_error(ERROR_CODE_15);
-        return;
+        return 0;
     }
     free(new_file2);
     free(final_file);
     free_list(head);
     printf("Macros expansion in file %s completed successfully\n",file_name);
+    return 1;
 }
 
 // #endif

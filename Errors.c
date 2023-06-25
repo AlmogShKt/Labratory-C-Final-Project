@@ -62,6 +62,7 @@ Error errors[] = {
         {ERROR_CODE_51, "Comma after the last number in a '.data' line"},
         {ERROR_CODE_52, "Missing '\"' after '.string'"},
         {ERROR_CODE_53, "Extra text after the string end in '.string' line"},
+        {ERROR_CODE_54, "IC too big for word CPU word length"},
 };
 
 /**

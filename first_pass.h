@@ -16,6 +16,8 @@
 
 #define DOUBLE_REGS_VALUE 10000
 
+#define IC_MAX 1023
+
 typedef struct code_conv {
     unsigned short short_num;
     char *label;

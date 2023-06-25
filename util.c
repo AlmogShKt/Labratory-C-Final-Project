@@ -72,8 +72,9 @@ char *add_new_file(char *file_name, char *ending){
     char *c, *new_file_name;
     new_file_name = handle_malloc(MAX_LINE_LENGTH * sizeof(char));
     strcpy(new_file_name,file_name);
-    c = strchr(new_file_name,'.');
-    *c = '\0';
+    if((c = strchr(new_file_name,'.')) != NULL){
+        *c = '\0';
+    }
     strcat(new_file_name,ending);
     return new_file_name;
 }
@@ -92,11 +93,7 @@ int copy_file(char *file_name_dest, char *file_name_orig){
         fclose(fp);
         return 0;
     }
-    while(!feof(fp)){
-        fgets(str,MAX_LINE_LENGTH,fp);
-        if(feof(fp)){
-            break;
-        }
+    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
         fprintf(fp_dest,"%s",str);
     }
     fclose(fp);
