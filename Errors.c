@@ -63,6 +63,7 @@ Error errors[] = {
         {ERROR_CODE_52, "Missing '\"' after '.string'"},
         {ERROR_CODE_53, "Extra text after the string end in '.string' line"},
         {ERROR_CODE_54, "IC too big for word CPU word length"},
+        {ERROR_CODE_55, "Label definition repeats more than once"},
 };
 
 /**
@@ -77,12 +78,11 @@ void print_internal_error(int error_code) {
 /**
  * Print errors while in the assembles files
  * @param error_code the error code
- * @param error_line the line in the assemble file the error was found
+ * @param error_line the line in the assembly file the error was found
  */
-void print_external_error(int error_code, line_data line) {
-    /*todo: add file name */
-    printf("~~ERROR: ID:%d~~ In %s at line:%d | there is error: %s\n", error_code, line.file_name, line.number,
-           errors[error_code].error_msg);
+void print_external_error(int error_code, location file) {
+    printf("~~ERROR: ID:%d~~ in %s at line:%d | there is error: %s\n", error_code, \
+    file.file_name, file.line_num,errors[error_code].error_msg);
 }
 
 /*todo: add another function to print erorr with the file name*/

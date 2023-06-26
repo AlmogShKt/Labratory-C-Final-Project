@@ -29,15 +29,16 @@ char *REGS[] = {"r0","r1","r2","r3","r4","r5","r6","r7"};
 int lines_too_long(char *file_name){
     char str[SIZE];
     FILE *fp;
-    line_data line = {file_name,0,str};
+    location am_file;
     int too_long;
     fp = fopen(file_name,"r");
+    am_file.file_name = file_name;
     too_long = 0;
     while(fgets(str,SIZE,fp) != NULL){
-        (line.number)++;
+        (am_file.line_num)++;
         if(strlen(str) > MAX_LINE_LENGTH){
             /* line is too long */
-            print_external_error(ERROR_CODE_30, line);
+            print_external_error(ERROR_CODE_30, am_file);
             too_long = 1;
         }
     }

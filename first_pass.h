@@ -2,6 +2,8 @@
 #define FIRST_PASS_H
 
 #include "lexer.h"
+#include "globals.h"
+#include "table.h"
 
 #define SOURCE_BITS_SHIFT 9
 #define OPCODE_BITS_SHIFT 5
@@ -21,10 +23,14 @@
 typedef struct code_conv {
     unsigned short short_num;
     char *label;
+    int assembly_line;
 } code_conv;
 
 int inc_mem(code_conv **code, int IC);
 unsigned short command_to_short(command_parts *command);
 int exe_first_pass(char *file_name);
-int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC);
+int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC, location am_file);
+int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC, location am_file);
+void print_binary_code(code_conv *code,int IC_len);
+void replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len);
 #endif

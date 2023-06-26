@@ -64,22 +64,9 @@ typedef enum ERROR_CODES {
     ERROR_CODE_56,
     ERROR_CODE_57,
 
-
-
-
-
-
 } ERROR_CODES;
 
-typedef enum EXIT_CODE {
-    SUCCESS,
-    FAILED
-} EXIT_CODE;
-
-
-void print_external_error(int error_code, line_data line);
-
+void print_external_error(int error_code, location file);
 void print_internal_error(int error_code);
-
 
 #endif

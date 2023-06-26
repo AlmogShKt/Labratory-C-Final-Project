@@ -73,12 +73,13 @@ unsigned short reg_to_short(command_parts *command, int reg_src){
     return DOUBLE_REGS_VALUE;
 }
 
-int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC){
+int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC, location am_file){
     char *bin_num;
     if(inc_mem(code,*IC) == 0){
         return 0;
     }
     (*code+*IC)->short_num = num;
+    (*code+*IC)->assembly_line = am_file.line_num;
     if(str == NULL){
         (*code+*IC)->label = NULL;
     }
@@ -89,31 +90,29 @@ int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *
         }
         strcpy((*code+*IC)->label,str);
     }
-    // bin_num = short_to_binary((*code + *IC)->short_num);
-    // printf("Address %d binary code is: %s\n", *IC, bin_num);
     return 1;
 }
 
-int add_extra_machine_code_line(code_conv **code, command_parts *command, int *IC, int is_src){
+int add_extra_machine_code_line(code_conv **code, command_parts *command, int *IC, int is_src, location am_file){
     unsigned short num;
     char *arg;
     arg = (is_src) ? command->source : command->dest;
     if(what_reg(arg) > 0 && (num = reg_to_short(command,is_src)) != DOUBLE_REGS_VALUE){
         (*IC)++;
-        if(add_machine_code_line(code, num, NULL, IC) == 0){
+        if(add_machine_code_line(code, num, NULL, IC, am_file) == 0){
             return 0;
         }
     }
     else if(legal_label(arg)) {
         (*IC)++;
-        if(add_machine_code_line(code, RELOCATABLE_VALUE, arg, IC) == 0) {
+        if(add_machine_code_line(code, RELOCATABLE_VALUE, arg, IC, am_file) == 0) {
             return 0;
         }
     }
     else if(is_num(arg)){
         (*IC)++;
         /* representing number in 2-11 bits, therefore pushing the number ARE_BITS bits to the left */
-        if(add_machine_code_line(code, atoi(arg) << ARE_BITS, NULL, IC) == 0) {
+        if(add_machine_code_line(code, atoi(arg) << ARE_BITS, NULL, IC, am_file) == 0) {
             return 0;
         }
     }
@@ -122,17 +121,15 @@ int add_extra_machine_code_line(code_conv **code, command_parts *command, int *I
 
 }
 
-int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC){
+int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC, location am_file){
     int i;
-    char *bin_num;
     for (i = 0; i < inst->len; i++){
         if(inc_mem(code,*IC) == 0){
             return 0;
         }
         (*code+*IC)->short_num = *(inst->nums+i);
         (*code+*IC)->label = NULL;
-        // bin_num = short_to_binary((*code + *IC)->short_num);
-        // printf("Address %d binary code is: %s\n", *IC, bin_num);
+        (*code+*IC)->assembly_line = am_file.line_num;
         (*IC)++;
     }
     (*IC)--;
@@ -157,7 +154,8 @@ void print_binary_code(code_conv *code,int IC_len){
     char *bin_num;
     for (i = IC_INIT_VALUE; i <= IC_len; i++){
         bin_num = short_to_binary((code + i)->short_num);
-        printf("Address %d binary code is: %s\n", i, bin_num);
+        printf("Assembly line %d, Code address %d binary code is: %s\n",\
+        (code + i)->assembly_line,i, bin_num);
     }
 }
 
@@ -165,20 +163,24 @@ int remove_label_table(label_address *label_table){
     return 1;
 }
 
+
 int exe_first_pass(char *file_name){
     int num_files, error_code, IC;
     code_conv *code;
     command_parts *command;
     inst_parts *inst;
-    line_data line;
+    location am_file;
     char str[MAX_LINE_LENGTH];
     FILE *fp;
     label_address *label_table;
     int label_table_line;
+    if(lines_too_long(file_name)){
+        return 0;
+    }
     error_code = 0;
     fp = fopen(file_name,"r");
-    line.file_name = file_name;
-    line.number = 0;
+    am_file.file_name = file_name;
+    am_file.line_num = 0;
     label_table_line = 0;
     label_table = NULL;
     code = handle_malloc(IC_INIT_VALUE * sizeof(code_conv));
@@ -188,27 +190,26 @@ int exe_first_pass(char *file_name){
     }
     IC--;
     while(fgets(str,MAX_LINE_LENGTH,fp) != NULL && IC <= IC_MAX){
-        (line.number)++;
+        (am_file.line_num)++;
         if(strcmp(str,"\n") == 0){
             continue;
         }
-        //strcpy(line.data,str);
         printf("%s ",str);
         if(strstr(str,".data") != 0 || strstr(str,".string") != 0){
             inst = read_instruction(str,&error_code);
             if(error_code == 0){
-                printf("line %d: label - %s\n",line.number, inst->label);
+                printf("line %d: label - %s\n",am_file.line_num, inst->label);
                 IC++;
             }
             else {
-                print_external_error(error_code,line);
+                print_external_error(error_code,am_file);
                 free(inst);
                 return 0;
             }
             if(inst->label != NULL){
-                insert_label_table(&label_table,++label_table_line,inst->label,IC);
+                insert_label_table(&label_table,++label_table_line,inst->label,IC,am_file);
             }
-            if(add_machine_code_data(&code, inst, &IC) == 0){
+            if(add_machine_code_data(&code, inst, &IC, am_file) == 0){
                 free(inst->nums);
                 free(inst);
                 return 0;
@@ -220,24 +221,24 @@ int exe_first_pass(char *file_name){
             command = read_command(str,&error_code);
             if(error_code == 0){
                 printf("line %d: label - %s, opcode = %d, source - %s, dest - %s\n",
-                       line.number, command->label, command->opcode, command->source, command->dest);
+                       am_file.line_num, command->label, command->opcode, command->source, command->dest);
                 IC++;
             }
             else {
-                print_external_error(error_code,line);
+                print_external_error(error_code,am_file);
                 free(command);
                 return 0;
             }
 
             if(command->label != NULL){
-                insert_label_table(&label_table,++label_table_line,command->label,IC);
+                insert_label_table(&label_table,++label_table_line,command->label,IC,am_file);
             }
-            if(add_machine_code_line(&code, command_to_short(command), NULL, &IC) == 0){
+            if(add_machine_code_line(&code, command_to_short(command), NULL, &IC, am_file) == 0){
                 free(command);
                 return 0;
             }
-            if(add_extra_machine_code_line(&code,command,&IC,1) == 0 || \
-            add_extra_machine_code_line(&code,command,&IC,0) == 0){
+            if(add_extra_machine_code_line(&code,command,&IC,1,am_file) == 0 || \
+            add_extra_machine_code_line(&code,command,&IC,0,am_file) == 0){
                 free(command);
                 return 0;
             }
@@ -249,6 +250,9 @@ int exe_first_pass(char *file_name){
         return 0;
     }
     replace_labels(code,label_table,label_table_line,IC);
+    if(check_each_label_once(label_table,label_table_line,file_name) == 0){
+        return 0;
+    }
     print_binary_code(code,IC);
     return 1;
 }
