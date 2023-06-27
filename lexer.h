@@ -18,6 +18,7 @@ typedef struct inst_parts {
     char *label;
     short *nums;
     int len;    /* the number of data in *nums including '0' at the end of a string */
+    char *arg_label;
 } inst_parts;
 
 int lines_too_long(char *file_name);

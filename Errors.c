@@ -24,7 +24,7 @@ Error errors[] = {
         {ERROR_CODE_14, "Failed to copy file during macros expansion"},
         {ERROR_CODE_15, "Macros expansion in an .as file failed"},
         {ERROR_CODE_16, "Macro call before declaration"},
-        {-1, ""},
+        {ERROR_CODE_17, "Illegal name for a macro"},
         {-1, ""},
         {-1, ""},
         {-1, ""},
@@ -44,8 +44,8 @@ Error errors[] = {
         {ERROR_CODE_33, "Illegal argument"},
         {ERROR_CODE_34, "Missing argument"},
         {ERROR_CODE_35, "Missing comma between argument in a command line with two arguments"},
-        {ERROR_CODE_36, ""},
-        {-1, ""},
+        {ERROR_CODE_36, "Label not defined in the assembly file"},
+        {ERROR_CODE_37, "Illegal label after .entry"},
         {-1, ""},
         {-1, ""},
         {-1, ""},
@@ -64,6 +64,7 @@ Error errors[] = {
         {ERROR_CODE_53, "Extra text after the string end in '.string' line"},
         {ERROR_CODE_54, "IC too big for word CPU word length"},
         {ERROR_CODE_55, "Label definition repeats more than once"},
+
 };
 
 /**

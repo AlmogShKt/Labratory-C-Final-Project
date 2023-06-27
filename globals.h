@@ -26,6 +26,8 @@
 
 #define EXTERNAL_VALUE 1
 
+#define INSTRUCTIONS_COUNT 4
+
 typedef struct location{
     char *file_name;
     int line_num;

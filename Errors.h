@@ -34,6 +34,7 @@ typedef enum ERROR_CODES {
     ERROR_CODE_14,
     ERROR_CODE_15,
     ERROR_CODE_16,
+    ERROR_CODE_17,
     /* enumeration skip for future macro related errors */
     /* reading command related errors */
     ERROR_CODE_30 = 30,

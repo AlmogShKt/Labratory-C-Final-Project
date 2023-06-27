@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
             continue;
         }
         am_file = add_new_file(argv[argc], ".am");
-        if(exe_first_pass(am_file) == 0){
+        if(exe_first_pass(am_file)){
             continue;
         }
     }

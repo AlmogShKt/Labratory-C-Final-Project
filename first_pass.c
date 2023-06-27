@@ -127,6 +127,11 @@ int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC, location 
         if(inc_mem(code,*IC) == 0){
             return 0;
         }
+        /* todo:
+         * need to implement conde conversion for lines with .entry & .extern?
+         * or just in label_table and output files
+         *
+         * */
         (*code+*IC)->short_num = *(inst->nums+i);
         (*code+*IC)->label = NULL;
         (*code+*IC)->assembly_line = am_file.line_num;
@@ -136,17 +141,29 @@ int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC, location 
     return 1;
 }
 
-void replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len){
-    int i,j;
+int error_replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name){
+    int i,j, found, error_found;
+    error_found = 0;
     for (i = IC_INIT_VALUE; i <= IC_len; i++){
+        found = 0;
         if((code+i)->label != NULL){
             for (j = 0; j < label_table_line; j++){
                 if(strcmp((code+i)->label,(label_table+j)->label_name) == 0){
                     (code+i)->short_num |= ((label_table+j)->address) << ARE_BITS;
+                    found = 1;
                 }
+            }
+            /* if label is not defined in the assembly file */
+            if(!found){
+                location am_file;
+                am_file.file_name = file_name;
+                am_file.line_num = (code+i)->assembly_line;
+                print_external_error(ERROR_CODE_36,am_file);
+                error_found = 1;
             }
         }
     }
+    return error_found;
 }
 
 void print_binary_code(code_conv *code,int IC_len){
@@ -159,13 +176,17 @@ void print_binary_code(code_conv *code,int IC_len){
     }
 }
 
+int legal_entry(char *str){
+
+}
+
 int remove_label_table(label_address *label_table){
     return 1;
 }
 
 
 int exe_first_pass(char *file_name){
-    int num_files, error_code, IC;
+    int error_code, IC, error_found, label_table_line;
     code_conv *code;
     command_parts *command;
     inst_parts *inst;
@@ -173,11 +194,11 @@ int exe_first_pass(char *file_name){
     char str[MAX_LINE_LENGTH];
     FILE *fp;
     label_address *label_table;
-    int label_table_line;
-    if(lines_too_long(file_name)){
-        return 0;
-    }
     error_code = 0;
+    error_found = 0;
+    if(lines_too_long(file_name)){
+        error_found = 1;
+    }
     fp = fopen(file_name,"r");
     am_file.file_name = file_name;
     am_file.line_num = 0;
@@ -195,7 +216,9 @@ int exe_first_pass(char *file_name){
             continue;
         }
         printf("%s ",str);
-        if(strstr(str,".data") != 0 || strstr(str,".string") != 0){
+        /* todo: change to is_inst(str). also in other places */
+        if(strstr(str,".data") != 0 || strstr(str,".string") != 0 || \
+            strcmp(str,".entry") != 0 || strcmp(str,".extern") != 0){
             inst = read_instruction(str,&error_code);
             if(error_code == 0){
                 printf("line %d: label - %s\n",am_file.line_num, inst->label);
@@ -204,7 +227,7 @@ int exe_first_pass(char *file_name){
             else {
                 print_external_error(error_code,am_file);
                 free(inst);
-                return 0;
+                error_found = 1;
             }
             if(inst->label != NULL){
                 insert_label_table(&label_table,++label_table_line,inst->label,IC,am_file);
@@ -212,10 +235,13 @@ int exe_first_pass(char *file_name){
             if(add_machine_code_data(&code, inst, &IC, am_file) == 0){
                 free(inst->nums);
                 free(inst);
-                return 0;
+                error_found = 1;
             }
             free(inst->nums);
             free(inst);
+        }
+        else if(strstr(str,".entry") != NULL){
+            ddd
         }
         else {
             command = read_command(str,&error_code);
@@ -227,7 +253,7 @@ int exe_first_pass(char *file_name){
             else {
                 print_external_error(error_code,am_file);
                 free(command);
-                return 0;
+                error_found = 1;
             }
 
             if(command->label != NULL){
@@ -235,24 +261,26 @@ int exe_first_pass(char *file_name){
             }
             if(add_machine_code_line(&code, command_to_short(command), NULL, &IC, am_file) == 0){
                 free(command);
-                return 0;
+                error_found = 1;
             }
             if(add_extra_machine_code_line(&code,command,&IC,1,am_file) == 0 || \
             add_extra_machine_code_line(&code,command,&IC,0,am_file) == 0){
                 free(command);
-                return 0;
+                error_found = 1;
             }
             free(command);
         }
     }
     if(IC > IC_MAX){
         print_internal_error(ERROR_CODE_54);
-        return 0;
+        error_found = 1;
     }
-    replace_labels(code,label_table,label_table_line,IC);
+    if(error_replace_labels(code,label_table,label_table_line,IC,file_name)){
+        error_found = 1;
+    }
     if(check_each_label_once(label_table,label_table_line,file_name) == 0){
-        return 0;
+        error_found = 1;
     }
     print_binary_code(code,IC);
-    return 1;
+    return error_found;
 }

@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "handle_text.h"
 #include "Errors.h"
+#include "lexer.h"
 
 char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count){
     int mcro_length;
@@ -33,11 +34,19 @@ char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count){
     return mcro;
 }
 
-int valid_mcro_decl(char *str, char **name){
+int valid_mcro_decl(char *str, char **name, int line_count, char *file_name){
+    /* assumes "mcro " has been encountered right before the function was called */
     char *temp_name, *extra;
     temp_name = strtok(NULL, " \n");
     if (temp_name == NULL) {
         print_internal_error(ERROR_CODE_9);
+        return 0;
+    }
+    if(is_instr(temp_name) || what_opcode(temp_name) >= 0 || what_reg(temp_name) >= 0){
+        location as_file;
+        as_file.file_name = file_name;
+        as_file.line_num = line_count;
+        print_external_error(ERROR_CODE_17,as_file);
         return 0;
     }
     extra = strtok(NULL, "\n");
@@ -66,7 +75,7 @@ void add_mcros(char *file_name, node **head){
         line_count++;
         if(strcmp(strtok(str," "),"mcro") == 0){
             int mcro_line = line_count;
-            if(!valid_mcro_decl(str,&name)){
+            if(!valid_mcro_decl(str,&name,line_count,file_name)){
                 continue;
             }
             fgetpos(fp,&pos);
@@ -274,6 +283,8 @@ int mcro_exec(char file_name[]){
     free(new_file2);
     free(final_file);
     free_list(head);
+    remove(add_new_file(file_name,".t01"));
+    remove(add_new_file(file_name,".t02"));
     printf("Macros expansion in file %s completed successfully\n",file_name);
     return 1;
 }

@@ -26,6 +26,8 @@ op_code OPCODES[] = {
 
 char *REGS[] = {"r0","r1","r2","r3","r4","r5","r6","r7"};
 
+char *INSTUCTIONS[] = {"data","string","extern","entry"};
+
 int lines_too_long(char *file_name){
     char str[SIZE];
     FILE *fp;
@@ -46,11 +48,16 @@ int lines_too_long(char *file_name){
 }
 
 int is_instr(char *str){
-    if(strstr(str,".data ") == NULL && strstr(str,".string ") == NULL \
-     && strstr(str,".entry ") == NULL && strstr(str,".extern ") == NULL){
+    if(str == NULL){
         return 0;
     }
-    return 1;
+    int i;
+    for (i = 0; i < INSTRUCTIONS_COUNT; i++) {
+        if (strcmp(str, INSTUCTIONS[i]) == 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 int what_opcode(char *str){
@@ -99,7 +106,8 @@ int legal_label(char *str){
     if(str == NULL){
         return 0;
     }
-    if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0)){
+    if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0) && \
+        !is_instr(str)){
         while(*(++str) != '\0' && (isalpha(*str) || isdigit(*str))){
             ;
         }
@@ -348,7 +356,8 @@ inst_parts *read_instruction(char *str, int *error_code){
         inst->label = token;
         token = strtok(NULL," \n");
     }
-    else if(strcmp(token,".data") == 0 || strcmp(token,".string") == 0) {
+    else if(strcmp(token,".data") == 0 || strcmp(token,".string") == 0 || \
+            strcmp(token,".entry") == 0 || strcmp(token,".extern") == 0) {
         inst->label == NULL;
     }
     if(strcmp(token,".data") == 0 || strcmp(token,".string") == 0){
@@ -358,9 +367,20 @@ inst_parts *read_instruction(char *str, int *error_code){
                 return 0;
             }
         }
-        else {
+        else if (strcmp(token,".string") == 0){
             if(capture_string(str,inst,error_code) == 0){
                 free(inst);
+                return 0;
+            }
+        }
+        else if(strcmp(token,".entry") == 0){
+            token = strtok(NULL," \n");
+            if(legal_label(token)){
+                inst->label = NULL; /* ignore label in the beginning */
+                inst->arg_label = token;
+            }
+            else {
+                *error_code = ERROR_CODE_37;
                 return 0;
             }
         }

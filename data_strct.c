@@ -24,7 +24,7 @@ node *search_list(node *head, char *name, int *found){
     /* node exists already */
     if(strcmp(name,head->name) == 0){
         *found = 1;
-        printf("node %s already exists in the tree\n",name);
+        printf("node %s already exists in the list\n",name);
         return head;
     }
     if(head->next == NULL){
