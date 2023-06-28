@@ -33,4 +33,7 @@ int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC, location 
 int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC, location am_file);
 void print_binary_code(code_conv *code,int IC_len);
 int error_replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name);
+int merge_code(code_conv **code, code_conv *data, int IC, int DC);
+int add_extra_machine_code_line(code_conv **code, command_parts *command, int *IC, int is_src, location am_file);
+unsigned short reg_to_short(command_parts *command, int reg_src);
 #endif

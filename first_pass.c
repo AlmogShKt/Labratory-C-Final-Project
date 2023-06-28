@@ -11,10 +11,10 @@
 #include "first_pass.h"
 #include "lexer.h"
 
-int inc_mem(code_conv **code, int IC){
+int inc_mem(code_conv **code, int counter){
     code_conv *ptr;
     ptr = *code;
-    *code = realloc(*code,(IC+1) * sizeof(code_conv));
+    *code = realloc(*code,(counter+1) * sizeof(code_conv));
     if(*code == NULL){
         print_internal_error(ERROR_CODE_1);
         free(ptr);
@@ -121,30 +121,30 @@ int add_extra_machine_code_line(code_conv **code, command_parts *command, int *I
 
 }
 
-int add_machine_code_data(code_conv **code, inst_parts *inst, int *IC, location am_file){
+int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location am_file){
     int i;
     for (i = 0; i < inst->len; i++){
-        if(inc_mem(code,*IC) == 0){
-            return 0;
-        }
         /* todo:
          * need to implement conde conversion for lines with .entry & .extern?
          * or just in label_table and output files
          *
          * */
-        (*code+*IC)->short_num = *(inst->nums+i);
-        (*code+*IC)->label = NULL;
-        (*code+*IC)->assembly_line = am_file.line_num;
-        (*IC)++;
+        if(inc_mem(data,*DC) == 0){
+            return 0;
+        }
+        (*data+*DC)->short_num = *(inst->nums+i);
+        (*data+*DC)->label = NULL; /* a data line cannot include a label as an ARGUMENT */
+        (*data+*DC)->assembly_line = am_file.line_num;
+        (*DC)++;
     }
-    (*IC)--;
+    (*DC)--;
     return 1;
 }
 
 int error_replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name){
     int i,j, found, error_found;
     error_found = 0;
-    for (i = IC_INIT_VALUE; i <= IC_len; i++){
+    for (i = 0; i <= IC_len; i++){
         found = 0;
         if((code+i)->label != NULL){
             for (j = 0; j < label_table_line; j++){
@@ -176,8 +176,27 @@ void print_binary_code(code_conv *code,int IC_len){
     }
 }
 
-int legal_entry(char *str){
+int merge_code(code_conv **code, code_conv *data, int IC, int DC){
+    int i;
+    code_conv *ptr;
+    ptr = *code;
+    if(inc_mem(code,IC+DC) == 0){
+        free(ptr);
+        free(data);
+        return 0;
+    }
+    /* coping the info from the data lines into the end of the command code lines */
+    for(i = 1; i <= DC; i++){
+        (*code+IC+i)->label = (data+i)->label;
+        (*code+IC+i)->assembly_line = (data+i)->assembly_line;
+        (*code+IC+i)->short_num = (data+i)->short_num;
+    }
+    free(data); /* no need anymore for the code from the data */
+    return 1;
+}
 
+int legal_entry(char *str){
+    return 1;
 }
 
 int remove_label_table(label_address *label_table){
@@ -186,8 +205,8 @@ int remove_label_table(label_address *label_table){
 
 
 int exe_first_pass(char *file_name){
-    int error_code, IC, error_found, label_table_line;
-    code_conv *code;
+    int error_code, IC, DC, error_found, label_table_line;
+    code_conv *code, *data;
     command_parts *command;
     inst_parts *inst;
     location am_file;
@@ -204,12 +223,17 @@ int exe_first_pass(char *file_name){
     am_file.line_num = 0;
     label_table_line = 0;
     label_table = NULL;
+    /*
     code = handle_malloc(IC_INIT_VALUE * sizeof(code_conv));
     for (IC = 0; IC < IC_INIT_VALUE; IC++){
         (code+IC)->short_num = 0;
         (code+IC)->label = NULL;
     }
     IC--;
+    */
+    IC = DC = 0;
+    code = handle_malloc(sizeof(code_conv));
+    data = handle_malloc(sizeof(code_conv));
     while(fgets(str,MAX_LINE_LENGTH,fp) != NULL && IC <= IC_MAX){
         (am_file.line_num)++;
         if(strcmp(str,"\n") == 0){
@@ -217,12 +241,12 @@ int exe_first_pass(char *file_name){
         }
         printf("%s ",str);
         /* todo: change to is_inst(str). also in other places */
-        if(strstr(str,".data") != 0 || strstr(str,".string") != 0 || \
-            strcmp(str,".entry") != 0 || strcmp(str,".extern") != 0){
+        if(strstr(str,".data") != NULL || strstr(str,".string") != NULL || \
+            strstr(str,".entry") != NULL || strstr(str,".extern") != NULL){
             inst = read_instruction(str,&error_code);
             if(error_code == 0){
                 printf("line %d: label - %s\n",am_file.line_num, inst->label);
-                IC++;
+                DC++;
             }
             else {
                 print_external_error(error_code,am_file);
@@ -230,9 +254,9 @@ int exe_first_pass(char *file_name){
                 error_found = 1;
             }
             if(inst->label != NULL){
-                insert_label_table(&label_table,++label_table_line,inst->label,IC,am_file);
+                insert_label_table(&label_table,++label_table_line,inst->label,DC,am_file,1);
             }
-            if(add_machine_code_data(&code, inst, &IC, am_file) == 0){
+            if(add_machine_code_data(&data, inst, &DC, am_file) == 0){
                 free(inst->nums);
                 free(inst);
                 error_found = 1;
@@ -240,9 +264,11 @@ int exe_first_pass(char *file_name){
             free(inst->nums);
             free(inst);
         }
+        /*
         else if(strstr(str,".entry") != NULL){
             ddd
         }
+        */
         else {
             command = read_command(str,&error_code);
             if(error_code == 0){
@@ -257,7 +283,7 @@ int exe_first_pass(char *file_name){
             }
 
             if(command->label != NULL){
-                insert_label_table(&label_table,++label_table_line,command->label,IC,am_file);
+                insert_label_table(&label_table,++label_table_line,command->label,IC,am_file,0);
             }
             if(add_machine_code_line(&code, command_to_short(command), NULL, &IC, am_file) == 0){
                 free(command);
@@ -275,12 +301,16 @@ int exe_first_pass(char *file_name){
         print_internal_error(ERROR_CODE_54);
         error_found = 1;
     }
-    if(error_replace_labels(code,label_table,label_table_line,IC,file_name)){
-        error_found = 1;
-    }
     if(check_each_label_once(label_table,label_table_line,file_name) == 0){
         error_found = 1;
     }
-    print_binary_code(code,IC);
+    change_label_table_data_count(label_table, label_table_line, IC);
+    if(error_replace_labels(code,label_table,label_table_line,IC,file_name)){
+        error_found = 1;
+    }
+    if(merge_code(&code, data, IC, DC) == 0){
+        error_found = 1;
+    }
+    print_binary_code(code,IC+DC);
     return error_found;
 }
