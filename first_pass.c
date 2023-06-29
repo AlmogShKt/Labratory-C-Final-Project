@@ -90,6 +90,9 @@ int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *
         }
         strcpy((*code+*IC)->label,str);
     }
+    bin_num = short_to_binary((*code + *IC)->short_num);
+    printf("Assembly line %d, Code address %d binary code is: %s\n",\
+        (*code + *IC)->assembly_line,*IC, bin_num);
     return 1;
 }
 
@@ -124,6 +127,7 @@ int add_extra_machine_code_line(code_conv **code, command_parts *command, int *I
 int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location am_file){
     int i;
     for (i = 0; i < inst->len; i++){
+        char *bin_num;
         /* todo:
          * need to implement conde conversion for lines with .entry & .extern?
          * or just in label_table and output files
@@ -135,9 +139,12 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         (*data+*DC)->short_num = *(inst->nums+i);
         (*data+*DC)->label = NULL; /* a data line cannot include a label as an ARGUMENT */
         (*data+*DC)->assembly_line = am_file.line_num;
+        bin_num = short_to_binary((*data + *DC)->short_num);
+        printf("Assembly line %d, Code address %d binary code is: %s\n",\
+        (*data + *DC)->assembly_line,*DC, bin_num);
         (*DC)++;
     }
-    (*DC)--;
+    //(*DC)--;
     return 1;
 }
 
@@ -169,10 +176,10 @@ int error_replace_labels(code_conv *code, label_address *label_table, int label_
 void print_binary_code(code_conv *code,int IC_len){
     int i;
     char *bin_num;
-    for (i = IC_INIT_VALUE; i <= IC_len; i++){
+    for (i = 0; i <= IC_len; i++){
         bin_num = short_to_binary((code + i)->short_num);
         printf("Assembly line %d, Code address %d binary code is: %s\n",\
-        (code + i)->assembly_line,i, bin_num);
+        (code + i)->assembly_line,+IC_INIT_VALUE+i, bin_num);
     }
 }
 
@@ -186,10 +193,10 @@ int merge_code(code_conv **code, code_conv *data, int IC, int DC){
         return 0;
     }
     /* coping the info from the data lines into the end of the command code lines */
-    for(i = 1; i <= DC; i++){
-        (*code+IC+i)->label = (data+i)->label;
-        (*code+IC+i)->assembly_line = (data+i)->assembly_line;
-        (*code+IC+i)->short_num = (data+i)->short_num;
+    for(i = 0; i < DC; i++){
+        (*code+IC+i+1)->label = (data+i)->label;
+        (*code+IC+i+1)->assembly_line = (data+i)->assembly_line;
+        (*code+IC+i+1)->short_num = (data+i)->short_num;
     }
     free(data); /* no need anymore for the code from the data */
     return 1;
@@ -231,7 +238,8 @@ int exe_first_pass(char *file_name){
     }
     IC--;
     */
-    IC = DC = 0;
+    IC = -1;
+    DC = 0;
     code = handle_malloc(sizeof(code_conv));
     data = handle_malloc(sizeof(code_conv));
     while(fgets(str,MAX_LINE_LENGTH,fp) != NULL && IC <= IC_MAX){
@@ -246,7 +254,7 @@ int exe_first_pass(char *file_name){
             inst = read_instruction(str,&error_code);
             if(error_code == 0){
                 printf("line %d: label - %s\n",am_file.line_num, inst->label);
-                DC++;
+                //DC++;
             }
             else {
                 print_external_error(error_code,am_file);
@@ -261,6 +269,7 @@ int exe_first_pass(char *file_name){
                 free(inst);
                 error_found = 1;
             }
+
             free(inst->nums);
             free(inst);
         }
@@ -305,6 +314,14 @@ int exe_first_pass(char *file_name){
         error_found = 1;
     }
     change_label_table_data_count(label_table, label_table_line, IC);
+    /*
+    int i;
+    for(i = 0; i < label_table_line; i++){
+        printf("address: %d, label_name: %s, assembly_line: %d\n",\
+        (label_table+i)->address,(label_table+i)->label_name,(label_table+i)->assembly_line);
+    }
+    */
+    reset_labels_address(label_table, label_table_line);
     if(error_replace_labels(code,label_table,label_table_line,IC,file_name)){
         error_found = 1;
     }
@@ -312,5 +329,6 @@ int exe_first_pass(char *file_name){
         error_found = 1;
     }
     print_binary_code(code,IC+DC);
+
     return error_found;
 }

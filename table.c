@@ -48,7 +48,7 @@ void change_label_table_data_count(label_address *label_table, int table_lines, 
     int i;
     for (i = 0; i < table_lines; i++){
         if((label_table+i)->is_data){
-            (label_table+i)->address += IC;
+            (label_table+i)->address += IC+1;
         }
     }
 }
