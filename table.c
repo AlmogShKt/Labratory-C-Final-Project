@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include "table.h"
 #include "globals.h"
-#include "lexer.h"
 #include "Errors.h"
+#include "code_conversion.h"
 
 int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data){
     label_address *p_temp;
@@ -58,6 +58,31 @@ void reset_labels_address(label_address *label_table, int table_lines){
     for (i = 0; i < table_lines; i++){
         (label_table+i)->address += IC_INIT_VALUE;
     }
+}
+
+int error_replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name){
+    int i,j, found, error_found;
+    error_found = 0;
+    for (i = 0; i <= IC_len; i++){
+        found = 0;
+        if((code+i)->label != NULL){
+            for (j = 0; j < label_table_line; j++){
+                if(strcmp((code+i)->label,(label_table+j)->label_name) == 0){
+                    (code+i)->short_num |= ((label_table+j)->address) << ARE_BITS;
+                    found = 1;
+                }
+            }
+            /* if label is not defined in the assembly file */
+            if(!found){
+                location am_file;
+                am_file.file_name = file_name;
+                am_file.line_num = (code+i)->assembly_line;
+                print_external_error(ERROR_CODE_36,am_file);
+                error_found = 1;
+            }
+        }
+    }
+    return error_found;
 }
 
 #endif

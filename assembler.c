@@ -3,6 +3,7 @@
 #include <string.h>
 #include "preproc.h"
 #include "first_pass.h"
+#include "second_pass.h"
 #include "util.h"
 
 

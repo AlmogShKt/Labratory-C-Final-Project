@@ -7,7 +7,8 @@
 #define SKIP_WHITE_SPACE(string, index) \
         for (;string[(index)] && (string[(index)] == '\t' || string[(index)] == ' '); (++(index)));
 
-char convert_to_base64(char binary_number[]);
+// char convert_to_base64(char binary_number[]);
+char *short_to_base64(unsigned short num);
 unsigned short twos_compliment(unsigned short pos_num);
 void *handle_malloc(long object_size);
 char *add_new_file(char *file_name, char *ending);

@@ -28,6 +28,12 @@
 
 #define INSTRUCTIONS_COUNT 4
 
+#define SIX_BITS_MAX 63
+
+#define SIX_BITS 6
+
+#define NUM_SEXTETES 2
+
 typedef struct location{
     char *file_name;
     int line_num;

@@ -40,7 +40,7 @@ char *short_to_binary(unsigned short num){
     return res;
 }
 
-
+/*
 char convert_to_base64(char binary_number[]) {
     char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     int decimal = 0, i;
@@ -54,6 +54,26 @@ char convert_to_base64(char binary_number[]) {
     return base64_number;
 
 }
+*/
+
+char *short_to_base64(unsigned short num){
+    unsigned short nl, nr;
+    char *res;
+    char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    nr = num & SIX_BITS_MAX; /* masking the 6 MSB */
+    nl = num & SIX_BITS_MAX << SIX_BITS; /* masking the 6 LSB */
+    res = handle_malloc(NUM_SEXTETES * sizeof(char));
+    if(res == NULL){
+        return NULL;
+    }
+    *res = base64_table[nl];
+    *(res+1) = base64_table[nr];
+    return res;
+}
+
+
+
+
 
 /**
  * Trying to allocate memory and check is success
