@@ -37,7 +37,6 @@ Error errors[] = {
         {-1, ""},
         {-1, ""},
         {-1, ""},
-
         {ERROR_CODE_30, "Line is too long"},
         {ERROR_CODE_31, "Command line without opcode"},
         {ERROR_CODE_32, "Line contains extra text"},
@@ -64,6 +63,7 @@ Error errors[] = {
         {ERROR_CODE_53, "Extra text after the string end in '.string' line"},
         {ERROR_CODE_54, "IC too big for word CPU word length"},
         {ERROR_CODE_55, "Label definition repeats more than once"},
+        {ERROR_CODE_56, "Label defined as .extern and defined in file"},
 
 };
 

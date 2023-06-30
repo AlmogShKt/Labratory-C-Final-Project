@@ -358,31 +358,41 @@ inst_parts *read_instruction(char *str, int *error_code){
     }
     else if(strcmp(token,".data") == 0 || strcmp(token,".string") == 0 || \
             strcmp(token,".entry") == 0 || strcmp(token,".extern") == 0) {
-        inst->label == NULL;
+        inst->label = NULL;
     }
-    if(strcmp(token,".data") == 0 || strcmp(token,".string") == 0){
-        if(strcmp(token,".data") == 0){
-            if(capture_nums(str,inst,error_code) == 0){
-                free(inst);
-                return 0;
-            }
+    if(strcmp(token,".data") == 0){
+        if(capture_nums(str,inst,error_code) == 0){
+            free(inst);
+            return 0;
         }
-        else if (strcmp(token,".string") == 0){
-            if(capture_string(str,inst,error_code) == 0){
-                free(inst);
-                return 0;
-            }
+    }
+    else if (strcmp(token,".string") == 0){
+        if(capture_string(str,inst,error_code) == 0){
+            free(inst);
+            return 0;
         }
-        else if(strcmp(token,".entry") == 0){
-            token = strtok(NULL," \n");
-            if(legal_label(token)){
-                inst->label = NULL; /* ignore label in the beginning */
-                inst->arg_label = token;
-            }
-            else {
-                *error_code = ERROR_CODE_37;
-                return 0;
-            }
+    }
+    else if(strcmp(token,".entry") == 0){
+        token = strtok(NULL," \n");
+        if(legal_label(token)){
+            inst->label = NULL; /* ignore label in the beginning */
+            inst->arg_label = token;
+            inst->nums = 0;
+            inst->is_extern = 0;
+        }
+        else {
+            *error_code = ERROR_CODE_37;
+            free(inst);
+            return 0;
+        }
+    }
+    else if(strcmp(token,".extern") == 0) {
+        token = strtok(NULL, " \n");
+        if (legal_label(token)) {
+            inst->label = NULL; /* ignore label in the beginning */
+            inst->arg_label = token;
+            inst->nums = 0;
+            inst->is_extern = 1;
         }
     }
     return inst;
@@ -427,4 +437,3 @@ command_parts *read_command(char *str, int *error_code){
     }
     return command;
 }
-

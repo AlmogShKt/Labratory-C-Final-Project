@@ -10,7 +10,6 @@
 #include "globals.h"
 #include "table.h"
 #include "util.h"
-#include "first_pass.h"
 #include "lexer.h"
 
 
@@ -133,11 +132,6 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
     int i;
     for (i = 0; i < inst->len; i++){
         char *bin_num;
-        /* todo:
-         * need to implement conde conversion for lines with .entry & .extern?
-         * or just in label_table and output files
-         *
-         * */
         if(inc_mem(data,*DC) == 0){
             return 0;
         }
@@ -152,6 +146,17 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         (*DC)++;
     }
     //(*DC)--;
+    return 1;
+}
+
+int add_extern_coding(code_conv **data,int *DC,location am_file){
+    if(inc_mem(data,*DC) == 0){
+        return 0;
+    }
+    (*data+*DC)->short_num = EXTERNAL_VALUE;
+    (*data+*DC)->label = NULL; /* a data line cannot include a label as an ARGUMENT */
+    (*data+*DC)->assembly_line = am_file.line_num;
+    (*DC)++;
     return 1;
 }
 

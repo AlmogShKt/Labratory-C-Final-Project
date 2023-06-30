@@ -166,7 +166,8 @@ char *replace_all_mcros(char file_name[], node *head){
     FILE *fp_temp, *fp_final;
     file_temp = add_new_file(file_name,".tmp");
     final_file_name = add_new_file(file_name,".am");
-    if(!copy_file(file_temp,file_name)){
+    if(!copy_file(file_temp,file_name) || \
+        !copy_file(final_file_name,file_name)){
         /* copying file failed - closing open files and freeing allocated memory */
         print_internal_error(ERROR_CODE_14);
         abrupt_close(4,"%s",file_temp,"%s",final_file_name);
@@ -283,8 +284,8 @@ int mcro_exec(char file_name[]){
     free(new_file2);
     free(final_file);
     free_list(head);
-    remove(add_new_file(file_name,".t01"));
-    remove(add_new_file(file_name,".t02"));
+    // remove(add_new_file(file_name,".t01"));
+    // remove(add_new_file(file_name,".t02"));
     printf("Macros expansion in file %s completed successfully\n",file_name);
     return 1;
 }

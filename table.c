@@ -9,6 +9,41 @@
 #include "Errors.h"
 #include "code_conversion.h"
 
+int check_extern_not_def(extern_table *externs,int externs_count,label_address *label_table, int label_table_lines,\
+    char *file_name){
+    int i,j;
+    for (i = 0; i < externs_count; i++){
+        for (j = 0; j < label_table_lines; j++){
+            if(strcmp((externs+i)->label_name,(label_table+j)->label_name) == 0){
+                location am_file;
+                am_file.line_num = (externs+i)->assembly_line;
+                am_file.file_name = file_name;
+                print_external_error(ERROR_CODE_56,am_file);
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int insert_externs(extern_table **externs, int externs_count, inst_parts *inst, location am_file){
+    extern_table *ptr;
+    ptr = *externs;
+    (*externs+externs_count-1)->assembly_line = am_file.line_num;
+    (*externs+externs_count-1)->label_name = handle_malloc(strlen(inst->arg_label+1)*sizeof(char));
+    if((*externs+externs_count-1)->label_name == NULL){
+        return 0;
+    }
+    strcpy((*externs+externs_count-1)->label_name,inst->arg_label);
+
+    *externs = realloc(*externs,(externs_count+1) * sizeof (extern_table));
+    if(externs == NULL){
+        free(ptr);
+        return 0;
+    }
+    return 1;
+}
+
 int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data){
     label_address *p_temp;
     p_temp = *label_table;
@@ -66,7 +101,7 @@ int error_replace_labels(code_conv *code, label_address *label_table, int label_
     for (i = 0; i <= IC_len; i++){
         found = 0;
         if((code+i)->label != NULL){
-            for (j = 0; j < label_table_line; j++){
+            for (j = 0; j < label_table_line && found == 0; j++){
                 if(strcmp((code+i)->label,(label_table+j)->label_name) == 0){
                     (code+i)->short_num |= ((label_table+j)->address) << ARE_BITS;
                     found = 1;

@@ -55,19 +55,19 @@ char convert_to_base64(char binary_number[]) {
 
 }
 */
-
 char *short_to_base64(unsigned short num){
     unsigned short nl, nr;
     char *res;
     char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     nr = num & SIX_BITS_MAX; /* masking the 6 MSB */
-    nl = num & SIX_BITS_MAX << SIX_BITS; /* masking the 6 LSB */
-    res = handle_malloc(NUM_SEXTETES * sizeof(char));
+    nl = (num >> SIX_BITS) & SIX_BITS_MAX; /* masking the 6 LSB */
+    res = handle_malloc((NUM_SEXTETES+1) * sizeof(char));
     if(res == NULL){
         return NULL;
     }
-    *res = base64_table[nl];
-    *(res+1) = base64_table[nr];
+    *res = *(base64_table+nl);
+    *(res+1) = *(base64_table+nr);
+    *(res+2) = '\0';
     return res;
 }
 
