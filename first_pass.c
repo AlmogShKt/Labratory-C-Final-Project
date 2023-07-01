@@ -143,7 +143,8 @@ int exe_first_pass(char *file_name){
             free(command);
         }
     }
-    if (error_exe_second_pass(file_name,label_table,IC,DC,label_table_line,externs_count,entries_count,code,data,externs,entries) == 1){
+    if (exe_second_pass(file_name,label_table,IC,DC,label_table_line,externs_count,entries_count,\
+        code,data,externs,entries,error_found) == 0){
         error_found = 1;
     }
     return error_found;

@@ -13,6 +13,12 @@ char *replace_all_mcros(char file_name[], node *head);
 char *remove_mcros_decl(char file_name[]);
 char *replace_mcro(char *str,node *mcro);
 int mcro_call_before_decl(char file_name[], node *head);
+
+/**
+ * This function executes the macro replacement process
+ * @param file_name string of the file name to work on
+ * @return 1 if the process successfully finished, 0 if not
+ */
 int mcro_exec(char file_name[]);
 
 #endif

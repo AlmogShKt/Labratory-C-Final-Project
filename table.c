@@ -116,7 +116,7 @@ int is_extern_defined(other_table *externs, int externs_count, label_address *la
     return extern_defined;
 }
 
-int error_replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name){
+int replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name){
     int i,j, found, error_found;
     error_found = 0;
     for (i = 0; i <= IC_len; i++){
@@ -140,13 +140,15 @@ int error_replace_labels(code_conv *code, label_address *label_table, int label_
             }
         }
     }
-    return error_found;
+    return !error_found;
 }
 
 int print_externs(code_conv *code, int count, other_table *externs, int externs_count, char *file_name){
     FILE *fp;
-    int i,j, found;
-    fp = fopen(add_new_file(file_name,".ext"),"w");
+    int i,j,found,empty;
+    char *temp;
+    fp = fopen((temp = add_new_file(file_name,".ext")),"w");
+    empty = 1;
     if(fp == NULL){
         print_internal_error(ERROR_CODE_7);
         return 0;
@@ -158,17 +160,25 @@ int print_externs(code_conv *code, int count, other_table *externs, int externs_
                 if(strcmp((code+i)->label,(externs+j)->label_name) == 0){
                     fprintf(fp,"%s\t%d\n",(externs+j)->label_name,IC_INIT_VALUE+i);
                     found = 1;
+                    empty = 0;
                 }
             }
         }
     }
     fclose(fp);
+    if(empty){
+        remove(temp);
+    }
+    free(temp);
+    return 1;
 }
 
 int print_entries(label_address *label_table, int label_table_line, other_table *entries, int entries_count, char *file_name){
     FILE *fp;
-    int i,j, found;
-    fp = fopen(add_new_file(file_name,".ent"),"w");
+    int i,j, found,empty;
+    char *temp;
+    fp = fopen((temp = add_new_file(file_name,".ent")),"w");
+    empty = 1;
     if(fp == NULL){
         print_internal_error(ERROR_CODE_7);
         return 0;
@@ -179,10 +189,16 @@ int print_entries(label_address *label_table, int label_table_line, other_table 
             if(strcmp((label_table+i)->label_name,(entries+j)->label_name) == 0){
                 found = 1;
                 fprintf(fp,"%s\t%d\n",(entries+j)->label_name,(label_table+i)->address);
+                empty = 0;
             }
         }
     }
     fclose(fp);
+    if(empty){
+        remove(temp);
+    }
+    free(temp);
+    return 1;
 }
 
 void free_label_table(label_address *label_table,int label_table_line){

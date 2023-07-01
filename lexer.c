@@ -403,7 +403,10 @@ inst_parts *read_instruction(char *str, int *error_code){
 command_parts *read_command(char *str, int *error_code){
     int args;
     char *token;
-    command_parts *command = malloc(sizeof(command_parts));
+    command_parts *command = handle_malloc(sizeof(command_parts));
+    if(command == NULL){
+        return NULL;
+    }
     token = strtok(str," \n");
     *error_code = 0;
     /* there is a legal label in the line */

@@ -5,10 +5,6 @@
 #include "util.h"
 #include "Errors.h"
 
-void rev_str(char *str){
-
-}
-
 unsigned short twos_compliment(unsigned short pos_num){
     return ~pos_num+1;
 }
@@ -40,21 +36,6 @@ char *short_to_binary(unsigned short num){
     return res;
 }
 
-/*
-char convert_to_base64(char binary_number[]) {
-    char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    int decimal = 0, i;
-    char base64_number;
-    for (i = 0; i < 6; i++) {
-        decimal += (binary_number[i] - '0') << (5 - i);
-    }
-
-    base64_number = base64_table[decimal];
-    printf("%c\n", base64_number);
-    return base64_number;
-
-}
-*/
 char *short_to_base64(unsigned short num){
     unsigned short nl, nr;
     char *res;
@@ -70,10 +51,6 @@ char *short_to_base64(unsigned short num){
     *(res+2) = '\0';
     return res;
 }
-
-
-
-
 
 /**
  * Trying to allocate memory and check is success
@@ -92,9 +69,11 @@ char *add_new_file(char *file_name, char *ending){
     char *c, *new_file_name;
     new_file_name = handle_malloc(MAX_LINE_LENGTH * sizeof(char));
     strcpy(new_file_name,file_name);
+    /* deleting the file name if a '.' exists and forth */
     if((c = strchr(new_file_name,'.')) != NULL){
         *c = '\0';
     }
+    /* adds the ending of the new file name */
     strcat(new_file_name,ending);
     return new_file_name;
 }
@@ -142,32 +121,4 @@ void abrupt_close(int num_args, ...){
         }
     }
     va_end(args);
-}
-
-/**
- * @brief This function checks if the provided file is exist in the system
- * @param path the path to file
- * @return 0 if the file dose not exist , 1 if the file exist
- */
-int isFileExist(char file_name[]) {
-    FILE *file_ptr = fopen(file_name, "r");
-    if (file_ptr == NULL) {
-        /*File does not exist*/
-        return 0;
-    }
-    fclose(file_ptr);
-    return 1;
-}
-
-/**
- * Take 2 string and create 1 that contain both of them, str1+str2
- * @param str_name_1 the first string
- * @param str_name_2 the second string
- * @return new string
- */
-char *merge_str_names(char *str_name_1, char *str_name_2) {
-    char *full_str_name = (char *) malloc(strlen(str_name_1) + strlen(str_name_2) + 1);
-    strcpy(full_str_name, str_name_1);
-    strcat(full_str_name, str_name_2);
-    return full_str_name;
 }

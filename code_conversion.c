@@ -181,11 +181,9 @@ int merge_code(code_conv **code, code_conv *data, int IC, int DC){
 void free_code(code_conv *code,int code_count){
     int i;
     for (i = 0; i <= code_count; i++){
-        free((code+i)->label);
+        if((code+i)->label != NULL){
+            free((code+i)->label);
+        }
     }
     free(code);
-}
-
-int remove_label_table(label_address *label_table){
-    return 1;
 }

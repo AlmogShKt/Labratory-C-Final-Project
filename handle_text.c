@@ -11,33 +11,41 @@ char *remove_extra_spaces_file(char file_name[]){
     char *new_file_name;
     char str[MAX_LINE_LENGTH];
     FILE *fp, *fp_temp;
+    /* opening input file for reading */
     fp = fopen(file_name,"r");
     if(fp == NULL){
         print_internal_error(ERROR_CODE_2);
         return NULL;
     }
+    /* saving new name for a temp file */
     new_file_name = add_new_file(file_name,".t01");
     if(new_file_name == NULL){
         abrupt_close(2,"file",fp);
         return NULL;
     }
+    /* openening new file for writing */
     fp_temp = fopen(new_file_name,"w");
     if(fp_temp == NULL){
         abrupt_close(4,"file",fp,"%s",new_file_name);
         print_internal_error(ERROR_CODE_7);
         return NULL;
     }
+    /* reading each line of the input file and removing extra unnecessary white-spaces */
     while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
+        /* replacing a comment line with newline character */
         if(*str == ';'){
             *str = '\n';
             *(str+1) = '\0';
         }
         else {
+            /* removing extra unnecessary white-spaces from the line */
             remove_extra_spaces_str(str);
         }
+        /* saving the changed line to the new file */
         fprintf(fp_temp,"%s",str);
     }
-    putc('\n',fp_temp);
+    /* putc('\n',fp_temp); */
+    /* closing files */
     fclose(fp);
     fclose(fp_temp);
     return new_file_name;

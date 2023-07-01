@@ -28,10 +28,9 @@ int conv_code_base64(code_conv *code, int count, char *file_name,int IC, int DC)
 }
 
 
-int error_exe_second_pass(char *file_name, label_address *label_table, int IC, int DC, int label_table_line,\
-    int externs_count, int entries_count, code_conv *code, code_conv *data, other_table *externs, other_table *entries){
-    int error_found;
-    error_found = 0;
+int exe_second_pass(char *file_name, label_address *label_table, int IC, int DC, int label_table_line,\
+    int externs_count, int entries_count, code_conv *code, code_conv *data, other_table *externs, other_table *entries,\
+    int error_found){
     if(IC > IC_MAX){
         print_internal_error(ERROR_CODE_54);
         error_found = 1;
@@ -49,7 +48,7 @@ int error_exe_second_pass(char *file_name, label_address *label_table, int IC, i
         error_found = 1;
     }
     replace_externs(code,externs,externs_count,IC+DC,file_name);
-    if(error_replace_labels(code,label_table,label_table_line,IC,file_name)){
+    if(replace_labels(code,label_table,label_table_line,IC,file_name) == 0){
         error_found = 1;
     }
     /* print_binary_code(code,IC+DC); */
@@ -59,6 +58,6 @@ int error_exe_second_pass(char *file_name, label_address *label_table, int IC, i
         print_entries(label_table,label_table_line,entries,entries_count,file_name);
     }
     free_all_memory(code,label_table,entries,externs,IC+DC,label_table_line,entries_count,externs_count);
-    return error_found;
+    return !error_found;
 }
 
