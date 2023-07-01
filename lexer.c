@@ -376,6 +376,7 @@ inst_parts *read_instruction(char *str, int *error_code){
         token = strtok(NULL," \n");
         if(legal_label(token)){
             inst->label = NULL; /* ignore label in the beginning */
+            inst->len = -1; /* not a data line at all */
             inst->arg_label = token;
             inst->nums = 0;
             inst->is_extern = 0;
@@ -390,6 +391,7 @@ inst_parts *read_instruction(char *str, int *error_code){
         token = strtok(NULL, " \n");
         if (legal_label(token)) {
             inst->label = NULL; /* ignore label in the beginning */
+            inst->len = -1; /* not a data line at all */
             inst->arg_label = token;
             inst->nums = 0;
             inst->is_extern = 1;

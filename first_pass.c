@@ -21,9 +21,10 @@ int read_line(char *str, ){
 */
 
 int exe_first_pass(char *file_name){
-    int error_code, IC, DC, error_found, label_table_line, externs_count;
+    int error_code, IC, DC, error_found, label_table_line, externs_count, entries_count;
     code_conv *code, *data;
-    extern_table *externs;
+    other_table *externs;
+    other_table *entries;
     command_parts *command;
     inst_parts *inst;
     location am_file;
@@ -37,12 +38,17 @@ int exe_first_pass(char *file_name){
     fp = fopen(file_name,"r");
     am_file.file_name = file_name;
     am_file.line_num = 0;
-    label_table_line = externs_count = 0;
+    label_table_line = externs_count = entries_count = 0;
     label_table = NULL;
     IC = -1;
     DC = 0;
-    externs = handle_malloc(sizeof(extern_table));
+    externs = handle_malloc(sizeof(other_table));
     if(externs == NULL){
+        error_found = 1;
+        return error_found;
+    }
+    entries = handle_malloc(sizeof(other_table));
+    if(entries == NULL){
         error_found = 1;
         return error_found;
     }
@@ -61,54 +67,46 @@ int exe_first_pass(char *file_name){
         if(strcmp(str,"\n") == 0){
             continue;
         }
-        // printf("%s ",str);
-        /* todo: change to is_inst(str). also in other places */
         if(strstr(str,".data") != NULL || strstr(str,".string") != NULL || \
             strstr(str,".entry") != NULL || strstr(str,".extern") != NULL){
             inst = read_instruction(str,&error_code);
-            if(error_code == 0){
-                // printf("line %d: label - %s\n",am_file.line_num, inst->label);
-                //DC++;
-            }
-            else {
+            if(error_code != 0){
                 print_external_error(error_code,am_file);
                 free(inst);
                 error_found = 1;
                 continue;
             }
             /* .entry or .extern line (no numbers were captured */
-            if(inst->nums == 0){
-                /* not a .extern line -->is a .entry line */
+            if(inst->nums == NULL){
+                /* not a .extern line --> is a .entry line */
                 if(inst->is_extern == 0){
-                    /*
-                    insert_label_table(&label_table,++label_table_line,inst->arg_label,\
-                    DC,am_file,1);
-                    */
+                    if(insert_other_labels(&entries, ++entries_count, inst, am_file) == 0){
+                        free(inst);
+                        error_found = 1;
+                        continue;
+                    }
                 }
                 /* is a .extern line */
                 else if(inst->is_extern == 1){
-                    if(insert_externs(&externs, ++externs_count, inst, am_file) == 0){
-                        free(inst);
-                        error_found = 1;
-                        continue;
-                    }
-                    if(add_extern_coding(&code,&DC,am_file) == 0){
+                    if(insert_other_labels(&externs, ++externs_count, inst, am_file) == 0){
                         free(inst);
                         error_found = 1;
                         continue;
                     }
                 }
             }
-            if(inst->label != NULL){
-                insert_label_table(&label_table,++label_table_line,inst->label,DC,am_file,1);
+            /* is not .entry nor .extern --> is .data or .string */
+            else {
+                if (inst->label != NULL) {
+                    insert_label_table(&label_table, ++label_table_line, inst->label, DC, am_file, 1);
+                }
+                if (add_machine_code_data(&data, inst, &DC, am_file) == 0) {
+                    free(inst->nums);
+                    free(inst);
+                    error_found = 1;
+                    continue;
+                }
             }
-            if(add_machine_code_data(&data, inst, &DC, am_file) == 0){
-                free(inst->nums);
-                free(inst);
-                error_found = 1;
-                continue;
-            }
-
             free(inst->nums);
             free(inst);
         }
@@ -145,7 +143,7 @@ int exe_first_pass(char *file_name){
             free(command);
         }
     }
-    if (error_exe_second_pass(file_name,label_table,IC,DC,label_table_line,externs_count,code,data,externs) == 1){
+    if (error_exe_second_pass(file_name,label_table,IC,DC,label_table_line,externs_count,entries_count,code,data,externs,entries) == 1){
         error_found = 1;
     }
     return error_found;

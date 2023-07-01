@@ -5,7 +5,7 @@
 #include "code_conversion.h"
 
 int error_exe_second_pass(char *file_name, label_address *label_table, int IC, int DC, int label_table_line,\
-    int externs_count, code_conv *code, code_conv *data, extern_table *externs);
+    int externs_count, int entries_count, code_conv *code, code_conv *data, other_table *externs, other_table *entries);
 int conv_code_base64(code_conv *code, int count, char *file_name,int IC, int DC);
 
 

@@ -34,7 +34,7 @@ void print_binary_code(code_conv *code,int IC_len);
 int merge_code(code_conv **code, code_conv *data, int IC, int DC);
 int add_extra_machine_code_line(code_conv **code, command_parts *command, int *IC, int is_src, location am_file);
 unsigned short reg_to_short(command_parts *command, int reg_src);
-int add_extern_coding(code_conv **data,int *DC,location am_file);
+void free_code(code_conv *code,int code_count);
 
 
 

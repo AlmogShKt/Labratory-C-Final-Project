@@ -284,9 +284,9 @@ int mcro_exec(char file_name[]){
     free(new_file2);
     free(final_file);
     free_list(head);
-    // remove(add_new_file(file_name,".t01"));
-    // remove(add_new_file(file_name,".t02"));
-    printf("Macros expansion in file %s completed successfully\n",file_name);
+    remove(add_new_file(file_name,".t01"));
+    remove(add_new_file(file_name,".t02"));
+    /* printf("Macros expansion in file %s completed successfully\n",file_name); */
     return 1;
 }
 

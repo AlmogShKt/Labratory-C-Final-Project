@@ -149,17 +149,6 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
     return 1;
 }
 
-int add_extern_coding(code_conv **data,int *DC,location am_file){
-    if(inc_mem(data,*DC) == 0){
-        return 0;
-    }
-    (*data+*DC)->short_num = EXTERNAL_VALUE;
-    (*data+*DC)->label = NULL; /* a data line cannot include a label as an ARGUMENT */
-    (*data+*DC)->assembly_line = am_file.line_num;
-    (*DC)++;
-    return 1;
-}
-
 void print_binary_code(code_conv *code,int IC_len){
     int i;
     char *bin_num;
@@ -189,8 +178,12 @@ int merge_code(code_conv **code, code_conv *data, int IC, int DC){
     return 1;
 }
 
-int legal_entry(char *str){
-    return 1;
+void free_code(code_conv *code,int code_count){
+    int i;
+    for (i = 0; i <= code_count; i++){
+        free((code+i)->label);
+    }
+    free(code);
 }
 
 int remove_label_table(label_address *label_table){
