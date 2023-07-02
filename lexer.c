@@ -150,6 +150,18 @@ void remove_asp(char **str){
     }
 }
 
+int count_occurr(char *str, char ch){
+    int count;
+    char *ptr;
+    ptr = str;
+    count = 0;
+    while((*ptr != '\0') && (ptr = strchr(ptr,ch)) != NULL){
+        count++;
+        ptr++;
+    }
+    return count;
+}
+
 int legal_arg(char *str, command_parts *command, int *error_code){
     char *str1, *str2;
     /* empty argument */
@@ -157,25 +169,33 @@ int legal_arg(char *str, command_parts *command, int *error_code){
         *error_code = ERROR_CODE_34;
         return 0;
     }
-    /* eliminating lines with two arguments and a missing comma */
+    /* eliminating lines with two arguments and a missing comma or extra commas*/
     if(OPCODES[command->opcode].arg_num == 2) {
         if(strstr(str,",") == NULL) {
             *error_code = ERROR_CODE_35;
             return 0;
         }
+        else if(count_occurr(str,',') > 1){
+                *error_code = ERROR_CODE_39;
+                return 0;
+            }
         else {
             str1 = strtok(str,",");
+            if(strchr(str1,' ')){
+                *error_code = ERROR_CODE_40;
+                return 0;
+            }
             str2 = strtok(NULL,"\n");
             /* space before comma */
-            if(*(str1+strlen(str1)-1) == ' '){
+            // if(*(str1+strlen(str1)-1) == ' '){
                 /* eliminate the space at the end of str1 */
-                *(str1+strlen(str1)-1) = '\0';
-            }
+              //   *(str1+strlen(str1)-1) = '\0';
+            // }
                 /* space after comma */
-            else if(*(str2) == ' '){
+            // else if(*(str2) == ' '){
                 /* eliminate the space at the beginning of str2 */
-                str2++;
-            }
+            //     str2++;
+            //}
             /* no space at all near the comma */
         }
     }
@@ -400,6 +420,14 @@ inst_parts *read_instruction(char *str, int *error_code){
     return inst;
 }
 
+int opcode_err_check(char *str){
+    char *c;
+    if((c = strchr(str,',')) != NULL){
+        return ERROR_CODE_38;
+    }
+    return ERROR_CODE_31;
+}
+
 command_parts *read_command(char *str, int *error_code){
     int args;
     char *token;
@@ -417,7 +445,7 @@ command_parts *read_command(char *str, int *error_code){
             ;
         }
         else {
-            *error_code = ERROR_CODE_31;
+            *error_code = opcode_err_check(token);
             return NULL;
         }
         if (OPCODES[command->opcode].arg_num == 0) {
@@ -427,7 +455,9 @@ command_parts *read_command(char *str, int *error_code){
                 command->source = command->dest = NULL;
             }
         } else {
-            legal_arg(strtok(NULL, "\n"), command, error_code);
+            if(legal_arg(strtok(NULL, "\n"), command, error_code) == 0){
+                return NULL;
+            }
         }
     }
         /* command line with legal opcode without a label */

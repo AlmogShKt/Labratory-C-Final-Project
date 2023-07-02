@@ -38,6 +38,8 @@ command_parts *read_command(char *str, int *error_code);
 int capture_nums(char *str, inst_parts *inst, int *error_code);
 inst_parts *read_instruction(char *str, int *error_code);
 int inc_array(inst_parts **inst, int len);
+int opcode_err_check(char *str);
+int count_occurr(char *str, char ch);
 
 
 

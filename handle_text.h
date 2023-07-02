@@ -18,4 +18,9 @@ void remove_extra_spaces_str(char str[]);
  * @return 1 if the character is either ' ' or '\t', 0 if not
  */
 int is_space_or_tab(char c);
+
+/**
+ * This function removes white-spaces next to a comma
+ * @param str string to change
+ */
 void remove_spaces_next_to_comma(char *str);

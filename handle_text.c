@@ -23,7 +23,7 @@ char *remove_extra_spaces_file(char file_name[]){
         abrupt_close(2,"file",fp);
         return NULL;
     }
-    /* openening new file for writing */
+    /* opening new file for writing */
     fp_temp = fopen(new_file_name,"w");
     if(fp_temp == NULL){
         abrupt_close(4,"file",fp,"%s",new_file_name);
