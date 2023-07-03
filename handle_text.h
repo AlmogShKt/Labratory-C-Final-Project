@@ -4,6 +4,14 @@
  * @return string the name of the new file after white spaces removed
  */
 char *remove_extra_spaces_file(char file_name[]);
+
+/**
+ * This function copies a text from file into a string
+ * @param fp file pointer to a file to read from
+ * @param pos the position in the file
+ * @param length the number of character to copy from the file
+ * @return a string with the copied characters
+ */
 char *copy_text(FILE *fp, fpos_t *pos, int length);
 
 /**

@@ -26,7 +26,7 @@ op_code OPCODES[] = {
 
 char *REGS[] = {"r0","r1","r2","r3","r4","r5","r6","r7"};
 
-char *INSTUCTIONS[] = {"data","string","extern","entry"};
+char *INSTUCTIONS[] = {".data",".string",".extern",".entry"};
 
 int lines_too_long(char *file_name){
     char str[SIZE];

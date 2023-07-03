@@ -67,7 +67,18 @@ typedef enum ERROR_CODES {
 
 } ERROR_CODES;
 
+/**
+ * This function prints to stdout an error that is related to an error in the source file
+ * with error number and the error location in the source file
+ * @param error_code error number
+ * @param file a pointer to a struct which contains the source file name and line information
+ */
 void print_external_error(int error_code, location file);
+
+/**
+ * This function prints to stdout an error that is a result of an internal process and NOT an error in the source file
+ * @param error_code error number
+ */
 void print_internal_error(int error_code);
 
 #endif

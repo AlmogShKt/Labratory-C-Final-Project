@@ -22,7 +22,19 @@ typedef struct inst_parts {
     int is_extern;
 } inst_parts;
 
+
+/**
+ * This function checks if a line in the source file is too long
+ * @param file_name a string to the name of the source file
+ * @return 1 if there's a line who is too long, 0 if all the lines are ok
+ */
 int lines_too_long(char *file_name);
+
+/**
+ *
+ * @param str
+ * @return
+ */
 int is_instr(char *str);
 int what_opcode(char *str);
 int what_reg(char *str);

@@ -5,15 +5,6 @@
 #include "data_strct.h"
 
 /**
- * This function copies a text from file into a string
- * @param fp file pointer to a file to read from
- * @param pos the position in the file
- * @param length the number of character to copy from the file
- * @return a string with the copied characters
- */
-char *copy_text(FILE *fp, fpos_t *pos, int length);
-
-/**
  * This function copies the content of a macro
  * @param fp file pointer to a source file
  * @param pos the position where the content of the macro begins

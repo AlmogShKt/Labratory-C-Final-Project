@@ -12,14 +12,6 @@
 #include "code_conversion.h"
 #include "second_pass.h"
 
-/*
-int read_line(char *str, ){
-    if(strcmp(str,"\n") == 0){
-        return 1;
-    }
-}
-*/
-
 int exe_first_pass(char *file_name){
     int error_code, IC, DC, error_found, label_table_line, externs_count, entries_count;
     code_conv *code, *data;
