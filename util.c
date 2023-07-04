@@ -3,64 +3,54 @@
 #include <string.h>
 #include <stdarg.h>
 #include "util.h"
-#include "globals.h"
 #include "Errors.h"
 
+unsigned short twos_compliment(unsigned short pos_num){
+    return ~pos_num+1;
+}
 
-char convert_to_base64(char binary_number[]) {
+char *short_to_binary(unsigned short num){
+    char *res, *ptr;
+    int i;
+    if(num < 0){
+        num = twos_compliment(num);
+    }
+    res = handle_malloc((WORD_LEN+1) * sizeof(char));
+    if(res == NULL){
+        print_internal_error(ERROR_CODE_1);
+        return NULL;
+    }
+    ptr = res;
+    for(i = 0; i < WORD_LEN; i++){
+        *(ptr+i) = '0';
+    }
+    *(ptr+WORD_LEN) = '\0';
+    ptr = res + WORD_LEN-1;
+    while (num != 0){
+        *ptr = (num % 2) + '0';
+        num /= 2;
+        if(num != 0){
+            ptr--;
+        }
+    }
+    return res;
+}
+
+char *short_to_base64(unsigned short num){
+    unsigned short nl, nr;
+    char *res;
     char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    int decimal = 0, i;
-    char base64_number;
-    for (i = 0; i < 6; i++) {
-        decimal += (binary_number[i] - '0') << (5 - i);
+    nr = num & SIX_BITS_MAX; /* masking the 6 MSB */
+    nl = (num >> SIX_BITS) & SIX_BITS_MAX; /* masking the 6 LSB */
+    res = handle_malloc((NUM_SEXTETES+1) * sizeof(char));
+    if(res == NULL){
+        return NULL;
     }
-
-    base64_number = base64_table[decimal];
-    printf("%c\n", base64_number);
-    return base64_number;
-
+    *res = *(base64_table+nl);
+    *(res+1) = *(base64_table+nr);
+    *(res+2) = '\0';
+    return res;
 }
-
-
-void remove_extra_spaces_str(char str[]) {
-    int i, j, blank;
-    char str_temp[MAX_LINE_LENGTH];
-    blank = 0;
-    i = j = 0;
-    while (*(str + i) != '\0') {
-        /* coping content until first white-space is found */
-        while (*(str + i) != '\0' && !is_space_or_tab(*(str + i))) {
-            *(str_temp + j) = *(str + i);
-            i++;
-            j++;
-        }
-        if (*(str + i) == '\0') {
-            *(str_temp + j) = *(str + i);
-            strcpy(str, str_temp);
-            return;
-        }
-        /* white-space is found, copy this one and skipping all other white-spaces */
-        blank = 1;
-        *(str_temp + j) = *(str + i);
-        i++;
-        j++;
-        while (*(str + i) != '\0' && is_space_or_tab(*(str + i))) {
-            i++;
-        }
-        if (*(str + i) == '\0') {
-            *(str_temp + j) = *(str + i);
-            strcpy(str, str_temp);
-            return;
-        }
-        /* new non-white-spaces are found */
-        blank = 0;
-    }
-}
-
-int is_space_or_tab(char c) {
-    return (isspace(c) && c != '\n');
-}
-
 
 /**
  * Trying to allocate memory and check is success
@@ -79,8 +69,11 @@ char *add_new_file(char *file_name, char *ending){
     char *c, *new_file_name;
     new_file_name = handle_malloc(MAX_LINE_LENGTH * sizeof(char));
     strcpy(new_file_name,file_name);
-    c = strchr(new_file_name,'.');
-    *c = '\0';
+    /* deleting the file name if a '.' exists and forth */
+    if((c = strchr(new_file_name,'.')) != NULL){
+        *c = '\0';
+    }
+    /* adds the ending of the new file name */
     strcat(new_file_name,ending);
     return new_file_name;
 }
@@ -99,11 +92,7 @@ int copy_file(char *file_name_dest, char *file_name_orig){
         fclose(fp);
         return 0;
     }
-    while(!feof(fp)){
-        fgets(str,MAX_LINE_LENGTH,fp);
-        if(feof(fp)){
-            break;
-        }
+    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL){
         fprintf(fp_dest,"%s",str);
     }
     fclose(fp);
@@ -121,6 +110,7 @@ void abrupt_close(int num_args, ...){
     for (i = 0; i < num_args; i++){
         /* next argument is a string whose allocated memory needs to be freed*/
         if(strcmp(va_arg(args,char*),"%s") == 0){
+            i++;
             str = va_arg(args,char*);
             free(str);
         }
@@ -131,32 +121,4 @@ void abrupt_close(int num_args, ...){
         }
     }
     va_end(args);
-}
-
-/**
- * @brief This function checks if the provided file is exist in the system
- * @param path the path to file
- * @return 0 if the file dose not exist , 1 if the file exist
- */
-int isFileExist(char file_name[]) {
-    FILE *file_ptr = fopen(file_name, "r");
-    if (file_ptr == NULL) {
-        /*File does not exist*/
-        return 0;
-    }
-    fclose(file_ptr);
-    return 1;
-}
-
-/**
- * Take 2 string and create 1 that contain both of them, str1+str2
- * @param str_name_1 the first string
- * @param str_name_2 the second string
- * @return new string
- */
-char *merge_str_names(char *str_name_1, char *str_name_2) {
-    char *full_str_name = (char *) malloc(strlen(str_name_1) + strlen(str_name_2) + 1);
-    strcpy(full_str_name, str_name_1);
-    strcat(full_str_name, str_name_2);
-    return full_str_name;
 }

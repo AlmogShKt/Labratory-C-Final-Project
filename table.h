@@ -1,25 +1,34 @@
-#ifndef LABRATORY_C_FINAL_PROJECT_TABLE_H
-#define LABRATORY_C_FINAL_PROJECT_TABLE_H
+#ifndef TABLE_H
+#define TABLE_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "lexer.h"
 #include "globals.h"
+#include "code_conversion.h"
 
-/*__________*/
-/*Symbols table*/
 
-/** pointer to table entry is just a table. */
-typedef struct symbol_table_entry *table;
+typedef struct label_address {
+    int address;
+    char *label_name;
+    int assembly_line;
+    int is_data;
+}label_address;
 
-/*Define the symbol table entries*/
-typedef struct symbol_table_entry {
-    /*The Symbol - char - up to 31*/
-    char *symbol[MAX_LABEL_LENGTH];
-    int symbol_address;
-    symbol_type symbol_type;
-    table *next_entry;
-} symbol_table;
+typedef struct other_table {
+    char *label_name;
+    int assembly_line;
+} other_table;
 
+int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data);
+int check_each_label_once(label_address *label_table, int lines, char *file_name);
+void change_label_table_data_count(label_address *label_table, int table_lines, int IC);
+void reset_labels_address(label_address *label_table, int table_lines);
+int replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name);
+int insert_other_labels(other_table **table, int count, inst_parts *inst, location am_file);
+int is_extern_defined(other_table *externs, int externs_count, label_address *label_table, int label_table_line, char *file_name);
+int replace_externs(code_conv *code, other_table *externs, int externs_count, int count, char *file_name);
+int print_externs(code_conv *code, int count, other_table *externs, int externs_count, char *file_name);
+int print_entries(label_address *label_table, int label_table_line, other_table *entries, int entries_count, char *file_name);
+void free_other_table(other_table *table, int count);
+void free_label_table(label_address *label_table,int label_table_line);
 
 #endif

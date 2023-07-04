@@ -5,11 +5,12 @@
 #include "util.h"
 #include "Errors.h"
 
-node *make_node(char *name, char *content){
+node *make_node(char *name, char *content, int line_num){
     node *temp;
     temp = handle_malloc(sizeof(node));
     temp->name = name;
     temp->content = content;
+    temp->line = line_num;
     temp->next = NULL;
     return temp;
 }
@@ -23,7 +24,7 @@ node *search_list(node *head, char *name, int *found){
     /* node exists already */
     if(strcmp(name,head->name) == 0){
         *found = 1;
-        printf("node %s already exists in the tree\n",name);
+        printf("node %s already exists in the list\n",name);
         return head;
     }
     if(head->next == NULL){
@@ -32,7 +33,7 @@ node *search_list(node *head, char *name, int *found){
     return search_list(head->next,name,found);
 }
 
-void add_to_list(node **head, char *name, char *content){
+void add_to_list(node **head, char *name, char *content, int line_num){
     int found;
     node *new_node, *temp;
     found = 0;
@@ -49,7 +50,7 @@ void add_to_list(node **head, char *name, char *content){
         return;
     }
     if(!found){
-        new_node = make_node(name,content);
+        new_node = make_node(name,content,line_num);
         /* list is empty */
         if(temp == NULL){
             /* new node was added to the head of the list */

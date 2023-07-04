@@ -23,9 +23,47 @@ Error errors[] = {
         {ERROR_CODE_13, "Macro has more than one definition"},
         {ERROR_CODE_14, "Failed to copy file during macros expansion"},
         {ERROR_CODE_15, "Macros expansion in an .as file failed"},
-        {ERROR_CODE_16, ""},
-        {ERROR_CODE_17, ""},
-        {ERROR_CODE_18, ""},
+        {ERROR_CODE_16, "Macro call before declaration"},
+        {ERROR_CODE_17, "Illegal name for a macro"},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {ERROR_CODE_30, "Line is too long"},
+        {ERROR_CODE_31, "Illegal opcode"},
+        {ERROR_CODE_32, "Line contains extra text"},
+        {ERROR_CODE_33, "Illegal argument"},
+        {ERROR_CODE_34, "Missing argument"},
+        {ERROR_CODE_35, "Missing comma between argument in a command line with two arguments"},
+        {ERROR_CODE_36, "Label not defined in the assembly file"},
+        {ERROR_CODE_37, "Illegal label after .entry"},
+        {ERROR_CODE_38, "Illegal comma after opcode"},
+        {ERROR_CODE_39, "More commas than needed"},
+        {ERROR_CODE_40, "Comma in the wrong place"},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {-1, ""},
+        {ERROR_CODE_50, "Instruction '.data' line contains non-number info"},
+        {ERROR_CODE_51, "Comma after the last number in a '.data' line"},
+        {ERROR_CODE_52, "Missing '\"' after '.string'"},
+        {ERROR_CODE_53, "Extra text after the string end in '.string' line"},
+        {ERROR_CODE_54, "IC too big for word CPU word length"},
+        {ERROR_CODE_55, "Label definition repeats more than once"},
+        {ERROR_CODE_56, "Label defined as .extern and defined in file"},
 
 };
 
@@ -41,12 +79,11 @@ void print_internal_error(int error_code) {
 /**
  * Print errors while in the assembles files
  * @param error_code the error code
- * @param error_line the line in the assemble file the error was found
+ * @param error_line the line in the assembly file the error was found
  */
-void print_external_error(int error_code, line_data line) {
-    /*todo: add file name */
-    printf("~~ERROR: ID:%d~~ In %s at line:%d | there is error: %s\n", error_code, line.file_name, line.number,
-           errors[error_code].error_msg);
+void print_external_error(int error_code, location file) {
+    printf("~~ERROR: ID:%d~~ in %s at line:%d | there is error: %s\n", error_code, \
+    file.file_name, file.line_num,errors[error_code].error_msg);
 }
 
 /*todo: add another function to print erorr with the file name*/
