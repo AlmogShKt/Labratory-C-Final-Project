@@ -34,6 +34,10 @@ char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count){
     return mcro;
 }
 
+int valid_mcro_name(char *str){
+
+}
+
 int valid_mcro_decl(char *str, char **name, int line_count, char *file_name){
     /* assumes "mcro " has been encountered right before the function was called */
     char *temp_name, *extra;
@@ -42,7 +46,8 @@ int valid_mcro_decl(char *str, char **name, int line_count, char *file_name){
         print_internal_error(ERROR_CODE_9);
         return 0;
     }
-    if(is_instr(temp_name) || what_opcode(temp_name) >= 0 /* || what_reg(temp_name) >= 0 */){
+    if(is_instr(temp_name) || what_opcode(temp_name) >= 0  || \
+        (*temp_name == '@' && what_reg(temp_name+1) >= 0) ){
         location as_file;
         as_file.file_name = file_name;
         as_file.line_num = line_count;

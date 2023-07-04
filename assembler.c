@@ -18,8 +18,8 @@ int main(int argc, char *argv[]){
         if(exe_first_pass(am_file)){
             continue;
         }
-    }
     free(as_file);
     free(am_file);
+    }
     return 0;
 }

@@ -54,7 +54,7 @@ int exe_first_pass(char *file_name){
         error_found = 1;
         return error_found;
     }
-    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL && IC <= IC_MAX){
+    while(fgets(str,MAX_LINE_LENGTH,fp) != NULL && IC+DC <= IC_MAX){
         (am_file.line_num)++;
         if(strcmp(str,"\n") == 0){
             continue;

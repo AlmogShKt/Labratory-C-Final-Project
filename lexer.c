@@ -90,6 +90,7 @@ int legal_label_decl(char *str){
     if(str == NULL){
         return 0;
     }
+
     if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0)){
         while(*(++str) != '\0' && (isalpha(*str) || isdigit(*str))){
             ;
@@ -100,13 +101,15 @@ int legal_label_decl(char *str){
         }
     }
     return 0;
+
+    //return legal_label(str) &&
 }
 
 int legal_label(char *str){
     if(str == NULL){
         return 0;
     }
-    if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0) && \
+    if(isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && /* (what_reg(str) < 0)  && */ (what_opcode(str) < 0) && \
         !is_instr(str)){
         while(*(++str) != '\0' && (isalpha(*str) || isdigit(*str))){
             ;

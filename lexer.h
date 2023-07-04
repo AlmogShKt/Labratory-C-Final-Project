@@ -31,17 +31,59 @@ typedef struct inst_parts {
 int lines_too_long(char *file_name);
 
 /**
- *
+ * This function checks if the argument is ".data" or ".string" or ".extern" or ".entry"
+ * @param str a string to check
+ * @return 1 if yes, 0 if not
+ */
+int is_instr(char *str);
+
+/**
+ * This function returns the numerical value of the opcode
+ * @param str a string that contains the name of the opcode
+ * @return the numerical value of the opcode between 0-16, or -1 if opcode is incorrect or sting is empty
+ */
+int what_opcode(char *str);
+
+/**
+ * This function returns the numerical value of the register
+ * @param str a string that contains the name of the register
+ * @return the numerical value of the opcode between 0-7, or -1 if register is incorrect or sting is empty
+ */
+int what_reg(char *str);
+
+/**
+ * This function checks if the string contains a legal form of a label declaration and the label is legal
+ * @param str a string that contains the input from the command or data line that might be a label
+ * @return 1 if the the string corresponds to a legal declaration of a label and the label is legal, 0 if not
+ */
+int legal_label_decl(char *str);
+
+/**
+ * This function checks if the string is a legal label name
+ * @param str a string that contains the input from the command or data line that might be a label
+ * @return 1 if the string corresponds to a legal label name, 0 if not
+ */
+int legal_label(char *str);
+
+/**
+ * This function comes after strtok on a string, and checks if the string that from the point that strtok ended
+ * has more characters or did it come to it's end
+ * @return 1 if the string did not came to it's end, 0 if it did come to it's end
+ */
+int extra_text();
+
+/**
+ * This function checks if a string is either a legal label or a legal register
+ * @param str a string that contains the input from the command or data line that might be a label
+ * @return 1 if the string is either a legal label or a legal register, 0 if not
+ */
+int is_reg_or_label(char *str);
+
+/**
+ * This function checks if a string is a legal number
  * @param str
  * @return
  */
-int is_instr(char *str);
-int what_opcode(char *str);
-int what_reg(char *str);
-int legal_label_decl(char *str);
-int legal_label(char *str);
-int extra_text();
-int is_reg_or_label(char *str);
 int is_num(char *str);
 int is_reg_or_label_or_num(char *str);
 void remove_asp(char **str);
