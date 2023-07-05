@@ -24,7 +24,7 @@ op_code OPCODES[] = {
         {"stop",0}
 };
 
-char *REGS[] = {"r0","r1","r2","r3","r4","r5","r6","r7"};
+char *REGS[] = {"@r0","@r1","@r2","@r3","@r4","@r5","@r6","@r7"};
 
 char *INSTUCTIONS[] = {".data",".string",".extern",".entry"};
 
@@ -131,7 +131,7 @@ int extra_text(){
 }
 
 int is_reg_or_label(char *str){
-    if((*str == '@' && what_reg(str+1) >= 0) || legal_label(str)){
+    if((what_reg(str) >= 0) || legal_label(str)){
         return 1;
     }
     return 0;
@@ -145,12 +145,6 @@ int is_num(char *str){
 int is_reg_or_label_or_num(char *str){
     char *ptr;
     return (is_reg_or_label(str) || is_num(str));
-}
-
-void remove_asp(char **str){
-    if(**str == '@'){
-        (*str)++;
-    }
 }
 
 int count_occurr(char *str, char ch){
@@ -205,8 +199,6 @@ int legal_arg(char *str, command_parts *command, int *error_code){
     switch(command->opcode) {
         case 1: {
             if(is_reg_or_label_or_num(str1) && is_reg_or_label_or_num(str2)){
-                remove_asp(&str1);
-                remove_asp(&str2);
                 command->source = str1;
                 command->dest = str2;
             }
@@ -220,8 +212,6 @@ int legal_arg(char *str, command_parts *command, int *error_code){
         case 2:
         case 3: {
             if(is_reg_or_label_or_num(str1) && is_reg_or_label(str2)){
-                remove_asp(&str1);
-                remove_asp(&str2);
                 command->source = str1;
                 command->dest = str2;
             }
@@ -233,8 +223,6 @@ int legal_arg(char *str, command_parts *command, int *error_code){
         }
         case 6: {
             if(legal_label(str1) && is_reg_or_label(str2)){
-                remove_asp(&str1);
-                remove_asp(&str2);
                 command->source = str1;
                 command->dest = str2;
             }
@@ -254,7 +242,6 @@ int legal_arg(char *str, command_parts *command, int *error_code){
         case 13: {
             if(is_reg_or_label(str)){
                 command->source = NULL;
-                remove_asp(&str);
                 command->dest = str;
             }
             else {
@@ -266,7 +253,6 @@ int legal_arg(char *str, command_parts *command, int *error_code){
         case 12: {
             if(is_reg_or_label_or_num(str)){
                 command->source = NULL;
-                remove_asp(&str);
                 command->dest = str;
             }
             else {

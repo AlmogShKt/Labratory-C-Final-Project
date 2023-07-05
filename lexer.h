@@ -86,7 +86,6 @@ int is_reg_or_label(char *str);
  */
 int is_num(char *str);
 int is_reg_or_label_or_num(char *str);
-void remove_asp(char **str);
 int legal_arg(char *str, command_parts *command, int *error_code);
 command_parts *read_command(char *str, int *error_code);
 int capture_nums(char *str, inst_parts *inst, int *error_code);
