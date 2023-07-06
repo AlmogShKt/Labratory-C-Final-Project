@@ -138,11 +138,12 @@ int is_reg_or_label(char *str) {
 
 int is_num(char *str) {
     char *ptr;
-    return (strtol(str, &ptr, 10) && (*ptr == '\0'));
+    if(str != NULL)
+        return (strtol(str, &ptr, 10) && (*ptr == '\0'));
+    return 0;
 }
 
 int is_reg_or_label_or_num(char *str) {
-    char *ptr;
     return (is_reg_or_label(str) || is_num(str));
 }
 
@@ -200,6 +201,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->dest = str2;
             } else {
                 *error_code = ERROR_CODE_33;
+
                 return 0;
             }
             break;
@@ -211,6 +213,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = str1;
                 command->dest = str2;
             } else {
+                printf("here 2\n");
                 *error_code = ERROR_CODE_33;
                 return 0;
             }
@@ -221,6 +224,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = str1;
                 command->dest = str2;
             } else {
+
                 *error_code = ERROR_CODE_33;
                 return 0;
             }
@@ -248,6 +252,8 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = NULL;
                 command->dest = str;
             } else {
+                printf("here 1\n");
+
                 *error_code = ERROR_CODE_33;
                 return 0;
             }
