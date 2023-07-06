@@ -68,7 +68,7 @@ int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *
  * @param code a pointer to the struct that contains the machine words
  * @param IC_len the number of lines in the code struct
  */
-void print_binary_code(code_conv *code,int IC_len);
+void print_binary_code(code_conv *code, int IC_len);
 
 /**
  * This function merges the two structs of the machine words originated from the command lines
@@ -107,9 +107,7 @@ unsigned short reg_to_short(command_parts *command, int reg_src);
  * @param code a pointer to an array of struct which contains the machine code of the command lines
  * @param code_count the number of code word lines
  */
-void free_code(code_conv *code,int code_count);
-
-
+void free_code(code_conv *code, int code_count);
 
 
 #endif //C_PROJECT_CODE_CONVERSION_H
