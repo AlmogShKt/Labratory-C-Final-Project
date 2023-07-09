@@ -255,7 +255,7 @@ int mcro_call_before_decl(char file_name[], node *head) {
 
 int mcro_exec(char file_name[]) {
     node *head;
-    char *new_file1, *new_file2, *final_file;
+    char *new_file1, *new_file2, *final_file, *temp_file_name1, *temp_file_name2;
     /* removing unnecessary white spaces in the input file and saving the result in a new temp file */
     new_file1 = remove_extra_spaces_file(file_name);
     if (new_file1 == NULL) {
@@ -288,13 +288,21 @@ int mcro_exec(char file_name[]) {
         print_internal_error(ERROR_CODE_15);
         return 0;
     }
+
+    temp_file_name1 = add_new_file(file_name, ".t01");
+    temp_file_name2 = add_new_file(file_name, ".t02");
+    remove(temp_file_name1);
+    remove(temp_file_name2);
+
+    free(temp_file_name1);
+    free(temp_file_name2);
+
+
     /* freeing allocated memory for the strings of the new file names */
     free(new_file2);
     free(final_file);
     free_list(head);    /* freeing themacros  linked list */
     /* removing the temp files */
-    remove(add_new_file(file_name, ".t01"));
-    remove(add_new_file(file_name, ".t02"));
     /* printf("Macros expansion in file %s completed successfully\n",file_name); */
     return 1;
 }
