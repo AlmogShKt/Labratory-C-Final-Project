@@ -11,4 +11,4 @@ int exe_second_pass(char *file_name, label_address *label_table, int IC, int DC,
 int conv_code_base64(code_conv *code, int count, char *file_name, int IC, int DC);
 
 
-#endif //C_PROJECT_SECOND_PASS_H
+#endif

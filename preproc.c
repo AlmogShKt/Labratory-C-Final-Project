@@ -302,5 +302,3 @@ int mcro_exec(char file_name[]) {
 int is_valid_end_macro(char *str) {
     return strcmp(str, "endmcro\n") != 0 || strcmp(str, "endmcro \n") != 0;
 }
-
-// #endif

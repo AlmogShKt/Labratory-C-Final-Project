@@ -1,7 +1,3 @@
-//
-// Created by sheme on 30/06/2023.
-//
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -227,7 +223,6 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         */
         (*DC)++;
     }
-    //(*DC)--;
     return 1;
 }
 

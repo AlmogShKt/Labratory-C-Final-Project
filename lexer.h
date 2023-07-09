@@ -103,4 +103,4 @@ int opcode_err_check(char *str);
 int count_occurr(char *str, char ch);
 
 
-#endif //C_PROJECT_LEXER_H
+#endif

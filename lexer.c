@@ -344,19 +344,8 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 *error_code = ERROR_CODE_40;
                 return 0;
             }
-            //! added white space
+            /*! added white space */
             str2 = strtok(NULL, " \n");
-            /* space before comma */
-            // if(*(str1+strlen(str1)-1) == ' '){
-            /* eliminate the space at the end of str1 */
-            //   *(str1+strlen(str1)-1) = '\0';
-            // }
-            /* space after comma */
-            // else if(*(str2) == ' '){
-            /* eliminate the space at the beginning of str2 */
-            //     str2++;
-            //}
-            /* no space at all near the comma */
         }
     }
 
