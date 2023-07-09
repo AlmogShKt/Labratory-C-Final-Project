@@ -139,7 +139,7 @@ int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *
         }
         strcpy((*code+*IC)->label,str);
     }
-    bin_num = short_to_binary((*code + *IC)->short_num);
+    /*bin_num = short_to_binary((*code + *IC)->short_num);*/
     /*
     printf("Assembly line %d, Code address %d binary code is: %s\n",\
         (*code + *IC)->assembly_line,*IC, bin_num);
@@ -216,7 +216,7 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         (*data+*DC)->short_num = *(inst->nums+i);
         (*data+*DC)->label = NULL; /* a data line cannot include a label as an ARGUMENT */
         (*data+*DC)->assembly_line = am_file.line_num;
-        bin_num = short_to_binary((*data + *DC)->short_num);
+        /*bin_num = short_to_binary((*data + *DC)->short_num);*/
         /*
         printf("Assembly line %d, Code address %d binary code is: %s\n",\
         (*data + *DC)->assembly_line,*DC, bin_num);
@@ -225,16 +225,17 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
     }
     return 1;
 }
-
+/*
 void print_binary_code(code_conv *code,int IC_len){
     int i;
     char *bin_num;
     for (i = 0; i <= IC_len; i++){
-        bin_num = short_to_binary((code + i)->short_num);
+        /*bin_num = short_to_binary((code + i)->short_num);
         printf("Assembly line %d, Code address %d binary code is: %s\n",\
         (code + i)->assembly_line,+IC_INIT_VALUE+i, bin_num);
     }
 }
+*/
 
 /**
  * @brief This function merges the code and data arrays into a single code array.
