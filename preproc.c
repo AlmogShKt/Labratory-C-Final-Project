@@ -20,13 +20,13 @@ char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count) {
     }
     mcro_length = 0;
     str[0] = '\0';
-    while (fgets(str, MAX_LINE_LENGTH, fp) && (strcmp(str, "endmcro \n")) != 0) {
+    while (fgets(str, MAX_LINE_LENGTH, fp) && (strcmp(str, "endmcro\n")) != 0) {
         (*line_count)++;
         if (strcmp(str, "endmcro\n") != 0) {
             mcro_length += strlen(str);
         }
     }
-    if (strcmp(str, "endmcro \n") != 0) {
+    if (strcmp(str, "endmcro\n") != 0) {
         print_internal_error(ERROR_CODE_12);
         return NULL;
     }
