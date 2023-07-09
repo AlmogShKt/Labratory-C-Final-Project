@@ -66,8 +66,43 @@ char *copy_text(FILE *fp, fpos_t *pos, int length) {
     fgetpos(fp, pos);
     return str;
 }
-
 void remove_extra_spaces_str(char str[]) {
+    /* i for original string, j for modified string */
+    int i, j;
+    char str_temp[MAX_LINE_LENGTH];
+    i = j = 0;
+    /* eliminating white-spaces in the beginning of the line */
+    while(is_space_or_tab(*(str+i))){
+        i++;
+    }
+    while (*(str+i) != '\n'){
+        /* copying character */
+        while(!is_space_or_tab(*(str+i)) && *(str+i) != '\n'){
+            *(str_temp + j) = *(str+i);
+            i++;
+            j++;
+        }
+        /* if loop stopped because end of line char */
+        if(*(str+i) == '\n'){
+            break;
+        }
+        /* if loop stopped because of a white-space skipping them until another character is encountered*/
+        while(is_space_or_tab(*(str+i))){
+            i++;
+        }
+        /* if stopped not because of end of line char then copy one space for all the others that were skipped */
+        if(*(str+i) != '\n'){
+            *(str_temp + j) = ' ';
+            j++;
+        }
+    }
+    *(str_temp + j) = *(str+i);
+    *(str_temp + j + 1) = '\0';
+    remove_spaces_next_to_comma(str_temp);
+    strcpy(str,str_temp);
+}
+
+void remove_extra_spaces_str1(char str[]){
     int i, j;
     char str_temp[MAX_LINE_LENGTH];
     i = j = 0;
@@ -89,6 +124,12 @@ void remove_extra_spaces_str(char str[]) {
             return;
         }
         /* white-space is found, copy one space and skipping all other white-spaces */
+        if(*(str+i+1) == '\0'){
+            *(str_temp + j) = *(str+i);
+            remove_spaces_next_to_comma(str_temp);
+            strcpy(str,str_temp);
+            return;
+        }
         *(str_temp + j) = ' ';
         i++;
         j++;
