@@ -52,7 +52,7 @@ char *remove_mcros_decl(char file_name[]);
  * @param mcro a node in a lined list where the macro was saved.
  * @return a string with the line including the expanded macro
  */
-char *replace_mcro(char *str,node *mcro);
+char *replace_mcro(char *str, node *mcro);
 
 /**
  * This function checks if there's a macro call before it's definition in the source file
@@ -68,5 +68,7 @@ int mcro_call_before_decl(char file_name[], node *head);
  * @return 1 if the process successfully finished, 0 if not
  */
 int mcro_exec(char file_name[]);
+
+int is_valid_end_macro(char *str);
 
 #endif

@@ -34,7 +34,7 @@
 
 #define NUM_SEXTETES 2
 
-typedef struct location{
+typedef struct location {
     char *file_name;
     int line_num;
 } location;

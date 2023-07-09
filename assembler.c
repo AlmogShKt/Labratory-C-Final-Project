@@ -5,21 +5,26 @@
 #include "first_pass.h"
 #include "second_pass.h"
 #include "util.h"
+#include "unistd.h"
 
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
+    chdir("/Users/almogshtaigmann/CLionProjects/mmn14/Labratory-C-Final-Project/Tests/AsemblerFiles-Test");
     char *as_file, *am_file;
-    while(--argc > 0){
+    while (--argc > 0) {
+        printf("Start pre-proc\n");
         as_file = add_new_file(argv[argc], ".as");
-        if(mcro_exec(as_file) == 0){
+        if (!mcro_exec(as_file)) {
             continue;
         }
+        printf("Start first pass\n");
         am_file = add_new_file(argv[argc], ".am");
-        if(exe_first_pass(am_file)){
+        if (exe_first_pass(am_file)) {
             continue;
         }
-    free(as_file);
-    free(am_file);
+        printf("end\n");
+        free(as_file);
+        free(am_file);
     }
     return 0;
 }

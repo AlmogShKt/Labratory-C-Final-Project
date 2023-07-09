@@ -1,10 +1,10 @@
 #ifndef C_PROJECT_LEXER_H
 #define C_PROJECT_LEXER_H
 
-typedef struct op_code{
+typedef struct op_code {
     char *opcode;
     int arg_num;
-}op_code;
+} op_code;
 
 typedef struct command_parts {
     char *label;
@@ -85,15 +85,22 @@ int is_reg_or_label(char *str);
  * @return
  */
 int is_num(char *str);
-int is_reg_or_label_or_num(char *str);
-int legal_arg(char *str, command_parts *command, int *error_code);
-command_parts *read_command(char *str, int *error_code);
-int capture_nums(char *str, inst_parts *inst, int *error_code);
-inst_parts *read_instruction(char *str, int *error_code);
-int inc_array(inst_parts **inst, int len);
-int opcode_err_check(char *str);
-int count_occurr(char *str, char ch);
 
+int is_reg_or_label_or_num(char *str);
+
+int legal_arg(char *str, command_parts *command, int *error_code);
+
+command_parts *read_command(char *str, int *error_code);
+
+int capture_nums(char *str, inst_parts *inst, int *error_code);
+
+inst_parts *read_instruction(char *str, int *error_code);
+
+int inc_array(inst_parts **inst, int len);
+
+int opcode_err_check(char *str);
+
+int count_occurr(char *str, char ch);
 
 
 #endif //C_PROJECT_LEXER_H
