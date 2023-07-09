@@ -110,4 +110,4 @@ unsigned short reg_to_short(command_parts *command, int reg_src);
 void free_code(code_conv *code, int code_count);
 
 
-#endif //C_PROJECT_CODE_CONVERSION_H
+#endif
