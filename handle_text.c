@@ -43,8 +43,6 @@ char *remove_extra_spaces_file(char file_name[]) {
         /* saving the changed line to the new file */
         fprintf(fp_temp, "%s", str);
     }
-    /* putc('\n',fp_temp); */
-    /* closing files */
     fclose(fp);
     fclose(fp_temp);
     return new_file_name;

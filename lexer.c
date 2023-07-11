@@ -58,6 +58,7 @@ int lines_too_long(char *file_name) {
             too_long = 1;
         }
     }
+    fclose(fp);
     return too_long;
 }
 
@@ -75,10 +76,10 @@ int lines_too_long(char *file_name) {
  *         Otherwise, if the string does not match any instruction or is NULL, it returns 0.
  */
 int is_instr(char *str) {
+    int i;
     if (str == NULL) {
         return 0;
     }
-    int i;
     for (i = 0; i < INSTRUCTIONS_COUNT; i++) {
         if (strcmp(str, INSTUCTIONS[i]) == 0) {
             return 1;
@@ -101,10 +102,10 @@ int is_instr(char *str) {
  *         If the string does not match any opcode or is NULL, it returns -1.
  **/
 int what_opcode(char *str) {
+    int i;
     if (str == NULL) {
         return -1;
     }
-    int i;
     for (i = 0; i < OPCODES_COUNT; i++) {
         if (strcmp(str, OPCODES[i].opcode) == 0) {
             return i;
@@ -552,7 +553,6 @@ int capture_string(char *str, inst_parts *inst, int *error_code) {
  * @return Returns a pointer to the inst_parts structure if the instruction was successfully parsed, and 0 otherwise.
  */
 inst_parts *read_instruction(char *str, int *error_code) {
-    int num_count;
     inst_parts *inst;
     char *token;
     *error_code = 0;
@@ -563,7 +563,6 @@ inst_parts *read_instruction(char *str, int *error_code) {
     inst = handle_malloc(sizeof(inst_parts));
     inst->label = NULL;
     inst->nums = NULL;
-    num_count = 0;
     if (legal_label_decl(token)) {
         inst->label = token;
         token = strtok(NULL, " \n");
@@ -639,7 +638,6 @@ int opcode_err_check(char *str) {
  * @return Returns a pointer to the command_parts structure if the command was successfully parsed, and NULL otherwise.
  */
 command_parts *read_command(char *str, int *error_code) {
-    int args;
     char *token;
     command_parts *command = handle_malloc(sizeof(command_parts));
     if (command == NULL) {

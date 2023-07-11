@@ -172,6 +172,9 @@ int exe_first_pass(char *file_name) {
         code, data, externs, entries, error_found) == 0) {
         error_found = 1;
     }
+
+    fclose(fp);
+
     /* Return the error status */
     return error_found;
 }

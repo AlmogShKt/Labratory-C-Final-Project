@@ -32,10 +32,6 @@ char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count) {
     return mcro;
 }
 
-int valid_mcro_name(char *str) {
-
-}
-
 int valid_mcro_decl(char *str, char **name, int line_count, char *file_name) {
     /* assumes "mcro " has been encountered right before the function was called */
     char *temp_name, *extra;

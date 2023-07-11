@@ -9,8 +9,9 @@
 
 
 int main(int argc, char *argv[]) {
-    chdir("/Users/almogshtaigmann/CLionProjects/mmn14/Labratory-C-Final-Project/Tests/AsemblerFiles-Test");
     char *as_file, *am_file;
+    chdir("/Users/almogshtaigmann/CLionProjects/mmn14/Labratory-C-Final-Project/Tests/AsemblerFiles-Test");
+
     while (--argc > 0) {
         printf("Start pre-proc\n");
         as_file = add_new_file(argv[argc], ".as");
