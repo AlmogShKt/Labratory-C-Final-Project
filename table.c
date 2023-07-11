@@ -60,7 +60,8 @@ int insert_other_labels(other_table **table, int count, inst_parts *inst, locati
  * @param is_data: Flag indicating whether it is a data label.
  * @return Returns 1 if the label is inserted successfully, or 0 if memory allocation fails.
  */
-int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data) {
+int
+insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data) {
     label_address *p_temp;
     p_temp = *label_table;
     *label_table = realloc(*label_table, lines * sizeof(label_address));
@@ -167,9 +168,8 @@ void reset_labels_address(label_address *label_table, int table_lines) {
  * @param count: Number of elements in the code array.
  * @param file_name: Name of the file being processed.
  */
-int replace_externs(code_conv *code, other_table *externs, int externs_count, int count, char *file_name) {
-    int i, j, found, error_found;
-    error_found = 0;
+void replace_externs(code_conv *code, other_table *externs, int externs_count, int count, char *file_name) {
+    int i, j, found;
     for (i = 0; i <= count; i++) {
         found = 0;
         if ((code + i)->label != NULL) {
@@ -206,6 +206,7 @@ int replace_externs(code_conv *code, other_table *externs, int externs_count, in
 int is_extern_defined(other_table *externs, int externs_count, label_address *label_table, int label_table_line,
                       char *file_name) {
     int i, j, found, extern_defined;
+    location am_file;
     extern_defined = 0;
     for (i = 0; i < externs_count; i++) {
         found = 0;
@@ -214,7 +215,6 @@ int is_extern_defined(other_table *externs, int externs_count, label_address *la
             if (strcmp((externs + i)->label_name, (label_table + j)->label_name) == 0) {
                 extern_defined = 1;
                 found = 1;
-                location am_file;
                 am_file.file_name = file_name;
                 am_file.line_num = (label_table + j)->assembly_line;
                 print_external_error(ERROR_CODE_56, am_file);

@@ -33,7 +33,7 @@ int insert_other_labels(other_table **table, int count, inst_parts *inst, locati
 int is_extern_defined(other_table *externs, int externs_count, label_address *label_table, int label_table_line,
                       char *file_name);
 
-int replace_externs(code_conv *code, other_table *externs, int externs_count, int count, char *file_name);
+void replace_externs(code_conv *code, other_table *externs, int externs_count, int count, char *file_name);
 
 int print_externs(code_conv *code, int count, other_table *externs, int externs_count, char *file_name);
 

@@ -123,7 +123,7 @@ unsigned short reg_to_short(command_parts *command, int reg_src){
  * @return Returns 1 if the machine code line was added successfully, and 0 otherwise.
  */
 int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC, location am_file){
-    char *bin_num;
+    /*char *bin_num;*/
     if(inc_mem(code,*IC) == 0){
         return 0;
     }
@@ -209,7 +209,7 @@ int add_extra_machine_code_line(code_conv **code, command_parts *command, int *I
 int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location am_file){
     int i;
     for (i = 0; i < inst->len; i++){
-        char *bin_num;
+        /*char *bin_num;*/
         if(inc_mem(data,*DC) == 0){
             return 0;
         }
@@ -230,7 +230,7 @@ void print_binary_code(code_conv *code,int IC_len){
     int i;
     char *bin_num;
     for (i = 0; i <= IC_len; i++){
-        /*bin_num = short_to_binary((code + i)->short_num);
+        bin_num = short_to_binary((code + i)->short_num);
         printf("Assembly line %d, Code address %d binary code is: %s\n",\
         (code + i)->assembly_line,+IC_INIT_VALUE+i, bin_num);
     }
