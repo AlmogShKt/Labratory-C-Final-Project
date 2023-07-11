@@ -15,15 +15,22 @@ void free_all_memory(code_conv *code, label_address *label_table, other_table *e
 int conv_code_base64(code_conv *code, int count, char *file_name, int IC, int DC) {
     int i;
     FILE *fp;
-    fp = fopen(add_new_file(file_name, ".ob"), "w");
+    char *ob_file_name , *base64_char;
+    ob_file_name = add_new_file(file_name, ".ob");
+    fp = fopen(ob_file_name, "w");
     if (fp == NULL) {
         print_internal_error(ERROR_CODE_7);
         return 0;
     }
     fprintf(fp, "%d %d\n", IC + 1, DC);
     for (i = 0; i <= count; i++) {
-        fprintf(fp, "%s\n", short_to_base64((code + i)->short_num));
+        base64_char = short_to_base64((code + i)->short_num);
+        fprintf(fp, "%s\n", base64_char);
     }
+    /*Free Memory*/
+    free(base64_char);
+    free(ob_file_name);
+    fclose(fp);
     return 1;
 }
 

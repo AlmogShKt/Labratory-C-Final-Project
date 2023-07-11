@@ -58,6 +58,7 @@ int lines_too_long(char *file_name) {
             too_long = 1;
         }
     }
+    fclose(fp);
     return too_long;
 }
 
