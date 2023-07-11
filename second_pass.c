@@ -26,9 +26,10 @@ int conv_code_base64(code_conv *code, int count, char *file_name, int IC, int DC
     for (i = 0; i <= count; i++) {
         base64_char = short_to_base64((code + i)->short_num);
         fprintf(fp, "%s\n", base64_char);
+        free(base64_char);
     }
     /*Free Memory*/
-    free(base64_char);
+
     free(ob_file_name);
     fclose(fp);
     return 1;
