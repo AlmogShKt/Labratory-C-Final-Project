@@ -59,7 +59,7 @@ int exe_first_pass(char *file_name) {
     error_found = handle_allocation(&externs, &entries, &code, &data);
 
     /* Start reading the file line by line until end of file or maximum instruction count */
-    while (fgets(str, MAX_LINE_LENGTH, fp) != NULL && IC + DC <= IC_MAX) {
+    while (fgets(str, MAX_LINE_LENGTH, fp) != NULL && IC + DC <= IC_MAX - IC_INIT_VALUE) {
         (am_file.line_num)++;
         if (strcmp(str, "\n") == 0) {
             continue;

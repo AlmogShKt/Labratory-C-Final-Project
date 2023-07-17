@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[]) {
     char *as_file, *am_file;
-    chdir("/Users/almogshtaigmann/CLionProjects/mmn14/Labratory-C-Final-Project/Tests/AsemblerFiles-Test");
+    chdir("/Users/almogshtaigmann/CLionProjects/mmn14/Labratory-C-Final-Project/Tests/AsemblerFiles-Test/To-Test");
 
     while (--argc > 0) {
         printf("Start pre-proc\n");
