@@ -6,6 +6,7 @@
 #include "second_pass.h"
 #include "util.h"
 #include "unistd.h"
+#include "check_output.h"
 
 
 int main(int argc, char *argv[]) {
@@ -26,6 +27,13 @@ int main(int argc, char *argv[]) {
         printf("end\n");
         free(as_file);
         free(am_file);
+        /* compare output */
+        if(chech_output(argv[argc]) == 1){
+            printf("%s file output correct\n",argv[argc]);
+        }
+        else {
+            printf("%s file WRONG output\n",argv[argc]);
+        }
     }
     return 0;
 }

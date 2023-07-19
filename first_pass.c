@@ -34,6 +34,8 @@ int exe_first_pass(char *file_name) {
 
     /* Declare a file pointer */
     FILE *fp;
+
+    /* Declare a table to store the labels found in the code */
     label_address *label_table;
 
     /* Initialize the error codes */

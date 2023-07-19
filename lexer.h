@@ -102,5 +102,7 @@ int opcode_err_check(char *str);
 
 int count_occurr(char *str, char ch);
 
+int detect_label(char *str);
+
 
 #endif

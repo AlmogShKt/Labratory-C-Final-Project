@@ -638,15 +638,18 @@ int opcode_err_check(char *str) {
  * @return Returns a pointer to the command_parts structure if the command was successfully parsed, and NULL otherwise.
  */
 command_parts *read_command(char *str, int *error_code) {
-    char *token;
+    char *token = NULL;
+    /* Declare a struct to store the command line parts for future use */
     command_parts *command = handle_malloc(sizeof(command_parts));
     if (command == NULL) {
         return NULL;
     }
-    token = strtok(str, " \n");
-    *error_code = 0;
+    /* look for a label only if ':' exists in the line */
+    if(detect_label(str)){
+        token = strtok(str, ":");
+        *error_code = 0;
     /* there is a legal label in the line */
-    if (legal_label_decl(token)) {
+    // if (legal_label_decl(token)) {
         command->label = token;
         token = strtok(NULL, " \n");
         if ((command->opcode = what_opcode(token)) != -1) { ;
@@ -667,7 +670,7 @@ command_parts *read_command(char *str, int *error_code) {
         }
     }
         /* command line with legal opcode without a label */
-    else if ((command->opcode = what_opcode(token)) != -1) {
+    else if ((command->opcode = what_opcode(token = strtok(str, " \n"))) != -1) {
         command->label = NULL;
         legal_arg(strtok(NULL, "\n"), command, error_code);
     }
@@ -677,4 +680,12 @@ command_parts *read_command(char *str, int *error_code) {
         return NULL;
     }
     return command;
+}
+
+int detect_label(char *str){
+    char *c;
+    if((c = strchr(str,':')) == NULL){
+        return 0; /* line does not contain ':' therefore no legal label is possible */
+    }
+    return 1;
 }

@@ -19,4 +19,4 @@ ___
 9. 
     [Tamir] Add invalid chars in random places  
 10.   
-   [Tamir] handle white space after lebale : 
+   [Tamir] handle white space after label : 
