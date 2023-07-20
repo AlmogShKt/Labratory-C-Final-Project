@@ -73,8 +73,11 @@ int exe_first_pass(char *file_name) {
             inst = read_instruction(str, &error_code);
 
             if (error_code != 0) {
+
                 print_external_error(error_code, am_file);
-                free(inst);
+                if (inst->label == NULL)
+                    free(inst);
+
                 error_found = 1;
                 continue;
             }
@@ -128,10 +131,6 @@ int exe_first_pass(char *file_name) {
             If the command is parsed successfully (error_code is 0), increment the instruction counter.
             */
             if (error_code == 0) {
-                /*!
-                 * printf("line %d: label - %s, opcode = %d, source - %s, dest - %s\n",
-                       am_file.line_num, command->label, command->opcode, command->source, command->dest);
-                */
                 IC++;
             } else {
                 print_external_error(error_code, am_file);

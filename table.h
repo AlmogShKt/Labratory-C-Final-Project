@@ -10,7 +10,7 @@ typedef struct label_address {
     int address;
     char *label_name;
     int assembly_line;
-    int is_data;
+    int is_data_line;
 } label_address;
 
 typedef struct other_table {
@@ -18,7 +18,7 @@ typedef struct other_table {
     int assembly_line;
 } other_table;
 
-int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data);
+int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data_line);
 
 int check_each_label_once(label_address *label_table, int lines, char *file_name);
 
