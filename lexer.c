@@ -428,6 +428,23 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
     return 1;
 }
 
+
+int check_invalid_char(char *str) {
+    int i;
+    const char invalidChars[] = {'$', '#', '@', '^', '%', '!', ','};
+    int numInvalidChars = sizeof(invalidChars) / sizeof(char);
+    for (i = 0; i < numInvalidChars; i++) {
+        char temp[2];
+        temp[0] = invalidChars[i];
+        temp[1] = '\0';
+        if (strstr(str, temp)) {
+            return 1; // Character found in the array
+        }
+
+    }
+    return 0;
+}
+
 /**
  * @brief This function increments the size of the array (*inst)->nums.
  *
@@ -451,6 +468,28 @@ int inc_array(inst_parts **inst, int len) {
     return 1;
 }
 
+
+int is_string_legal(const char *str) {
+    int digitFlag = 0, commaFlag = 0, i;
+    for (i = 0; str[i]; i++) {
+        if (isdigit(str[i]) || str[i] == '-' || str[i] == ' ') {
+            if (commaFlag) commaFlag = 0;
+            if (isdigit(str[i])) digitFlag = 1;
+        } else if (str[i] == ',') {
+            if (!digitFlag || commaFlag) {
+                return 0; // Return false if comma found before any digit or after another comma
+            }
+            commaFlag = 1;
+        } else {
+            return 0; // Return false for any other character
+        }
+    }
+    if (commaFlag) {
+        return 0; // Return false if string ends with a comma
+    }
+    return 1; // Return true if string is legal
+}
+
 /**
  * @brief This function captures numbers from a string and stores them into the nums array of inst_parts structure.
  *
@@ -464,10 +503,24 @@ int inc_array(inst_parts **inst, int len) {
  * @return Returns 1 if all tokens are valid numbers and have been successfully added to the nums array,
  *         and 0 if a token isn't a valid number or if memory reallocation for the nums array fails.
  */
-int capture_nums(char *str, inst_parts *inst, int *error_code) {
+int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code) {
     char *token;
     int len;
     len = 0;
+
+//    *error_code = ERROR_CODE_39;
+//    return  0;
+
+    token = strtok(NULL, " \n");
+    if (!is_string_legal(token)) {
+        *error_code = ERROR_CODE_39;
+        return 0;
+    }
+
+
+    strtok(token_copy, " \n");
+    strtok(NULL, " \n");
+
     while ((token = strtok(NULL, ",\n")) != NULL) {
         if (is_num(token)) {
             if (inc_array(&inst, ++len) == 0) {
@@ -487,6 +540,7 @@ int capture_nums(char *str, inst_parts *inst, int *error_code) {
     inst->len = len;
     return 1;
 }
+
 
 /**
  * @brief This function captures a string from the input and stores it as an array of shorts in the inst_parts structure.
@@ -555,6 +609,7 @@ int capture_string(char *str, inst_parts *inst, int *error_code) {
 inst_parts *read_instruction(char *str, int *error_code) {
     inst_parts *inst;
     char *token;
+    char *token_copy = strdup(str);
     *error_code = 0;
     if (strstr(str, ".") == NULL) {
         return 0;
@@ -571,7 +626,7 @@ inst_parts *read_instruction(char *str, int *error_code) {
         inst->label = NULL;
     }
     if (strcmp(token, ".data") == 0) {
-        if (capture_nums(str, inst, error_code) == 0) {
+        if (capture_nums(str, token_copy, inst, error_code) == 0) {
             free(inst);
             return 0;
         }
@@ -639,6 +694,7 @@ int opcode_err_check(char *str) {
  */
 command_parts *read_command(char *str, int *error_code) {
     char *token;
+    int legal_label_name_st = 1, legal_opcode_name_st = 1;
     command_parts *command = handle_malloc(sizeof(command_parts));
     if (command == NULL) {
         return NULL;
@@ -667,14 +723,34 @@ command_parts *read_command(char *str, int *error_code) {
         }
     }
         /* command line with legal opcode without a label */
-    else if ((command->opcode = what_opcode(token)) != -1) {
+    else {
+        /*The label name is invalid*/
+        legal_label_name_st = 0;
+        if (check_invalid_char(token)) {
+            *error_code = ERROR_CODE_42;
+            return NULL;
+        }
+    }
+
+    if ((command->opcode = what_opcode(token)) != -1 && !legal_label_name_st) {
         command->label = NULL;
         legal_arg(strtok(NULL, "\n"), command, error_code);
+    } else {
+        /*Invalid opcode name*/
+        if (!legal_label_name_st)
+            legal_opcode_name_st = 0;
     }
-        /* command line without opcode */
-    else {
-        *error_code = ERROR_CODE_31;
+    /* invalid label name */
+    if ((legal_label_name_st == 1) || (legal_opcode_name_st == 1)) {
+        return command;
+
+    } else if (legal_opcode_name_st == 0) {
+        if (check_invalid_char(token))
+            *error_code = ERROR_CODE_41;
+        else
+            *error_code = ERROR_CODE_31;
         return NULL;
     }
-    return command;
+    return NULL;
 }
+
