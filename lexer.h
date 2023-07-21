@@ -58,6 +58,9 @@ int what_reg(char *str);
  */
 int legal_label_decl(char *str);
 
+int check_invalid_char(char *str, int *error_code, int is_label_check);
+
+
 /**
  * This function checks if the string is a legal label name
  * @param str a string that contains the input from the command or data line that might be a label
@@ -92,7 +95,7 @@ int legal_arg(char *str, command_parts *command, int *error_code);
 
 command_parts *read_command(char *str, int *error_code);
 
-int capture_nums(char *str, inst_parts *inst, int *error_code);
+int capture_nums(char *str, char *token_copy,inst_parts *inst, int *error_code);
 
 inst_parts *read_instruction(char *str, int *error_code);
 
