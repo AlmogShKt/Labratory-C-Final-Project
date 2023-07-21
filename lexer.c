@@ -103,6 +103,7 @@ int is_instr(char *str) {
  **/
 int what_opcode(char *str) {
     int i;
+
     if (str == NULL) {
         return -1;
     }
@@ -429,20 +430,23 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
 }
 
 
-int check_invalid_char(char *str) {
+int check_invalid_char(char *str, int *error_code, int is_label_check) {
     int i;
-    const char invalidChars[] = {'$', '#', '@', '^', '%', '!', ','};
-    int numInvalidChars = sizeof(invalidChars) / sizeof(char);
-    for (i = 0; i < numInvalidChars; i++) {
-        char temp[2];
-        temp[0] = invalidChars[i];
-        temp[1] = '\0';
-        if (strstr(str, temp)) {
-            return 1; // Character found in the array
+    for (i = 0; i < strlen(str); i++) {
+        if (!isdigit(str[i]) && !isalpha(str[i]) && str[i] != '\0') {
+            if(is_label_check){
+                if (str[i] == ':')
+                    continue;
+            }
+            if (str[i] == ',') {
+                *error_code = ERROR_CODE_40;
+            } else {
+                *error_code = ERROR_CODE_42;
+            }
+            return 0;
         }
-
     }
-    return 0;
+    return 1;
 }
 
 /**
@@ -626,15 +630,10 @@ inst_parts *read_instruction(char *str, int *error_code) {
         inst->label = NULL;
     }
     if (strcmp(token, ".data") == 0) {
-        if (capture_nums(str, token_copy, inst, error_code) == 0) {
-            free(inst);
-            return 0;
-        }
+        capture_nums(str, token_copy, inst, error_code);
     } else if (strcmp(token, ".string") == 0) {
-        if (capture_string(str, inst, error_code) == 0) {
-            free(inst);
-            return 0;
-        }
+        capture_string(str, inst, error_code);
+
     } else if (strcmp(token, ".entry") == 0) {
         token = strtok(NULL, " \n");
         if (legal_label(token)) {
@@ -704,11 +703,13 @@ command_parts *read_command(char *str, int *error_code) {
     /* there is a legal label in the line */
     if (legal_label_decl(token)) {
         command->label = token;
+        /*! Need to handle this line, to detect invalid label name.. */
         token = strtok(NULL, " \n");
         if ((command->opcode = what_opcode(token)) != -1) { ;
         } else {
             *error_code = opcode_err_check(token);
-            return NULL;
+            command->opcode = -1;
+            return command;
         }
         if (OPCODES[command->opcode].arg_num == 0) {
             if (extra_text()) {
@@ -726,8 +727,7 @@ command_parts *read_command(char *str, int *error_code) {
     else {
         /*The label name is invalid*/
         legal_label_name_st = 0;
-        if (check_invalid_char(token)) {
-            *error_code = ERROR_CODE_42;
+        if (!check_invalid_char(token, error_code,1)) {
             return NULL;
         }
     }
@@ -745,7 +745,7 @@ command_parts *read_command(char *str, int *error_code) {
         return command;
 
     } else if (legal_opcode_name_st == 0) {
-        if (check_invalid_char(token))
+        if (check_invalid_char(token, error_code , 0))
             *error_code = ERROR_CODE_41;
         else
             *error_code = ERROR_CODE_31;

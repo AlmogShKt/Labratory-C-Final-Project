@@ -58,6 +58,9 @@ int what_reg(char *str);
  */
 int legal_label_decl(char *str);
 
+int check_invalid_char(char *str, int *error_code, int is_label_check);
+
+
 /**
  * This function checks if the string is a legal label name
  * @param str a string that contains the input from the command or data line that might be a label

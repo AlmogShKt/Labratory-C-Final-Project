@@ -71,13 +71,13 @@ int exe_first_pass(char *file_name) {
 
             /* Parse the instruction */
             inst = read_instruction(str, &error_code);
+            if (inst->label != NULL) {
+                insert_label_table(&label_table, ++label_table_line, inst->label, DC, am_file, 1);
+            }
 
             if (error_code != 0) {
-
                 print_external_error(error_code, am_file);
-                if (inst->label == NULL)
-                    free(inst);
-
+                free(inst);
                 error_found = 1;
                 continue;
             }
@@ -106,9 +106,6 @@ int exe_first_pass(char *file_name) {
             }
                 /* is not .entry nor .extern --> is .data or .string */
             else {
-                if (inst->label != NULL) {
-                    insert_label_table(&label_table, ++label_table_line, inst->label, DC, am_file, 1);
-                }
                 /*
                 Try to add the data/string to the 'data' machine code.
                 If the addition fails (function returns 0), free the 'nums' member and the 'inst' structure, set the error flag, and continue to the next line.
@@ -129,7 +126,12 @@ int exe_first_pass(char *file_name) {
             command = read_command(str, &error_code);
             /*
             If the command is parsed successfully (error_code is 0), increment the instruction counter.
+
+            If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.
             */
+            if (command != NULL && command->label != NULL) {
+                insert_label_table(&label_table, ++label_table_line, command->label, IC, am_file, 0);
+            }
             if (error_code == 0) {
                 IC++;
             } else {
@@ -138,12 +140,7 @@ int exe_first_pass(char *file_name) {
                 error_found = 1;
                 continue;
             }
-            /*
-            If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.
-            */
-            if (command->label != NULL) {
-                insert_label_table(&label_table, ++label_table_line, command->label, IC, am_file, 0);
-            }
+
             /*
            If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.
            */
