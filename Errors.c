@@ -48,10 +48,10 @@ Error errors[] = {
         {ERROR_CODE_38, "Illegal comma after opcode"},
         {ERROR_CODE_39, "More commas than needed"},
         {ERROR_CODE_40, "Comma in the wrong place"},
-        {-1, ""},
-        {-1, ""},
-        {-1, ""},
-        {-1, ""},
+        {ERROR_CODE_41, "Illegal char near opcode or label"},
+        {ERROR_CODE_42, "Illegal char"},
+        {ERROR_CODE_43, "Missing comma between numbers"},
+        {ERROR_CODE_44, "Illegal label declaration"},
         {-1, ""},
         {-1, ""},
         {-1, ""},
@@ -64,6 +64,11 @@ Error errors[] = {
         {ERROR_CODE_54, "IC too big for word CPU word length"},
         {ERROR_CODE_55, "Label definition repeats more than once"},
         {ERROR_CODE_56, "Label defined as .extern and defined in file"},
+        {ERROR_CODE_57, "Input number in .data line is out of range"},
+        {ERROR_CODE_58, ""},
+        {ERROR_CODE_59, ""},
+        {ERROR_CODE_60, ""},
+
 
 };
 

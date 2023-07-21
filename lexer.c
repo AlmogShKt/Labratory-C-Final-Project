@@ -167,8 +167,8 @@ int legal_label_decl(char *str) {
     if (isalpha(*str) && strlen(str) <= MAX_LABEL_LENGTH && (what_reg(str) < 0) && (what_opcode(str) < 0)) {
         while (*(++str) != '\0' && (isalpha(*str) || isdigit(*str))) { ;
         }
-        if (*(str) == ':' && *(str + 1) == '\0') {
-            *str = '\0';
+        if (/* *(str) == ':' && */ *str == '\0') {
+            // *str = '\0';
             return 1;
         }
     }
@@ -310,6 +310,14 @@ int count_occurr(char *str, char ch) {
     return count;
 }
 
+int check_first_arg(char *str, char *ptr){
+    int first_arg_len = (int)(ptr-str);
+    char first_arg[first_arg_len+1];
+    strncpy(first_arg,str,first_arg_len);
+    first_arg[first_arg_len] = '\0';
+    return is_reg_or_label_or_num(first_arg);
+}
+
 /**
  * @brief This function checks the legality of an argument for a given command.
  *
@@ -325,7 +333,7 @@ int count_occurr(char *str, char ch) {
  *         If the function returns 0, an error code is set in the integer pointed by the 'error_code' argument.
  */
 int legal_arg(char *str, command_parts *command, int *error_code) {
-    char *str1, *str2;
+    char *str1, *str2, *ptr;
     /* empty argument */
     if (str == NULL) {
         *error_code = ERROR_CODE_34;
@@ -341,12 +349,26 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             return 0;
         } else {
             str1 = strtok(str, ",");
-            if (strchr(str1, ' ')) {
-                *error_code = ERROR_CODE_40;
+            if ((ptr = strchr(str1, ' '))) {
+                if(check_first_arg(str1,ptr)){
+                    *error_code = ERROR_CODE_35;
+                    return 0;
+                }
+                *error_code = ERROR_CODE_33;
                 return 0;
             }
             /*! added white space */
             str2 = strtok(NULL, " \n");
+            if(extra_text()){
+                *error_code = ERROR_CODE_32;
+                return 0;
+            }
+        }
+    }
+    else if(OPCODES[command->opcode].arg_num == 1){
+        if(strchr(str, ' ')){
+            *error_code = ERROR_CODE_32;
+            return 0;
         }
     }
 
@@ -357,17 +379,20 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
         /* If validation succeeds, assign the validated arguments to the command structure. */
 
         /* Handle each opcode case separately. */
+
+        /* source addressing code is 1,3,5 and dest addressing code is 1,3,5 */
         case 1: {
             if (is_reg_or_label_or_num(str1) && is_reg_or_label_or_num(str2)) {
                 command->source = str1;
                 command->dest = str2;
             } else {
                 *error_code = ERROR_CODE_33;
-
                 return 0;
             }
             break;
         }
+
+        /* source addressing code is 3,5 and dest addressing code is 1,3,5 */
         case 0:
         case 2:
         case 3: {
@@ -375,12 +400,14 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = str1;
                 command->dest = str2;
             } else {
-                printf("here 2\n");
+                // printf("here 2\n");
                 *error_code = ERROR_CODE_33;
                 return 0;
             }
             break;
         }
+
+        /* source addressing code is 3,5 and dest addressing code is 3 */
         case 6: {
             if (legal_label(str1) && is_reg_or_label(str2)) {
                 command->source = str1;
@@ -392,6 +419,8 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             }
             break;
         }
+
+        /* source addressing code is 3,5 and no dest */
         case 4:
         case 5:
         case 7:
@@ -409,6 +438,8 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             }
             break;
         }
+
+        /* source addressing code is 1,3,5 and no dest */
         case 12: {
             if (is_reg_or_label_or_num(str)) {
                 command->source = NULL;
@@ -419,13 +450,29 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             }
             break;
         }
-            /* case 14,15 are dealt with in previous stage */
+        /* case 14,15 are dealt with in previous stage */
         default: {
             *error_code = ERROR_CODE_33;
             return 0;
         }
     }
     return 1;
+}
+
+int check_invalid_char(char *str) {
+    int i;
+    const char invalidChars[] = {'$', '#', '@', '^', '%', '!', ','};
+    int numInvalidChars = sizeof(invalidChars) / sizeof(char);
+    for (i = 0; i < numInvalidChars; i++) {
+        char temp[2];
+        temp[0] = invalidChars[i];
+        temp[1] = '\0';
+        if (strstr(str, temp)) {
+            return 1; // Character found in the array
+        }
+
+    }
+    return 0;
 }
 
 /**
@@ -451,6 +498,27 @@ int inc_array(inst_parts **inst, int len) {
     return 1;
 }
 
+int is_string_legal(const char *str) {
+    int digitFlag = 0, commaFlag = 0, i;
+    for (i = 0; str[i]; i++) {
+        if (isdigit(str[i]) || str[i] == '-' || str[i] == ' ') {
+            if (commaFlag) commaFlag = 0;
+            if (isdigit(str[i])) digitFlag = 1;
+        } else if (str[i] == ',') {
+            if (!digitFlag || commaFlag) {
+                return 0; // Return false if comma found before any digit or after another comma
+            }
+            commaFlag = 1;
+        } else {
+            return 0; // Return false for any other character
+        }
+    }
+    if (commaFlag) {
+        return 0; // Return false if string ends with a comma
+    }
+    return 1; // Return true if string is legal
+}
+
 /**
  * @brief This function captures numbers from a string and stores them into the nums array of inst_parts structure.
  *
@@ -464,28 +532,50 @@ int inc_array(inst_parts **inst, int len) {
  * @return Returns 1 if all tokens are valid numbers and have been successfully added to the nums array,
  *         and 0 if a token isn't a valid number or if memory reallocation for the nums array fails.
  */
-int capture_nums(char *str, inst_parts *inst, int *error_code) {
+int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code) {
     char *token;
-    int len;
-    len = 0;
+    short num;
+    int len, error;
+    len = error = 0;
+
+//    *error_code = ERROR_CODE_39;
+//    return  0;
+
+    token = strtok(NULL, "\n");
+    if(strchr(token,' ')){
+        *error_code = ERROR_CODE_43;
+        return 0;
+    }
+    if (!is_string_legal(token)) {
+        *error_code = ERROR_CODE_39;
+        return 0;
+    }
+    strtok(token_copy, " \n");
+    strtok(NULL, " \n");
     while ((token = strtok(NULL, ",\n")) != NULL) {
         if (is_num(token)) {
             if (inc_array(&inst, ++len) == 0) {
-                return 0;
+                error = *error_code = ERROR_CODE_1;
+                return -1;
             }
-            *(inst->nums + len - 1) = (short) (atoi(token));
+            num = (short) (atoi(token));
+            if(num >= MIN_NUM && num <= MAX_NUM){
+                *(inst->nums + len - 1) = (short) (atoi(token));
+            }
+            else {
+                error = *error_code = ERROR_CODE_57;
+                continue;
+            }
         } else {
             if (strcmp(token, "\n") == 0) {
                 /* comma AFTER the last number */
-                *error_code = ERROR_CODE_51;
-                return 0;
+                error = *error_code = ERROR_CODE_51;
             }
-            *error_code = ERROR_CODE_50;
-            return 0;
+            error = *error_code = ERROR_CODE_50;
         }
     }
     inst->len = len;
-    return 1;
+    return error;
 }
 
 /**
@@ -555,6 +645,7 @@ int capture_string(char *str, inst_parts *inst, int *error_code) {
 inst_parts *read_instruction(char *str, int *error_code) {
     inst_parts *inst;
     char *token;
+    char *token_copy = strdup(str);
     *error_code = 0;
     if (strstr(str, ".") == NULL) {
         return 0;
@@ -571,7 +662,7 @@ inst_parts *read_instruction(char *str, int *error_code) {
         inst->label = NULL;
     }
     if (strcmp(token, ".data") == 0) {
-        if (capture_nums(str, inst, error_code) == 0) {
+        if((capture_nums(str, token_copy, inst, error_code)) != 0){
             free(inst);
             return 0;
         }
@@ -638,18 +729,27 @@ int opcode_err_check(char *str) {
  * @return Returns a pointer to the command_parts structure if the command was successfully parsed, and NULL otherwise.
  */
 command_parts *read_command(char *str, int *error_code) {
-    char *token = NULL;
-    /* Declare a struct to store the command line parts for future use */
+    char *token;
+    int legal_label_name_st = 1, legal_opcode_name_st = 1;
     command_parts *command = handle_malloc(sizeof(command_parts));
     if (command == NULL) {
         return NULL;
     }
-    /* look for a label only if ':' exists in the line */
-    if(detect_label(str)){
-        token = strtok(str, ":");
-        *error_code = 0;
+    char str_copy[MAX_LINE_LENGTH];
+    strcpy(str_copy,str);
+    token = strtok(str, ": \n");
+    if(str_copy[strlen(token)] == ':'){
+        /* there's a possible label */
+        if (legal_label_decl(token)) {
+            command->label = token;
+        }
+        else {
+
+        }
+    }
+    *error_code = 0;
     /* there is a legal label in the line */
-    // if (legal_label_decl(token)) {
+    if (legal_label_decl(token)) {
         command->label = token;
         token = strtok(NULL, " \n");
         if ((command->opcode = what_opcode(token)) != -1) { ;
@@ -670,16 +770,35 @@ command_parts *read_command(char *str, int *error_code) {
         }
     }
         /* command line with legal opcode without a label */
-    else if ((command->opcode = what_opcode(token = strtok(str, " \n"))) != -1) {
+    else {
+        /*The label name is invalid*/
+        legal_label_name_st = 0;
+        if (check_invalid_char(token)) {
+            *error_code = ERROR_CODE_42;
+            return NULL;
+        }
+    }
+
+    if ((command->opcode = what_opcode(token)) != -1 && !legal_label_name_st) {
         command->label = NULL;
         legal_arg(strtok(NULL, "\n"), command, error_code);
+    } else {
+        /*Invalid opcode name*/
+        if (!legal_label_name_st)
+            legal_opcode_name_st = 0;
     }
-        /* command line without opcode */
-    else {
-        *error_code = ERROR_CODE_31;
+    /* invalid label name */
+    if ((legal_label_name_st == 1) || (legal_opcode_name_st == 1)) {
+        return command;
+
+    } else if (legal_opcode_name_st == 0) {
+        if (check_invalid_char(token))
+            *error_code = ERROR_CODE_41;
+        else
+            *error_code = ERROR_CODE_31;
         return NULL;
     }
-    return command;
+    return NULL;
 }
 
 int detect_label(char *str){

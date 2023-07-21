@@ -92,7 +92,7 @@ int legal_arg(char *str, command_parts *command, int *error_code);
 
 command_parts *read_command(char *str, int *error_code);
 
-int capture_nums(char *str, inst_parts *inst, int *error_code);
+int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code);
 
 inst_parts *read_instruction(char *str, int *error_code);
 

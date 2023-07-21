@@ -303,7 +303,7 @@ int print_externs(code_conv *code, int count, other_table *externs, int externs_
         if ((code + i)->label != NULL) {
             for (j = 0; j < externs_count && found == 0; j++) {
                 if (strcmp((code + i)->label, (externs + j)->label_name) == 0) {
-                    fprintf(fp, "%s\t%d\n", (externs + j)->label_name, IC_INIT_VALUE + i);
+                    fprintf(fp, "%s %d\n", (externs + j)->label_name, IC_INIT_VALUE + i);
                     found = 1;
                     empty = 0;
                 }
@@ -353,7 +353,7 @@ int print_entries(label_address *label_table, int label_table_line, other_table 
         for (j = 0; j < entries_count && found == 0; j++) {
             if (strcmp((label_table + i)->label_name, (entries + j)->label_name) == 0) {
                 found = 1;
-                fprintf(fp, "%s\t%d\n", (entries + j)->label_name, (label_table + i)->address);
+                fprintf(fp, "%s %d\n", (entries + j)->label_name, (label_table + i)->address);
                 empty = 0;
             }
         }
@@ -389,6 +389,7 @@ void free_label_table(label_address *label_table, int label_table_line) {
 void free_other_table(other_table *table, int count) {
     int i;
     for (i = 0; i < count; i++) {
+        printf("%s\n",(table + i)->label_name);
         free((table + i)->label_name);
     }
     free(table);

@@ -8,8 +8,9 @@ void free_all_memory(code_conv *code, label_address *label_table, other_table *e
     int code_count, int label_table_line, int entries_count, int externs_count) {
     free_code(code, code_count);
     free_label_table(label_table, label_table_line);
-    free_other_table(entries, entries_count);
-    free_other_table(externs, externs_count);
+    /*! errors in the following two lines */
+    // free_other_table(entries, entries_count);
+    // free_other_table(externs, externs_count);
 }
 
 int conv_code_base64(code_conv *code, int count, char *file_name, int IC, int DC) {
