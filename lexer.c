@@ -103,6 +103,7 @@ int is_instr(char *str) {
  **/
 int what_opcode(char *str) {
     int i;
+
     if (str == NULL) {
         return -1;
     }
@@ -310,12 +311,37 @@ int count_occurr(char *str, char ch) {
     return count;
 }
 
+
 int check_first_arg(char *str, char *ptr){
     int first_arg_len = (int)(ptr-str);
     char first_arg[first_arg_len+1];
     strncpy(first_arg,str,first_arg_len);
     first_arg[first_arg_len] = '\0';
     return is_reg_or_label_or_num(first_arg);
+
+int has_white_space(const char* str) {
+    while (*str) {
+        if (isspace(*str)) {
+            return 1; // Found a whitespace character
+        }
+        str++;
+    }
+    return 0; // No whitespace characters found
+}
+
+void check_reg_error(int *error_code, char *str) {
+    char temp_str1[MAX_LINE_LENGTH], temp_str2[MAX_LINE_LENGTH];
+    strcpy(temp_str1, str);
+    if (error_code[0])
+        return;
+
+    if (has_white_space(str))
+        *error_code = ERROR_CODE_33;
+    else if (atoi(strtok(temp_str1, "@r"))) {
+        *error_code = ERROR_CODE_46;
+    } else
+        *error_code = ERROR_CODE_33;
+
 }
 
 /**
@@ -368,6 +394,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 return 0;
             }
             /*! added white space */
+            /*! May need to hande case of @r2 2 is legal - but shouldn't be*/
             str2 = strtok(NULL, " \n");
             if(extra_text()){
                 *error_code = ERROR_CODE_32;
@@ -396,7 +423,13 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = str1;
                 command->dest = str2;
             } else {
-                *error_code = ERROR_CODE_33;
+
+                if (str2 == NULL)
+                    *error_code = ERROR_CODE_34;
+                else if (what_reg(str1) == -1 || what_reg(str2) == -1)
+                    *error_code = ERROR_CODE_46;
+                else
+                    *error_code = ERROR_CODE_33;
                 return 0;
             }
             break;
@@ -410,8 +443,9 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = str1;
                 command->dest = str2;
             } else {
-                // printf("here 2\n");
-                *error_code = ERROR_CODE_33;
+
+                check_reg_error(error_code, str1);
+                check_reg_error(error_code, str2);
                 return 0;
             }
             break;
@@ -443,7 +477,10 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = NULL;
                 command->dest = str;
             } else {
-                *error_code = ERROR_CODE_33;
+                if (atoi(strtok(str, "@r")))
+                    *error_code = ERROR_CODE_46;
+                else
+                    *error_code = ERROR_CODE_33;
                 return 0;
             }
             break;
@@ -455,7 +492,9 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = NULL;
                 command->dest = str;
             } else {
-                *error_code = ERROR_CODE_33;
+                /*Check if its illegal register name*/
+                check_reg_error(error_code, str);
+
                 return 0;
             }
             break;
@@ -469,20 +508,24 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
     return 1;
 }
 
-int check_invalid_char(char *str) {
-    int i;
-    const char invalidChars[] = {'$', '#', '@', '^', '%', '!', ','};
-    int numInvalidChars = sizeof(invalidChars) / sizeof(char);
-    for (i = 0; i < numInvalidChars; i++) {
-        char temp[2];
-        temp[0] = invalidChars[i];
-        temp[1] = '\0';
-        if (strstr(str, temp)) {
-            return 1; // Character found in the array
-        }
 
+int check_invalid_char(char *str, int *error_code, int is_label_check) {
+    int i;
+    for (i = 0; i < strlen(str); i++) {
+        if (!isdigit(str[i]) && !isalpha(str[i]) && str[i] != '\0') {
+            if (is_label_check) {
+                if (str[i] == ':')
+                    continue;
+            }
+            if (str[i] == ',') {
+                *error_code = ERROR_CODE_40;
+            } else {
+                *error_code = ERROR_CODE_42;
+            }
+            return 0;
+        }
     }
-    return 0;
+    return 1;
 }
 
 /**
@@ -556,12 +599,14 @@ int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code)
         *error_code = ERROR_CODE_43;
         return 0;
     }
+
     if (!is_string_legal(token)) {
         *error_code = ERROR_CODE_39;
         return 0;
     }
     strtok(token_copy, " \n");
     //strtok(NULL, " \n");
+  
     while ((token = strtok(NULL, ",\n")) != NULL) {
         if (is_num(token)) {
             if (inc_array(&inst, ++len) == 0) {
@@ -587,6 +632,7 @@ int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code)
     inst->len = len;
     return error;
 }
+
 
 /**
  * @brief This function captures a string from the input and stores it as an array of shorts in the inst_parts structure.
@@ -689,7 +735,6 @@ int read_data(inst_parts **inst, char *str, char *token, int *error_code, char *
 inst_parts *read_instruction(char *str, int *error_code) {
     inst_parts *inst;
     char *token;
-    // char *token_copy = strdup(str);
     *error_code = 0;
     if (strstr(str, ".") == NULL) {
         return 0;
@@ -723,6 +768,7 @@ inst_parts *read_instruction(char *str, int *error_code) {
             } else {
                 return NULL;
             }
+
         } else {
             *error_code = ERROR_CODE_44;
             return 0;
@@ -789,6 +835,7 @@ int opcode_err_check(char *str) {
  */
 command_parts *read_command(char *str, int *error_code) {
     char *token;
+    int legal_label_name_st = 1, legal_opcode_name_st = 1;
     command_parts *command = handle_malloc(sizeof(command_parts));
     int legal_label_name_st = 1, legal_opcode_name_st = 1;
     *error_code = 0;
@@ -865,12 +912,4 @@ command_parts *read_command(char *str, int *error_code) {
             return NULL;
         }
     }
-}
-
-int detect_label(char *str){
-    char *c;
-    if((c = strchr(str,':')) == NULL){
-        return 0; /* line does not contain ':' therefore no legal label is possible */
-    }
-    return 1;
 }

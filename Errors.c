@@ -54,7 +54,6 @@ Error errors[] = {
         {ERROR_CODE_44, "Illegal label declaration"},
         {ERROR_CODE_45, "Missing ':' after label declaration"},
         {ERROR_CODE_46, "Illegal register name. Use only @r1-@r7"},
-
         {ERROR_CODE_47, "Illegal comma before opcode"},
         {ERROR_CODE_48, ""},
         {ERROR_CODE_49, "Data line without '. before directive"},

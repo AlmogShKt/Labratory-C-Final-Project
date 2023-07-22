@@ -3,7 +3,7 @@ ___
 1. 
     [Almog] comas in invalid places  
 2.    
-    [Almog] invalid lebeles name   
+    [Almog] invalid labels name   
 3. 
     [Almog] invalid opcode   
 4. 

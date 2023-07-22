@@ -47,21 +47,21 @@ int insert_other_labels(other_table **table, int count, inst_parts *inst, locati
  *
  * The function takes a pointer to the label_table (label_table), the number of lines (lines),
  * the label name (label), the counter value (counter), the location of the assembly file (am_file),
- * and a flag indicating whether it is a data label (is_data).
+ * and a flag indicating whether it is a data label (is_data_line_line).
  *
  * It reallocates memory for the label_table to accommodate the new label entry.
- * It updates the is_data, address, assembly_line, and label_name fields for the new label entry.
+ * It updates the is_data_line, address, assembly_line, and label_name fields for the new label entry.
  *
  * @param label_table: Pointer to the label_table.
  * @param lines: Number of lines.
  * @param label: The label name.
  * @param counter: The counter value.
  * @param am_file: The location of the assembly file.
- * @param is_data: Flag indicating whether it is a data label.
+ * @param is_data_line: Flag indicating whether it is a data label.
  * @return Returns 1 if the label is inserted successfully, or 0 if memory allocation fails.
  */
 int
-insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data) {
+insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data_line) {
     label_address *p_temp;
     p_temp = *label_table;
     *label_table = realloc(*label_table, lines * sizeof(label_address));
@@ -69,7 +69,7 @@ insert_label_table(label_address **label_table, int lines, char *label, int coun
         free(p_temp);
         return 0;
     }
-    (*label_table + lines - 1)->is_data = is_data;
+    (*label_table + lines - 1)->is_data_line = is_data_line;
     (*label_table + lines - 1)->address = counter;
     (*label_table + lines - 1)->assembly_line = am_file.line_num;
     (*label_table + lines - 1)->label_name = malloc((strlen(label) + 1) * sizeof(char));
@@ -126,7 +126,7 @@ int check_each_label_once(label_address *label_table, int table_lines, char *fil
 void change_label_table_data_count(label_address *label_table, int table_lines, int IC) {
     int i;
     for (i = 0; i < table_lines; i++) {
-        if ((label_table + i)->is_data) {
+        if ((label_table + i)->is_data_line) {
             (label_table + i)->address += IC + 1;
         }
     }
