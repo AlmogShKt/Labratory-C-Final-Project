@@ -1,0 +1,18 @@
+MAI: mov @r5,LENGTH gg
+LOOP: jmp L1
+
+
+
+
+
+prn @r2
+bne LOOP
+sub @r3,@r4
+cmp @r1,@r4 2
+bne END
+L1: inc K
+jsr @r2
+END: stop 55
+STR: .string "abcdef"
+LENGTH: .data 1,-9,15
+K: .data 22

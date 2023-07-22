@@ -311,6 +311,30 @@ int count_occurr(char *str, char ch) {
     return count;
 }
 
+int has_white_space(const char* str) {
+    while (*str) {
+        if (isspace(*str)) {
+            return 1; // Found a whitespace character
+        }
+        str++;
+    }
+    return 0; // No whitespace characters found
+}
+
+void check_reg_error(int *error_code, char *str) {
+    char temp_str1[MAX_LINE_LENGTH], temp_str2[MAX_LINE_LENGTH];
+    strcpy(temp_str1, str);
+    if (error_code[0])
+        return;
+
+    if (has_white_space(str))
+        *error_code = ERROR_CODE_33;
+    else if (atoi(strtok(temp_str1, "@r"))) {
+        *error_code = ERROR_CODE_46;
+    } else
+        *error_code = ERROR_CODE_33;
+}
+
 /**
  * @brief This function checks the legality of an argument for a given command.
  *
@@ -347,6 +371,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 return 0;
             }
             /*! added white space */
+            /*! May need to hande case of @r2 2 is legal - but shouldn't be*/
             str2 = strtok(NULL, " \n");
         }
     }
@@ -363,8 +388,12 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = str1;
                 command->dest = str2;
             } else {
-                *error_code = ERROR_CODE_33;
-
+                if (str2 == NULL)
+                    *error_code = ERROR_CODE_34;
+                else if (what_reg(str1) == -1 || what_reg(str2) == -1)
+                    *error_code = ERROR_CODE_46;
+                else
+                    *error_code = ERROR_CODE_33;
                 return 0;
             }
             break;
@@ -376,8 +405,9 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = str1;
                 command->dest = str2;
             } else {
-                printf("here 2\n");
-                *error_code = ERROR_CODE_33;
+                check_reg_error(error_code, str1);
+                check_reg_error(error_code, str2);
+
                 return 0;
             }
             break;
@@ -405,7 +435,10 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = NULL;
                 command->dest = str;
             } else {
-                *error_code = ERROR_CODE_33;
+                if (atoi(strtok(str, "@r")))
+                    *error_code = ERROR_CODE_46;
+                else
+                    *error_code = ERROR_CODE_33;
                 return 0;
             }
             break;
@@ -415,7 +448,9 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
                 command->source = NULL;
                 command->dest = str;
             } else {
-                *error_code = ERROR_CODE_33;
+                /*Check if its illegal register name*/
+                check_reg_error(error_code, str);
+
                 return 0;
             }
             break;
@@ -434,7 +469,7 @@ int check_invalid_char(char *str, int *error_code, int is_label_check) {
     int i;
     for (i = 0; i < strlen(str); i++) {
         if (!isdigit(str[i]) && !isalpha(str[i]) && str[i] != '\0') {
-            if(is_label_check){
+            if (is_label_check) {
                 if (str[i] == ':')
                     continue;
             }
@@ -727,7 +762,7 @@ command_parts *read_command(char *str, int *error_code) {
     else {
         /*The label name is invalid*/
         legal_label_name_st = 0;
-        if (!check_invalid_char(token, error_code,1)) {
+        if (!check_invalid_char(token, error_code, 1)) {
             return NULL;
         }
     }
@@ -745,7 +780,10 @@ command_parts *read_command(char *str, int *error_code) {
         return command;
 
     } else if (legal_opcode_name_st == 0) {
-        if (check_invalid_char(token, error_code , 0))
+        *error_code = opcode_err_check(token);
+        if (*error_code)
+            return NULL;
+        else if (check_invalid_char(token, error_code, 0))
             *error_code = ERROR_CODE_41;
         else
             *error_code = ERROR_CODE_31;

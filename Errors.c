@@ -53,7 +53,7 @@ Error errors[] = {
         {-1, ""},
         {-1, ""},
         {-1, ""},
-        {-1, ""},
+        {ERROR_CODE_46, "Illegal register name. Use only @r1-@r7"},
         {-1, ""},
         {-1, ""},
         {-1, ""},

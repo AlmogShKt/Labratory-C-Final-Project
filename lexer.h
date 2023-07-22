@@ -82,6 +82,9 @@ int extra_text();
  */
 int is_reg_or_label(char *str);
 
+void check_reg_error(int *error_code, char *str);
+
+
 /**
  * This function checks if a string is a legal number
  * @param str
