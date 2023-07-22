@@ -711,7 +711,7 @@ inst_parts *read_instruction(char *str, int *error_code) {
                 return 0;
             }
             if (*token != '.' && *(token+1) != '.') {
-                *error_code = ERROR_CODE_46;
+                *error_code = ERROR_CODE_49;
                 return 0;
             }
             if (read_data(&inst, str, token, error_code, str_copy) != 0) {
