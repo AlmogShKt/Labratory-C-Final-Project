@@ -221,7 +221,7 @@ int legal_label(char *str) {
  */
 int extra_text() {
     char *token;
-    token = strtok(NULL, "\n");
+    token = strtok(NULL, " \n");
     if (token != NULL) {
         return 1;
     }
@@ -335,9 +335,19 @@ int check_first_arg(char *str, char *ptr){
 int legal_arg(char *str, command_parts *command, int *error_code) {
     char *str1, *str2, *ptr;
     /* empty argument */
-    if (str == NULL) {
+    if (str == NULL && OPCODES[command->opcode].arg_num != 0) {
         *error_code = ERROR_CODE_34;
         return 0;
+    }
+    /* opcodes with no arguments */
+    if (OPCODES[command->opcode].arg_num == 0) {
+        if (extra_text()) {
+            *error_code = ERROR_CODE_32;
+            return 0;
+        } else {
+            command->source = command->dest = NULL;
+            return 1;
+        }
     }
     /* eliminating lines with two arguments and a missing comma or extra commas*/
     if (OPCODES[command->opcode].arg_num == 2) {
@@ -392,7 +402,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             break;
         }
 
-        /* source addressing code is 3,5 and dest addressing code is 1,3,5 */
+        /* source addressing code is 1,3,5 and dest addressing code is 3,5 */
         case 0:
         case 2:
         case 3: {
@@ -407,7 +417,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             break;
         }
 
-        /* source addressing code is 3,5 and dest addressing code is 3 */
+        /* source addressing code is 3 and dest addressing code is 3,5 */
         case 6: {
             if (legal_label(str1) && is_reg_or_label(str2)) {
                 command->source = str1;
@@ -420,7 +430,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             break;
         }
 
-        /* source addressing code is 3,5 and no dest */
+        /* dest addressing code is 3,5 and no source */
         case 4:
         case 5:
         case 7:
@@ -439,7 +449,7 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             break;
         }
 
-        /* source addressing code is 1,3,5 and no dest */
+        /* dest addressing code is 1,3,5 and no source */
         case 12: {
             if (is_reg_or_label_or_num(str)) {
                 command->source = NULL;
@@ -551,7 +561,7 @@ int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code)
         return 0;
     }
     strtok(token_copy, " \n");
-    strtok(NULL, " \n");
+    //strtok(NULL, " \n");
     while ((token = strtok(NULL, ",\n")) != NULL) {
         if (is_num(token)) {
             if (inc_array(&inst, ++len) == 0) {
@@ -631,6 +641,40 @@ int capture_string(char *str, inst_parts *inst, int *error_code) {
     return 1;
 }
 
+int read_data(inst_parts **inst, char *str, char *token, int *error_code, char *str_copy){
+    if (strcmp(token, ".data") == 0) {
+        if((capture_nums(str, str_copy, *inst, error_code)) != 0){
+            return 0;
+        }
+    } else if (strcmp(token, ".string") == 0) {
+        if (capture_string(str, *inst, error_code) == 0) {
+            return 0;
+        }
+    } else if (strcmp(token, ".entry") == 0) {
+        token = strtok(NULL, " \n");
+        if (legal_label(token)) {
+            (*inst)->label = NULL; /* ignore label in the beginning */
+            (*inst)->len = -1; /* not a data line at all */
+            (*inst)->arg_label = token;
+            (*inst)->nums = 0;
+            (*inst)->is_extern = 0;
+        } else {
+            *error_code = ERROR_CODE_37;
+            return 0;
+        }
+    } else if (strcmp(token, ".extern") == 0) {
+        token = strtok(NULL, " \n");
+        if (legal_label(token)) {
+            (*inst)->label = NULL; /* ignore label in the beginning */
+            (*inst)->len = -1; /* not a data line at all */
+            (*inst)->arg_label = token;
+            (*inst)->nums = 0;
+            (*inst)->is_extern = 1;
+        }
+    }
+    return 1;
+}
+
 /**
  * @brief This function reads an instruction from the input, parses it and stores it in an inst_parts structure.
  *
@@ -645,57 +689,69 @@ int capture_string(char *str, inst_parts *inst, int *error_code) {
 inst_parts *read_instruction(char *str, int *error_code) {
     inst_parts *inst;
     char *token;
-    char *token_copy = strdup(str);
+    // char *token_copy = strdup(str);
     *error_code = 0;
     if (strstr(str, ".") == NULL) {
         return 0;
     }
-    token = strtok(str, " \n");
     inst = handle_malloc(sizeof(inst_parts));
     inst->label = NULL;
     inst->nums = NULL;
-    if (legal_label_decl(token)) {
-        inst->label = token;
-        token = strtok(NULL, " \n");
-    } else if (strcmp(token, ".data") == 0 || strcmp(token, ".string") == 0 || \
-            strcmp(token, ".entry") == 0 || strcmp(token, ".extern") == 0) {
-        inst->label = NULL;
-    }
-    if (strcmp(token, ".data") == 0) {
-        if((capture_nums(str, token_copy, inst, error_code)) != 0){
-            free(inst);
-            return 0;
-        }
-    } else if (strcmp(token, ".string") == 0) {
-        if (capture_string(str, inst, error_code) == 0) {
-            free(inst);
-            return 0;
-        }
-    } else if (strcmp(token, ".entry") == 0) {
-        token = strtok(NULL, " \n");
-        if (legal_label(token)) {
-            inst->label = NULL; /* ignore label in the beginning */
-            inst->len = -1; /* not a data line at all */
-            inst->arg_label = token;
-            inst->nums = 0;
-            inst->is_extern = 0;
+    char str_copy[MAX_LINE_LENGTH];
+    strcpy(str_copy, str);
+    /* checking if there's a legal label declaration */
+    token = strtok(str, ": \n");
+    if (str_copy[strlen(token)] == ':') {
+        /* there's a possible label */
+        if (legal_label_decl(token)) {
+            inst->label = token;
+            token = strtok(NULL, " \n");
+            if (*token == ',') {
+                *error_code = ERROR_CODE_40;
+                return 0;
+            }
+            if (*token != '.' && *(token+1) != '.') {
+                *error_code = ERROR_CODE_46;
+                return 0;
+            }
+            if (read_data(&inst, str, token, error_code, str_copy) != 0) {
+                if(extra_text()){
+                    *error_code = ERROR_CODE_32;
+                    return 0;
+                }
+                return inst;
+            } else {
+                return NULL;
+            }
         } else {
-            *error_code = ERROR_CODE_37;
-            free(inst);
+            *error_code = ERROR_CODE_44;
             return 0;
         }
-    } else if (strcmp(token, ".extern") == 0) {
-        token = strtok(NULL, " \n");
-        if (legal_label(token)) {
-            inst->label = NULL; /* ignore label in the beginning */
-            inst->len = -1; /* not a data line at all */
-            inst->arg_label = token;
-            inst->nums = 0;
-            inst->is_extern = 1;
+    } else if (strcmp(token, ".data") == 0 || strcmp(token, ".string") == 0 || \
+        strcmp(token, ".entry") == 0 || strcmp(token, ".extern") == 0) {
+        /* no label but still a legal directive */
+        if (read_data(&inst, str, token, error_code, str_copy) != 0) {
+            if(extra_text()){
+                *error_code = ERROR_CODE_32;
+                return 0;
+            }
+            return inst;
+        } else {
+            return NULL;
         }
     }
-    return inst;
+    if (legal_label(token) && (strcmp((token = strtok(NULL, " \n")), ".data") == 0 || \
+    strcmp(token, ".string") == 0 || strcmp(token, ".entry") == 0 || strcmp(token, ".extern") == 0)) {
+        /* the first token is a legal label (but w/o ':')
+         * and the second token is a legal data line directive
+         * that means that the user just forgot the ':' and this is the most precise error code
+         * */
+        *error_code = ERROR_CODE_45;
+        return NULL;
+    }
+    return NULL;
 }
+
 
 /**
  * @brief This function checks for errors related to opcode parsing.
@@ -709,7 +765,10 @@ inst_parts *read_instruction(char *str, int *error_code) {
  */
 int opcode_err_check(char *str) {
     char *c;
-    if ((c = strchr(str, ',')) != NULL) {
+    if((*str++) == ','){
+        return ERROR_CODE_47;
+    }
+    if (*(str+strlen(str-1)) == ',') {
         return ERROR_CODE_38;
     }
     return ERROR_CODE_31;
@@ -730,75 +789,82 @@ int opcode_err_check(char *str) {
  */
 command_parts *read_command(char *str, int *error_code) {
     char *token;
-    int legal_label_name_st = 1, legal_opcode_name_st = 1;
     command_parts *command = handle_malloc(sizeof(command_parts));
+    int legal_label_name_st = 1, legal_opcode_name_st = 1;
+    *error_code = 0;
     if (command == NULL) {
         return NULL;
     }
     char str_copy[MAX_LINE_LENGTH];
     strcpy(str_copy,str);
+    /* checking if there's a legal label declaration */
     token = strtok(str, ": \n");
     if(str_copy[strlen(token)] == ':'){
         /* there's a possible label */
         if (legal_label_decl(token)) {
             command->label = token;
-        }
-        else {
-
-        }
-    }
-    *error_code = 0;
-    /* there is a legal label in the line */
-    if (legal_label_decl(token)) {
-        command->label = token;
-        token = strtok(NULL, " \n");
-        if ((command->opcode = what_opcode(token)) != -1) { ;
-        } else {
-            *error_code = opcode_err_check(token);
-            return NULL;
-        }
-        if (OPCODES[command->opcode].arg_num == 0) {
-            if (extra_text()) {
-                *error_code = ERROR_CODE_32;
-            } else {
-                command->source = command->dest = NULL;
+            token = strtok(NULL, " \n");
+            if ((command->opcode = what_opcode(token)) != -1) {
+                /* we have a legal opcode */
+                if (legal_arg(strtok(NULL, "\n"), command, error_code) == 0) {
+                    return NULL;
+                }
+                return command;
             }
-        } else {
-            if (legal_arg(strtok(NULL, "\n"), command, error_code) == 0) {
+            else {
+                /* illegal opcode, let's check if it's really an illegal opcode or just a ',' between
+                 * label and opcode or after the opcode, or really an illegal opcode
+                 * */
+                *error_code = opcode_err_check(token);
                 return NULL;
             }
         }
-    }
-        /* command line with legal opcode without a label */
-    else {
-        /*The label name is invalid*/
-        legal_label_name_st = 0;
-        if (check_invalid_char(token)) {
-            *error_code = ERROR_CODE_42;
+        else {
+            /* first token contains illegal char ':' but it is not a legal label */
+            *error_code = ERROR_CODE_44;
             return NULL;
         }
     }
-
-    if ((command->opcode = what_opcode(token)) != -1 && !legal_label_name_st) {
+    /* no ':' so there's no legal label declaration.
+     * now lets check if the user wanted to put label but just forgot ':' or he really didn't put a label
+     */
+    if (what_opcode(token) != -1)
+    {
         command->label = NULL;
-        legal_arg(strtok(NULL, "\n"), command, error_code);
-    } else {
-        /*Invalid opcode name*/
-        if (!legal_label_name_st)
-            legal_opcode_name_st = 0;
-    }
-    /* invalid label name */
-    if ((legal_label_name_st == 1) || (legal_opcode_name_st == 1)) {
+        /* the first token is a legal opcode, so the user intentionality didn't put a label */
+        command->opcode = what_opcode(token);
+        if (legal_arg(strtok(NULL, "\n"), command, error_code) == 0) {
+            return NULL;
+        }
         return command;
-
-    } else if (legal_opcode_name_st == 0) {
-        if (check_invalid_char(token))
-            *error_code = ERROR_CODE_41;
-        else
+    } else {
+        /* the first token is neither a legal label declaration nor a legal opcode
+         * let's analyze what is the most precise error for this line
+         * first we check if the first token could potentially be a label but the ':' was missing
+         * later we check the second token
+         * */
+        int temp_label_dec = legal_label(token);
+        token = strtok(NULL, " \n");
+        if (what_opcode(token) != -1 && temp_label_dec) {
+            /* the second token is a legal opcode and the first token was potentially legal label
+             * but the user just forgot the ':'
+             */
+            *error_code = ERROR_CODE_45;
+            return NULL;
+        }
+        if (what_opcode(token) == -1){
+            /* Illegal opcode as the second token, after the first token wasn't an opcode
+             * nor a legal label declaration
+             * */
             *error_code = ERROR_CODE_31;
-        return NULL;
+            return NULL;
+        }
+        else {
+            /* The second token is a legal opcode but the first token is an illegal label */
+             *error_code = ERROR_CODE_44;
+            return NULL;
+        }
     }
-    return NULL;
 }
 
 int detect_label(char *str){

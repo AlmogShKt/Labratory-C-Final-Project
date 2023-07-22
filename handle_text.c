@@ -97,6 +97,7 @@ void remove_extra_spaces_str(char str[]) {
     *(str_temp + j) = *(str+i);
     *(str_temp + j + 1) = '\0';
     remove_spaces_next_to_comma(str_temp);
+    remove_space_after_colon(str_temp);
     strcpy(str,str_temp);
 }
 
@@ -162,6 +163,17 @@ void remove_spaces_next_to_comma(char *str) {
         if (*(ptr + 1) == ' ') {
             /* only space after the comma */
             memmove(ptr + 1, ptr + 2, strlen(ptr + 2) + 1);
+        }
+    }
+}
+
+void remove_space_after_colon(char *str){
+    /*! delete also white spaces BEFORE : */
+    char *ptr;
+    if ((ptr = strchr(str, ':')) != NULL) {
+        if (*(++ptr) == ' ') {
+            /* space after colon */
+            memmove(ptr, ptr + 1, strlen(ptr + 1) + 1);
         }
     }
 }

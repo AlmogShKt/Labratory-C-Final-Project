@@ -34,3 +34,5 @@ int is_space_or_tab(char c);
  * @param str string to change
  */
 void remove_spaces_next_to_comma(char *str);
+
+void remove_space_after_colon(char *str);
