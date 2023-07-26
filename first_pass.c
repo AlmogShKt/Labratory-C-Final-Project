@@ -31,6 +31,8 @@ int exe_first_pass(char *file_name) {
     inst_parts *inst;
     location am_file;
     char str[MAX_LINE_LENGTH];
+    char str_copy[MAX_LINE_LENGTH];
+
 
     /* Declare a file pointer */
     FILE *fp;
@@ -65,63 +67,70 @@ int exe_first_pass(char *file_name) {
             continue;
         }
 
-        /* If the line contains a directive */
-        if (strstr(str, ".data") != NULL || strstr(str, ".string") != NULL || \
-            strstr(str, ".entry") != NULL || strstr(str, ".extern") != NULL) {
+
+        if (strchr(str, '.')) {
+            /*Copy the str*/
+            strcpy(str_copy, str);
 
             /* Parse the instruction */
-            inst = read_instruction(str, &error_code);
+            inst = read_instruction(str_copy, &error_code);
             if (inst->label != NULL) {
                 insert_label_table(&label_table, ++label_table_line, inst->label, DC, am_file, 1);
             }
 
-            if (error_code != 0) {
-                print_external_error(error_code, am_file);
-                free(inst);
-                error_found = 1;
-                continue;
-            }
+            /* If the line contains a directive */
+            if (strstr(str, ".data") != NULL || strstr(str, ".string") != NULL || \
+                strstr(str, ".entry") != NULL || strstr(str, ".extern") != NULL) {
 
-            /*
-            If the 'nums' member of the 'inst' structure is NULL, it means the line does not contain any numbers.
-            It's either an .extern or .entry directive.
-            */
-            if (inst->nums == NULL) {
-                /* not a .extern line --> is a .entry line */
-                if (inst->is_extern == 0) {
-                    if (insert_other_labels(&entries, ++entries_count, inst, am_file) == 0) {
-                        free(inst);
-                        error_found = 1;
-                        continue;
-                    }
-                }
-                    /* is a .extern line */
-                else if (inst->is_extern == 1) {
-                    if (insert_other_labels(&externs, ++externs_count, inst, am_file) == 0) {
-                        free(inst);
-                        error_found = 1;
-                        continue;
-                    }
-                }
-            }
-                /* is not .entry nor .extern --> is .data or .string */
-            else {
-                /*
-                Try to add the data/string to the 'data' machine code.
-                If the addition fails (function returns 0), free the 'nums' member and the 'inst' structure, set the error flag, and continue to the next line.
-                */
-                if (add_machine_code_data(&data, inst, &DC, am_file) == 0) {
-                    free(inst->nums);
+
+                if (error_code != 0) {
+                    print_external_error(error_code, am_file);
                     free(inst);
                     error_found = 1;
                     continue;
                 }
+
+                /*
+                If the 'nums' member of the 'inst' structure is NULL, it means the line does not contain any numbers.
+                It's either an .extern or .entry directive.
+                */
+                if (inst->nums == NULL) {
+                    /* not a .extern line --> is a .entry line */
+                    if (inst->is_extern == 0) {
+                        if (insert_other_labels(&entries, ++entries_count, inst, am_file) == 0) {
+                            free(inst);
+                            error_found = 1;
+                            continue;
+                        }
+                    }
+                        /* is a .extern line */
+                    else if (inst->is_extern == 1) {
+                        if (insert_other_labels(&externs, ++externs_count, inst, am_file) == 0) {
+                            free(inst);
+                            error_found = 1;
+                            continue;
+                        }
+                    }
+                }
+                    /* is not .entry nor .extern --> is .data or .string */
+                else {
+                    /*
+                    Try to add the data/string to the 'data' machine code.
+                    If the addition fails (function returns 0), free the 'nums' member and the 'inst' structure, set the error flag, and continue to the next line.
+                    */
+                    if (add_machine_code_data(&data, inst, &DC, am_file) == 0) {
+                        free(inst->nums);
+                        free(inst);
+                        error_found = 1;
+                        continue;
+                    }
+                }
+
+            } else {
+                error_code = ERROR_CODE_58;
+                print_external_error(error_code, am_file);
+                error_found = 1;
             }
-            /*
-            Free the 'nums' member and the 'inst' structure before processing the next line.
-            */
-            free(inst->nums);
-            free(inst);
         } else {
             command = read_command(str, &error_code);
             /*
@@ -162,6 +171,14 @@ int exe_first_pass(char *file_name) {
             free(command);
         }
     }
+
+    /* Free the 'nums' member and the 'inst' structure before processing the next line. */
+    if (inst) {
+        if (inst->nums)
+            free(inst->nums);
+        free(inst);
+    }
+
 
     /* Execute the second pass. If it fails, set error_found to 1 */
     if (exe_second_pass(file_name, label_table, IC, DC, label_table_line, externs_count, entries_count, \

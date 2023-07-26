@@ -311,7 +311,7 @@ int count_occurr(char *str, char ch) {
     return count;
 }
 
-int has_white_space(const char* str) {
+int has_white_space(const char *str) {
     while (*str) {
         if (isspace(*str)) {
             return 1; // Found a whitespace character
@@ -544,11 +544,8 @@ int is_string_legal(const char *str) {
  */
 int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code) {
     char *token;
-    int len;
+    int len, number;
     len = 0;
-
-//    *error_code = ERROR_CODE_39;
-//    return  0;
 
     token = strtok(NULL, " \n");
     if (!is_string_legal(token)) {
@@ -556,13 +553,17 @@ int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code)
         return 0;
     }
 
-
     strtok(token_copy, " \n");
     strtok(NULL, " \n");
 
     while ((token = strtok(NULL, ",\n")) != NULL) {
         if (is_num(token)) {
-            if (inc_array(&inst, ++len) == 0) {
+            number = (short) (atoi(token));
+            if (number > MAX_NUM || number < MIN_NUM) {
+                *error_code = ERROR_CODE_57;
+                return 0;
+            }
+            else if (inc_array(&inst, ++len) == 0) {
                 return 0;
             }
             *(inst->nums + len - 1) = (short) (atoi(token));
