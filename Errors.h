@@ -53,7 +53,10 @@ typedef enum ERROR_CODES {
     ERROR_CODE_43,
     ERROR_CODE_44,
     ERROR_CODE_45,
-    ERROR_CODE_46 = 46,
+    ERROR_CODE_46,
+    ERROR_CODE_47,
+    ERROR_CODE_48,
+    ERROR_CODE_49,
     /* enumeration skip for future command reading related errors */
     /* reading instruction .data or .string lines related errors */
     ERROR_CODE_50 = 50,
