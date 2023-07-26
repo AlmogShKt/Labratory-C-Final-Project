@@ -249,6 +249,28 @@ int is_reg_or_label(char *str) {
 
 
 /**
+ * @brief Checks the validity of the first argument in a given string.
+ *
+ * This function extracts the first argument from the input string and checks
+ * whether it is a valid register, label, or number using the `is_reg_or_label_or_num` function.
+ *
+ * @param str The input string containing the complete argument list.
+ * @param ptr A pointer to the character in `str` where the first argument ends.
+ * @return Returns the result of the `is_reg_or_label_or_num` function, which will be:
+ *         - 1 if the first argument is a valid register.
+ *         - 2 if the first argument is a valid label.
+ *         - 3 if the first argument is a valid number.
+ *         - 0 if the first argument is not a valid register, label, or number.
+ */
+int check_first_arg(char *str, char *ptr) {
+    int first_arg_len = (int) (ptr - str);
+    char first_arg[first_arg_len + 1];
+    strncpy(first_arg, str, first_arg_len);
+    first_arg[first_arg_len] = '\0';
+    return is_reg_or_label_or_num(first_arg);
+}
+
+/**
  * @brief This function checks if the provided string is a valid integer number.
  *
  * This function uses the 'strtol' function from the standard library to convert the string into a long integer.
@@ -350,11 +372,21 @@ void check_reg_error(int *error_code, char *str) {
  *         If the function returns 0, an error code is set in the integer pointed by the 'error_code' argument.
  */
 int legal_arg(char *str, command_parts *command, int *error_code) {
-    char *str1, *str2;
+    char *str1, *str2, *ptr;
     /* empty argument */
-    if (str == NULL) {
+    if (str == NULL && OPCODES[command->opcode].arg_num != 0) {
         *error_code = ERROR_CODE_34;
         return 0;
+    }
+    /* opcodes with no arguments */
+    if (OPCODES[command->opcode].arg_num == 0) {
+        if (extra_text()) {
+            *error_code = ERROR_CODE_32;
+            return 0;
+        } else {
+            command->source = command->dest = NULL;
+            return 1;
+        }
     }
     /* eliminating lines with two arguments and a missing comma or extra commas*/
     if (OPCODES[command->opcode].arg_num == 2) {
@@ -366,13 +398,24 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             return 0;
         } else {
             str1 = strtok(str, ",");
-            if (strchr(str1, ' ')) {
-                *error_code = ERROR_CODE_40;
+            if ((ptr = strchr(str1, ' '))) {
+                if (check_first_arg(str1, ptr)) {
+                    *error_code = ERROR_CODE_35;
+                    return 0;
+                }
+                *error_code = ERROR_CODE_33;
                 return 0;
             }
-            /*! added white space */
-            /*! May need to hande case of @r2 2 is legal - but shouldn't be*/
             str2 = strtok(NULL, " \n");
+            if (extra_text()) {
+                *error_code = ERROR_CODE_32;
+                return 0;
+            }
+        }
+    } else if (OPCODES[command->opcode].arg_num == 1) {
+        if (strchr(str, ' ')) {
+            *error_code = ERROR_CODE_32;
+            return 0;
         }
     }
 
@@ -383,6 +426,8 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
         /* If validation succeeds, assign the validated arguments to the command structure. */
 
         /* Handle each opcode case separately. */
+
+        /* source addressing code is 1,3,5 and dest addressing code is 1,3,5 */
         case 1: {
             if (is_reg_or_label_or_num(str1) && is_reg_or_label_or_num(str2)) {
                 command->source = str1;
@@ -398,6 +443,8 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             }
             break;
         }
+
+            /* source addressing code is 1,3,5 and dest addressing code is 3,5 */
         case 0:
         case 2:
         case 3: {
@@ -407,22 +454,24 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             } else {
                 check_reg_error(error_code, str1);
                 check_reg_error(error_code, str2);
-
                 return 0;
             }
             break;
         }
+
+            /* source addressing code is 3 and dest addressing code is 3,5 */
         case 6: {
             if (legal_label(str1) && is_reg_or_label(str2)) {
                 command->source = str1;
                 command->dest = str2;
             } else {
-
                 *error_code = ERROR_CODE_33;
                 return 0;
             }
             break;
         }
+
+            /* dest addressing code is 3,5 and no source */
         case 4:
         case 5:
         case 7:
@@ -443,14 +492,14 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
             }
             break;
         }
+
+            /* dest addressing code is 1,3,5 and no source */
         case 12: {
             if (is_reg_or_label_or_num(str)) {
                 command->source = NULL;
                 command->dest = str;
             } else {
-                /*Check if its illegal register name*/
                 check_reg_error(error_code, str);
-
                 return 0;
             }
             break;
@@ -463,7 +512,6 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
     }
     return 1;
 }
-
 
 int check_invalid_char(char *str, int *error_code, int is_label_check) {
     int i;
@@ -562,8 +610,7 @@ int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code)
             if (number > MAX_NUM || number < MIN_NUM) {
                 *error_code = ERROR_CODE_57;
                 return 0;
-            }
-            else if (inc_array(&inst, ++len) == 0) {
+            } else if (inc_array(&inst, ++len) == 0) {
                 return 0;
             }
             *(inst->nums + len - 1) = (short) (atoi(token));
@@ -712,6 +759,25 @@ int opcode_err_check(char *str) {
         return ERROR_CODE_38;
     }
     return ERROR_CODE_31;
+}
+
+void add_space_after_colon(char *str, int *error_code){
+    char * colon_ptr = NULL;
+    colon_ptr = strchr(str, ':');
+    if (!colon_ptr){
+        return;
+    } else {
+        /*If the : is exist, add space after the colon*/
+        if(strlen(str) == MAX_LINE_LENGTH){
+            char *temp_ptr = str;
+            str = realloc(str,MAX_LINE_LENGTH + 1);
+            if(str == NULL){
+                *error_code = ERROR_CODE_1;
+            }
+        }
+    }
+
+
 }
 
 /**
