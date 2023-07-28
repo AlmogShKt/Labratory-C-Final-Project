@@ -64,6 +64,10 @@ Error errors[] = {
         {ERROR_CODE_54, "IC too big for word CPU word length"},
         {ERROR_CODE_55, "Label definition repeats more than once"},
         {ERROR_CODE_56, "Label defined as .extern and defined in file"},
+        {ERROR_CODE_57, "Input number in .data line is out of range"},
+        {ERROR_CODE_58, "Illegal data line directive"},
+        {ERROR_CODE_59, "Instruction '.data' line contains illegal chars or syntax error"},
+        {ERROR_CODE_60, ""},
 
 };
 

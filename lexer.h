@@ -22,7 +22,7 @@ typedef struct inst_parts {
     int is_extern;
 } inst_parts;
 
-
+inst_parts *read_entry_or_extern(char *str ,int *error_code);
 /**
  * This function checks if a line in the source file is too long
  * @param file_name a string to the name of the source file
@@ -56,7 +56,7 @@ int what_reg(char *str);
  * @param str a string that contains the input from the command or data line that might be a label
  * @return 1 if the the string corresponds to a legal declaration of a label and the label is legal, 0 if not
  */
-int legal_label_decl(char *str);
+int legal_label_decl(char *str, int * error_code);
 
 int check_invalid_char(char *str, int *error_code, int is_label_check);
 
@@ -74,6 +74,24 @@ int legal_label(char *str);
  * @return 1 if the string did not came to it's end, 0 if it did come to it's end
  */
 int extra_text();
+
+
+
+/**
+ * @brief Adds a space character after the colon (:) in the given string.
+ *
+ * This function searches for the first occurrence of a colon (:) in the input string.
+ * If a colon is found, it adds a space character immediately after the colon.
+ *
+ * @param str Pointer to the input string. The function modifies the string in-place.
+ * @param error_code Pointer to an integer variable to store error codes.
+ *                   If an error occurs during memory reallocation, the error_code will be set to ERROR_CODE_1.
+ *
+ * @return 1 on success (if a colon is found and space added), 0 if no colon is found,
+ *         or the memory reallocation fails and error_code is set to ERROR_CODE_1.
+ */
+int add_space_after_colon(char **str, int *error_code);
+
 
 /**
  * This function checks if a string is either a legal label or a legal register
@@ -98,7 +116,7 @@ int legal_arg(char *str, command_parts *command, int *error_code);
 
 command_parts *read_command(char *str, int *error_code);
 
-int capture_nums(char *str, char *token_copy,inst_parts *inst, int *error_code);
+int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code);
 
 inst_parts *read_instruction(char *str, int *error_code);
 

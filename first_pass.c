@@ -31,6 +31,8 @@ int exe_first_pass(char *file_name) {
     inst_parts *inst;
     location am_file;
     char str[MAX_LINE_LENGTH];
+    char str_copy[MAX_LINE_LENGTH], str_copy_token[MAX_LINE_LENGTH], *token;
+
 
     /* Declare a file pointer */
     FILE *fp;
@@ -65,14 +67,18 @@ int exe_first_pass(char *file_name) {
             continue;
         }
 
-        /* If the line contains a directive */
-        if (strstr(str, ".data") != NULL || strstr(str, ".string") != NULL || \
-            strstr(str, ".entry") != NULL || strstr(str, ".extern") != NULL) {
+        if (strchr(str, '.')) {
+            /*Copy the str*/
+            strcpy(str_copy, str);
 
-            /* Parse the instruction */
-            inst = read_instruction(str, &error_code);
-            if (inst->label != NULL) {
-                insert_label_table(&label_table, ++label_table_line, inst->label, DC, am_file, 1);
+            if (strstr(str_copy, ".entry") || strstr(str_copy, ".extern")) {
+                    inst = read_entry_or_extern(str_copy,&error_code);
+            } else if (strstr(str_copy, ".data") != NULL || strstr(str_copy, ".string") != NULL) {
+                /* Parse the instruction */
+                inst = read_instruction(str_copy, &error_code);
+                if (inst->label != NULL) {
+                    insert_label_table(&label_table, ++label_table_line, inst->label, DC, am_file, 1);
+                }
             }
 
             if (error_code != 0) {
@@ -117,62 +123,75 @@ int exe_first_pass(char *file_name) {
                     continue;
                 }
             }
-            /*
-            Free the 'nums' member and the 'inst' structure before processing the next line.
-            */
-            free(inst->nums);
-            free(inst);
+
         } else {
-            command = read_command(str, &error_code);
-            /*
-            If the command is parsed successfully (error_code is 0), increment the instruction counter.
-
-            If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.
-            */
-            if (command != NULL && command->label != NULL) {
-                insert_label_table(&label_table, ++label_table_line, command->label, IC, am_file, 0);
-            }
-            if (error_code == 0) {
-                IC++;
-            } else {
-                print_external_error(error_code, am_file);
-                free(command);
-                error_found = 1;
-                continue;
-            }
-
-            /*
-           If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.
-           */
-            if (add_machine_code_line(&code, command_to_short(command), NULL, &IC, am_file) == 0) {
-                free(command);
-                error_found = 1;
-                continue;
-            }
-            /*
-          Attempt to add the additional machine code lines related to the command into the 'code' structure.
-          If the function fails for either of the additions (returns 0), free the 'command' structure, set the error flag, and continue to the next line.
-          */
-            if (add_extra_machine_code_line(&code, command, &IC, 1, am_file) == 0 || \
-            add_extra_machine_code_line(&code, command, &IC, 0, am_file) == 0) {
-                free(command);
-                error_found = 1;
-                continue;
-            }
-            free(command);
+            error_code = ERROR_CODE_58;
+            print_external_error(error_code, am_file);
+            error_found = 1;
         }
+    } else {
+        command = read_command(str, &error_code);
+        /*
+        If the command is parsed successfully (error_code is 0), increment the instruction counter.
+
+        If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.
+        */
+        if (command != NULL && command->label != NULL) {
+            insert_label_table(&label_table, ++label_table_line, command->label, IC, am_file, 0);
+        }
+        if (error_code == 0) {
+            IC++;
+        } else {
+            print_external_error(error_code, am_file);
+            free(command);
+            error_found = 1;
+            continue;
+        }
+
+        /*
+       If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.
+       */
+        if (add_machine_code_line(&code, command_to_short(command), NULL, &IC, am_file) == 0) {
+            free(command);
+            error_found = 1;
+            continue;
+        }
+        /*
+      Attempt to add the additional machine code lines related to the command into the 'code' structure.
+      If the function fails for either of the additions (returns 0), free the 'command' structure, set the error flag, and continue to the next line.
+      */
+        if (add_extra_machine_code_line(&code, command, &IC, 1, am_file) == 0 || \
+            add_extra_machine_code_line(&code, command, &IC, 0, am_file) == 0) {
+            free(command);
+            error_found = 1;
+            continue;
+        }
+        free(command);
     }
+}
 
-    /* Execute the second pass. If it fails, set error_found to 1 */
-    if (exe_second_pass(file_name, label_table, IC, DC, label_table_line, externs_count, entries_count, \
-        code, data, externs, entries, error_found) == 0) {
-        error_found = 1;
-    }
+/* Free the 'nums' member and the 'inst' structure before processing the next line. */
+if (inst) {
+if (inst->nums)
+free(inst
+->nums);
+free(inst);
+}
 
-    fclose(fp);
 
-    /* Return the error status */
-    return error_found;
+/* Execute the second pass. If it fails, set error_found to 1 */
+if (
+exe_second_pass(file_name, label_table, IC, DC, label_table_line, externs_count, entries_count, \
+ code, data, externs, entries, error_found
+) == 0) {
+error_found = 1;
+}
+
+fclose(fp);
+
+/* Return the error status */
+return
+error_found;
 }
 
 /**
