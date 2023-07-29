@@ -711,10 +711,10 @@ inst_parts *read_entry_or_extern(char *str, int *error_code) {
     if (strcmp(token, "extern") == 0) {
         inst->is_extern = 1;
     }
-    token = strtok(NULL," \n");
-    if(legal_label(token)){
+    token = strtok(NULL, " \n");
+    if (legal_label(token)) {
         inst->arg_label = token;
-    } else{
+    } else {
         *error_code = ERROR_CODE_44;
     }
 
