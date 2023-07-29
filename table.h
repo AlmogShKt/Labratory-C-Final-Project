@@ -18,7 +18,7 @@ typedef struct other_table {
     int assembly_line;
 } other_table;
 
-int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data_line);
+int insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data_line, int* error_code);
 
 int check_each_label_once(label_address *label_table, int lines, char *file_name);
 
@@ -28,7 +28,7 @@ void reset_labels_address(label_address *label_table, int table_lines);
 
 int replace_labels(code_conv *code, label_address *label_table, int label_table_line, int IC_len, char *file_name);
 
-int insert_other_labels(other_table **table, int count, inst_parts *inst, location am_file);
+int insert_other_labels(other_table **table, int count, inst_parts *inst, location am_file, int *error_code);
 
 int is_extern_defined(other_table *externs, int externs_count, label_address *label_table, int label_table_line,
                       char *file_name);

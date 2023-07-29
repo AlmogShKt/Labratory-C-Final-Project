@@ -708,7 +708,7 @@ inst_parts *read_entry_or_extern(char *str, int *error_code) {
     inst->nums = NULL;
     inst->is_extern = 0;
 
-    if (strcmp(token, "extern") == 0) {
+    if (strcmp(token, ".extern") == 0) {
         inst->is_extern = 1;
     }
     token = strtok(NULL, " \n");
@@ -717,8 +717,10 @@ inst_parts *read_entry_or_extern(char *str, int *error_code) {
     } else {
         *error_code = ERROR_CODE_44;
     }
-
-
+    if (extra_text()) {
+        *error_code = ERROR_CODE_32;
+    }
+    return inst;
 }
 
 

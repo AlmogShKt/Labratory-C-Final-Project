@@ -24,18 +24,20 @@
  * @param am_file: The location of the assembly file.
  * @return Returns 1 if the label is inserted successfully, or 0 if memory allocation fails.
  */
-int insert_other_labels(other_table **table, int count, inst_parts *inst, location am_file) {
+int insert_other_labels(other_table **table, int count, inst_parts *inst, location am_file, int *error_code) {
     other_table *ptr;
     ptr = *table;
     (*table + count - 1)->assembly_line = am_file.line_num;
     (*table + count - 1)->label_name = handle_malloc(strlen(inst->arg_label + 1) * sizeof(char));
     if ((*table + count - 1)->label_name == NULL) {
+        *error_code = ERROR_CODE_1;
         return 0;
     }
     strcpy((*table + count - 1)->label_name, inst->arg_label);
 
     *table = realloc(*table, (count + 1) * sizeof(other_table));
     if (table == NULL) {
+        *error_code = ERROR_CODE_1;
         free(ptr);
         return 0;
     }
@@ -61,11 +63,12 @@ int insert_other_labels(other_table **table, int count, inst_parts *inst, locati
  * @return Returns 1 if the label is inserted successfully, or 0 if memory allocation fails.
  */
 int
-insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data_line) {
+insert_label_table(label_address **label_table, int lines, char *label, int counter, location am_file, int is_data_line, int *error_code) {
     label_address *p_temp;
     p_temp = *label_table;
     *label_table = realloc(*label_table, lines * sizeof(label_address));
     if (*label_table == NULL) {
+        *error_code = ERROR_CODE_1;
         free(p_temp);
         return 0;
     }
@@ -74,6 +77,7 @@ insert_label_table(label_address **label_table, int lines, char *label, int coun
     (*label_table + lines - 1)->assembly_line = am_file.line_num;
     (*label_table + lines - 1)->label_name = malloc((strlen(label) + 1) * sizeof(char));
     if ((*label_table + lines - 1)->label_name == NULL) {
+        *error_code = ERROR_CODE_1;
         return 0;
     }
     strcpy((*label_table + lines - 1)->label_name, label);
