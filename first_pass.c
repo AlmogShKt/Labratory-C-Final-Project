@@ -79,6 +79,7 @@ int exe_first_pass(char *file_name) {
                 if (inst->is_extern == 0)
                     insert_other_labels(&entries, ++entries_count, inst, am_file, &error_code);
 
+
                     /* is a .extern line */
                 else if (inst->is_extern == 1)
                     insert_other_labels(&externs, ++externs_count, inst, am_file, &error_code);
