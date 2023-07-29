@@ -604,6 +604,10 @@ int capture_nums(char *str, char *token_copy, inst_parts *inst, int *error_code)
     int len, number;
     len = 0;
 
+    if (!add_space_after_colon(&token_copy, error_code)) {
+        return 0;
+    }
+
     token = strtok(NULL, " \n");
     if (!is_string_legal(token)) {
         *error_code = ERROR_CODE_59;
@@ -708,7 +712,7 @@ inst_parts *read_entry_or_extern(char *str, int *error_code) {
     inst->nums = NULL;
     inst->is_extern = 0;
 
-    if (strcmp(token, "extern") == 0) {
+    if (strcmp(token, ".extern") == 0) {
         inst->is_extern = 1;
     }
     token = strtok(NULL, " \n");
@@ -717,8 +721,10 @@ inst_parts *read_entry_or_extern(char *str, int *error_code) {
     } else {
         *error_code = ERROR_CODE_44;
     }
-
-
+    if (extra_text()) {
+        *error_code = ERROR_CODE_32;
+    }
+    return inst;
 }
 
 
@@ -742,9 +748,8 @@ inst_parts *read_instruction(char *str, int *error_code) {
         return 0;
     }
 
-    if (!add_space_after_colon(&str, error_code)) {
+    if (!add_space_after_colon(&str, error_code) ) {
         return NULL;
-
     }
     token = strtok(str, " \n");
     inst = handle_malloc(sizeof(inst_parts));

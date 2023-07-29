@@ -15,7 +15,7 @@ void free_all_memory(code_conv *code, label_address *label_table, other_table *e
 int conv_code_base64(code_conv *code, int count, char *file_name, int IC, int DC) {
     int i;
     FILE *fp;
-    char *ob_file_name , *base64_char;
+    char *ob_file_name, *base64_char;
     ob_file_name = add_new_file(file_name, ".ob");
     fp = fopen(ob_file_name, "w");
     if (fp == NULL) {
