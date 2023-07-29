@@ -58,7 +58,7 @@ int what_reg(char *str);
  */
 int legal_label_decl(char *str, int * error_code);
 
-int check_invalid_char(char *str, int *error_code, int is_label_check);
+int check_invalid_char(char *str, int *error_code);
 
 
 /**

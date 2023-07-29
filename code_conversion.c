@@ -118,7 +118,6 @@ unsigned short reg_to_short(command_parts *command, int reg_src) {
  * @return Returns 1 if the machine code line was added successfully, and 0 otherwise.
  */
 int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC, location am_file) {
-    char *bin_num;
     if (inc_mem(code, *IC) == 0) {
         return 0;
     }
@@ -133,11 +132,6 @@ int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *
         }
         strcpy((*code + *IC)->label, str);
     }
-    bin_num = short_to_binary((*code + *IC)->short_num);
-
-    printf("@Assembly line %d, Code address %d binary code is: %s\n", \
-        (*code + *IC)->assembly_line, *IC, bin_num);
-
     return 1;
 }
 
@@ -201,17 +195,12 @@ int add_extra_machine_code_line(code_conv **code, command_parts *command, int *I
 int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location am_file) {
     int i;
     for (i = 0; i < inst->len; i++) {
-        char *bin_num;
         if (inc_mem(data, *DC) == 0) {
             return 0;
         }
         (*data + *DC)->short_num = *(inst->nums + i);
         (*data + *DC)->label = NULL; /* a data line cannot include a label as an ARGUMENT */
         (*data + *DC)->assembly_line = am_file.line_num;
-
-        bin_num = short_to_binary((*data + *DC)->short_num);
-        printf("Assembly line %d, Code address %d binary code is: %s\n", (*data + *DC)->assembly_line, *DC, bin_num);
-
         (*DC)++;
     }
     return 1;
