@@ -68,4 +68,3 @@ int exe_second_pass(char *file_name, label_address *label_table, int IC, int DC,
     free_all_memory(code, label_table, entries, externs, IC + DC, label_table_line, entries_count, externs_count);
     return !error_found;
 }
-

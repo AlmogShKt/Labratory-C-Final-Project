@@ -62,6 +62,7 @@ int exe_first_pass(char *file_name) {
 
     /* Start reading the file line by line until end of file or maximum instruction count */
     while (fgets(str, MAX_LINE_LENGTH, fp) != NULL && IC + DC <= IC_MAX - IC_INIT_VALUE) {
+        error_code = 0;
         (am_file.line_num)++;
         if (strcmp(str, "\n") == 0) {
             continue;
@@ -120,6 +121,8 @@ int exe_first_pass(char *file_name) {
             }
         } else {
             command = read_command(str, &error_code);
+            /*If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.*/
+
             /*
             If the command is parsed successfully (error_code is 0), increment the instruction counter.
 
@@ -127,16 +130,16 @@ int exe_first_pass(char *file_name) {
             */
             if (error_code == 0) {
                 IC++;
+                if (command != NULL && command->label != NULL) {
+                    insert_label_table(&label_table, ++label_table_line, command->label, IC, am_file, 0, &error_code);
+                }
             } else {
                 print_external_error(error_code, am_file);
                 free(command);
                 error_found = 1;
                 continue;
             }
-            /*If the 'label' member of the 'command' structure is not NULL, insert the label into the 'label_table'.*/
-            if (command != NULL && command->label != NULL) {
-                insert_label_table(&label_table, ++label_table_line, command->label, IC, am_file, 0, &error_code);
-            }
+
             if (add_machine_code_line(&code, command_to_short(command), NULL, &IC, am_file) == 0) {
                 free(command);
                 error_found = 1;

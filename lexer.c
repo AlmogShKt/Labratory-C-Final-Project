@@ -522,23 +522,13 @@ int legal_arg(char *str, command_parts *command, int *error_code) {
     return 1;
 }
 
-int check_invalid_char(char *str, int *error_code, int is_label_check) {
-    int i;
-    for (i = 0; i < strlen(str); i++) {
-        if (!isdigit(str[i]) && !isalpha(str[i]) && str[i] != '\0') {
-            if (is_label_check) {
-                if (str[i] == ':')
-                    continue;
-            }
-            if (str[i] == ',') {
-                *error_code = ERROR_CODE_40;
-            } else {
-                *error_code = ERROR_CODE_42;
-            }
-            return 0;
-        }
+int is_comma_after_directive(char *str, int *error_code) {
+    if (strchr(str, ',')) {
+        *error_code = ERROR_CODE_40;
+        return 1;
     }
-    return 1;
+    *error_code = ERROR_CODE_58;
+    return 0;
 }
 
 /**
@@ -743,12 +733,11 @@ inst_parts *read_instruction(char *str, int *error_code) {
     inst_parts *inst;
     char *token;
     char *token_copy = strdup(str);
-    *error_code = 0;
     if (strstr(str, ".") == NULL) {
         return 0;
     }
 
-    if (!add_space_after_colon(&str, error_code) ) {
+    if (!add_space_after_colon(&str, error_code)) {
         return NULL;
     }
     token = strtok(str, " \n");
@@ -770,7 +759,6 @@ inst_parts *read_instruction(char *str, int *error_code) {
         capture_nums(str, token_copy, inst, error_code);
     } else if (strcmp(token, ".string") == 0) {
         capture_string(str, inst, error_code);
-
     } else if (strcmp(token, ".entry") == 0) {
         token = strtok(NULL, " \n");
         if (legal_label(token)) {
@@ -793,6 +781,8 @@ inst_parts *read_instruction(char *str, int *error_code) {
             inst->nums = 0;
             inst->is_extern = 1;
         }
+    } else {
+        is_comma_after_directive(token, error_code);
     }
 
     return inst;
@@ -861,16 +851,15 @@ int add_space_after_colon(char **str, int *error_code) {
 command_parts *read_command(char *str, int *error_code) {
     char *token;
     int flag_visited = 0;
-    *error_code = 0;
 
     command_parts *command = handle_malloc(sizeof(command_parts));
     if (command == NULL) {
-        return NULL;
+        return command;
     }
 
-    if (!add_space_after_colon(&str, error_code)) {
-        return NULL;
-    }
+    if (!add_space_after_colon(&str, error_code))
+        return command;
+
 
     token = strtok(str, " \n");
 
@@ -894,16 +883,17 @@ command_parts *read_command(char *str, int *error_code) {
             }
         } else {
             if (legal_arg(strtok(NULL, "\n"), command, error_code) == 0) {
-                return NULL;
+                return command;
             }
         }
     }
         /* command line with legal opcode without a label */
     else {
         if (*error_code)
-            return NULL;
+            return command;
     }
 
+    /*If we visited in legal_label_decl handle this case*/
     if (!flag_visited) {
         if ((command->opcode = what_opcode(token)) != -1) {
             command->label = NULL;
@@ -917,19 +907,5 @@ command_parts *read_command(char *str, int *error_code) {
     } else {
         return command;
     }
-//    /* invalid label name */
-//    if ((legal_label_name_st == 1) || (legal_opcode_name_st == 1)) {
-//        return command;
-//
-//    } else if (legal_opcode_name_st == 0) {
-//        *error_code = opcode_err_check(token);
-//        if (*error_code)
-//            return NULL;
-//        else if (check_invalid_char(token, error_code, 0))
-//            *error_code = ERROR_CODE_41;
-//        else
-//            *error_code = ERROR_CODE_31;
-//        return NULL;
-//    }
 }
 

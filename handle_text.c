@@ -87,15 +87,15 @@ void remove_extra_spaces_str(char str[]) {
     while (is_space_or_tab(*(str + i))) {
         i++;
     }
-    while (*(str + i) != '\n') {
+    while (*(str + i) != '\0') {
         /* copying character */
-        while (!is_space_or_tab(*(str + i)) && *(str + i) != '\n') {
+        while (!is_space_or_tab(*(str + i)) && *(str + i) != '\0') {
             *(str_temp + j) = *(str + i);
             i++;
             j++;
         }
         /* if loop stopped because end of line char */
-        if (*(str + i) == '\n') {
+        if (*(str + i) == '\0') {
             break;
         }
         /* if loop stopped because of a white-space skipping them until another character is encountered*/
@@ -103,7 +103,7 @@ void remove_extra_spaces_str(char str[]) {
             i++;
         }
         /* if stopped not because of end of line char then copy one space for all the others that were skipped */
-        if (*(str + i) != '\n') {
+        if (!(*(str + i) == '\n' || *(str + i) == '\0')) {
             *(str_temp + j) = ' ';
             j++;
         }
