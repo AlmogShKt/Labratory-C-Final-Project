@@ -17,8 +17,9 @@ char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count);
  * This function reads a source file and saves all the macros in it
  * @param file_name a string with the name of the source file
  * @param head a double pointer to head of a linked list where the macros are saved
+ * @return 1 if adding macro successfully, 0 if not
  */
-void add_mcros(char *file_name, node **head);
+int add_mcros(char *file_name, node **head);
 
 /**
  * This function checks of the name of a macro is valid according to the rules

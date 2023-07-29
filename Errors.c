@@ -19,7 +19,7 @@ Error errors[] = {
         {ERROR_CODE_9,  "Error - macro without name definition"},
         {ERROR_CODE_10, "Error - extra text after macro name definition"},
         {ERROR_CODE_11, "Setting a position in a file failed"},
-        {ERROR_CODE_12, "Error - macro without 'endmcro' definition at the end"},
+        {ERROR_CODE_12, "endmcro with extra text"},
         {ERROR_CODE_13, "Macro has more than one definition"},
         {ERROR_CODE_14, "Failed to copy file during macros expansion"},
         {ERROR_CODE_15, "Macros expansion in an .as file failed"},

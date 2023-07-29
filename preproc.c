@@ -19,14 +19,15 @@ char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count) {
     mcro_length = 0;
     str[0] = '\0';
     while (fgets(str, MAX_LINE_LENGTH, fp) && (strcmp(str, "endmcro\n")) != 0) {
+        /* checking for a line with endmcro and extra text */
+        if((strstr(str,"endmcro") != NULL) && strlen(str) != strlen("endmcro")){
+            print_internal_error(ERROR_CODE_12);
+            return NULL;
+        }
         (*line_count)++;
         if (strcmp(str, "endmcro\n") != 0) {
             mcro_length += strlen(str);
         }
-    }
-    if (strcmp(str, "endmcro\n") != 0) {
-        print_internal_error(ERROR_CODE_12);
-        return NULL;
     }
     mcro = copy_text(fp, pos, mcro_length);
     return mcro;
@@ -40,8 +41,7 @@ int valid_mcro_decl(char *str, char **name, int line_count, char *file_name) {
         print_internal_error(ERROR_CODE_9);
         return 0;
     }
-    if (is_instr(temp_name) || what_opcode(temp_name) >= 0 || \
-        (*temp_name == '@' && what_reg(temp_name + 1) >= 0)) {
+    if (is_instr(temp_name) || what_opcode(temp_name) >= 0 || what_reg(temp_name) >= 0) {
         location as_file;
         as_file.file_name = file_name;
         as_file.line_num = line_count;
@@ -58,16 +58,18 @@ int valid_mcro_decl(char *str, char **name, int line_count, char *file_name) {
     return 1;
 }
 
-void add_mcros(char *file_name, node **head) {
-    int line_count;
+int add_mcros(char *file_name, node **head) {
+    int line_count, success;
     FILE *fp;
     char str[MAX_LINE_LENGTH];
     char *name, *content;
     fpos_t pos;
+    success = 1;
     fp = fopen(file_name, "r");
     if (fp == NULL) {
         print_internal_error(ERROR_CODE_8);
-        return;
+        success = 0;
+        return success;
     }
     line_count = 0;
     while (fgets(str, MAX_LINE_LENGTH, fp)) {
@@ -75,11 +77,13 @@ void add_mcros(char *file_name, node **head) {
         if (strcmp(strtok(str, " "), "mcro") == 0) {
             int mcro_line = line_count;
             if (!valid_mcro_decl(str, &name, line_count, file_name)) {
+                success = 0;
                 continue;
             }
             fgetpos(fp, &pos);
             content = save_mcro_content(fp, &pos, &line_count);
             if (content == NULL) {
+                success = 0;
                 continue;
             }
             /* going to the end of the macro */
@@ -89,6 +93,7 @@ void add_mcros(char *file_name, node **head) {
         }
     }
     fclose(fp);
+    return success;
 }
 
 char *remove_mcros_decl(char file_name[]) {
@@ -259,7 +264,11 @@ int mcro_exec(char file_name[]) {
     }
     head = NULL;
     /* scanning and saving all the macros in the input file in a linked list of macros */
-    add_mcros(new_file1, &head);
+    if(!add_mcros(new_file1, &head)){
+        free_list(head);
+        abrupt_close(2, "%s", new_file1);
+        return 0;
+    }
     /* ensures that there is no macro call before it's declaration in the input file */
     if (mcro_call_before_decl(new_file1, head)) {
         free_list(head);

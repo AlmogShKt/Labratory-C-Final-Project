@@ -111,6 +111,7 @@ void abrupt_close(int num_args, ...) {
         if (strcmp(va_arg(args, char*), "%s") == 0) {
             i++;
             str = va_arg(args, char*);
+            remove(str);
             free(str);
         }
             /* next argument is a file pointer that needs to be closed */
