@@ -272,7 +272,7 @@ int is_reg_or_label(char *str) {
  *         - 0 if the first argument is not a valid register, label, or number.
  */
 int check_first_arg(char *str, char *ptr) {
-    int first_arg_len = ((int) (ptr - str)) + 1;
+    int first_arg_len = (int) (ptr - str);
     char first_arg[MAX_LINE_LENGTH];
     strncpy(first_arg, str, first_arg_len);
     first_arg[first_arg_len] = '\0';
