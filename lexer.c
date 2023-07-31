@@ -43,14 +43,14 @@ char *INSTUCTIONS[] = {".data", ".string", ".extern", ".entry"};
  *
  */
 int lines_too_long(char *file_name) {
-    char str[SIZE];
+    char str[BIG_NUMBER_CONST];
     FILE *fp;
     location am_file;
     int too_long;
     fp = fopen(file_name, "r");
     am_file.file_name = file_name;
     too_long = 0;
-    while (fgets(str, SIZE, fp) != NULL) {
+    while (fgets(str, BIG_NUMBER_CONST, fp) != NULL) {
         (am_file.line_num)++;
         if (strlen(str) > MAX_LINE_LENGTH) {
             /* line is too long */

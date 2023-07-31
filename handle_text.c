@@ -9,8 +9,7 @@
 
 char *remove_extra_spaces_file(char file_name[]) {
     char *new_file_name;
-    /*! Check case when the line is 80 or more '\r' !?! */
-    char str[1000];
+    char str[BIG_NUMBER_CONST];
     FILE *fp, *fp_temp;
     /* opening input file for reading */
     fp = fopen(file_name, "r");
