@@ -273,7 +273,7 @@ int is_reg_or_label(char *str) {
  */
 int check_first_arg(char *str, char *ptr) {
     int first_arg_len = ((int) (ptr - str)) + 1;
-    char first_arg[first_arg_len];
+    char first_arg[MAX_LINE_LENGTH];
     strncpy(first_arg, str, first_arg_len);
     first_arg[first_arg_len] = '\0';
     return is_reg_or_label_or_num(first_arg);
