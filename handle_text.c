@@ -10,6 +10,7 @@
 char *remove_extra_spaces_file(char file_name[]) {
     char *new_file_name;
     char str[BIG_NUMBER_CONST];
+    int line_num;
     FILE *fp, *fp_temp;
     /* opening input file for reading */
     fp = fopen(file_name, "r");
@@ -31,7 +32,7 @@ char *remove_extra_spaces_file(char file_name[]) {
         return NULL;
     }
     /* reading each line of the input file and removing extra unnecessary white-spaces */
-    int line_num = 0;
+    line_num = 0;
     while (fgets(str, 999, fp) != NULL) {
         line_num++;
         if (strlen(str) > MAX_LINE_LENGTH) {

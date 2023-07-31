@@ -69,9 +69,7 @@ typedef enum ERROR_CODES {
     ERROR_CODE_57,
     ERROR_CODE_58,
     ERROR_CODE_59,
-    ERROR_CODE_60,
-
-
+    ERROR_CODE_60
 } ERROR_CODES;
 
 /**
