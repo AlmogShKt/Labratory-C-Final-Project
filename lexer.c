@@ -272,8 +272,8 @@ int is_reg_or_label(char *str) {
  *         - 0 if the first argument is not a valid register, label, or number.
  */
 int check_first_arg(char *str, char *ptr) {
-    int first_arg_len = (int) (ptr - str);
-    char first_arg[first_arg_len + 1];
+    int first_arg_len = ((int) (ptr - str)) + 1;
+    char first_arg[first_arg_len];
     strncpy(first_arg, str, first_arg_len);
     first_arg[first_arg_len] = '\0';
     return is_reg_or_label_or_num(first_arg);
@@ -345,15 +345,15 @@ int count_occurr(char *str, char ch) {
 int has_white_space(const char *str) {
     while (*str) {
         if (isspace(*str)) {
-            return 1; // Found a whitespace character
+            return 1; /* Found a whitespace character */
         }
         str++;
     }
-    return 0; // No whitespace characters found
+    return 0; /* No whitespace characters found */
 }
 
 void check_reg_error(int *error_code, char *str) {
-    char temp_str1[MAX_LINE_LENGTH], temp_str2[MAX_LINE_LENGTH];
+    char temp_str1[MAX_LINE_LENGTH];
     strcpy(temp_str1, str);
     if (error_code[0])
         return;
@@ -732,7 +732,9 @@ inst_parts *read_entry_or_extern(char *str, int *error_code) {
 inst_parts *read_instruction(char *str, int *error_code) {
     inst_parts *inst;
     char *token;
-    char *token_copy = strdup(str);
+    char token_copy[MAX_LINE_LENGTH];
+    strcpy(token_copy, str);
+
     if (strstr(str, ".") == NULL) {
         return 0;
     }

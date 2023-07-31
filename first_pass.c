@@ -31,7 +31,7 @@ int exe_first_pass(char *file_name) {
     inst_parts *inst;
     location am_file;
     char str[MAX_LINE_LENGTH];
-    char str_copy[MAX_LINE_LENGTH], str_copy_token[MAX_LINE_LENGTH], *token;
+    char str_copy[MAX_LINE_LENGTH];
 
 
     /* Declare a file pointer */
