@@ -12,7 +12,7 @@
 #define IC_INIT_VALUE 100
 
 /* arbitrary very big number for line length */
-#define SIZE 1000
+#define BIG_NUMBER_CONST 1000
 
 #define OPCODES_COUNT 16
 

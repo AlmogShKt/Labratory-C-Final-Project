@@ -45,7 +45,7 @@ Error errors[] = {
         {ERROR_CODE_35, "Missing comma between argument in a command line with two arguments"},
         {ERROR_CODE_36, "Label not defined in the assembly file"},
         {ERROR_CODE_37, "Illegal label after .entry"},
-        {ERROR_CODE_38, "Illegal comma after opcode"},
+        {ERROR_CODE_38, "Illegal comma near opcode"},
         {ERROR_CODE_39, "More commas than needed"},
         {ERROR_CODE_40, "Comma in the wrong place"},
         {ERROR_CODE_41, "Illegal char near opcode or label"},
