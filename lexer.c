@@ -701,6 +701,7 @@ inst_parts *read_entry_or_extern(char *str, int *error_code) {
     inst->label = NULL;
     inst->nums = NULL;
     inst->is_extern = 0;
+    inst->len = 0;
 
     if (strcmp(token, ".extern") == 0) {
         inst->is_extern = 1;
