@@ -203,7 +203,7 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         /* Handle the error appropriately */
         return 0;
     }
-    printf("3\n");
+    printf("3 - inst_len :%d \n", inst_len);
 
     for (i = 0; i < inst_len; i++) {
         printf("in add ma co - i:%d\n");
