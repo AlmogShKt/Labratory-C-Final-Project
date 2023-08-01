@@ -26,9 +26,11 @@
  */
 int insert_other_labels(other_table **table, int count, inst_parts *inst, location am_file, int *error_code) {
     other_table *ptr;
+    int label_length;
     ptr = *table;
     (*table + count - 1)->assembly_line = am_file.line_num;
-    (*table + count - 1)->label_name = handle_malloc(strlen(inst->arg_label + 1) * sizeof(char));
+    label_length = strlen(inst->arg_label) + 1;
+    (*table + count - 1)->label_name = handle_malloc(label_length * sizeof(char));
     if ((*table + count - 1)->label_name == NULL) {
         *error_code = ERROR_CODE_1;
         return 0;
