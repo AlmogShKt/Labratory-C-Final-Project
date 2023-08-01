@@ -196,6 +196,12 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
     int i;
     int inst_len;
     inst_len = inst->len;
+    // Check if data pointer is NULL before proceeding
+    if (data == NULL || *data == NULL) {
+        // Handle the error appropriately
+        return 0;
+    }
+
     for (i = 0; i < inst_len; i++) {
         if (inc_mem(data, *DC) == 0) {
             return 0;
