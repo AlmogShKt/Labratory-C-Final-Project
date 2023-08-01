@@ -126,6 +126,7 @@ int exe_first_pass(char *file_name) {
             }
             /* Free the 'nums' member and the 'inst' structure before processing the next line. */
             if (inst_created) {
+                printf("trying to free inst. \n");
                 if (inst->nums)
                     free(inst->nums);
                 free(inst);
