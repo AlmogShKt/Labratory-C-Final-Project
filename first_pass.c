@@ -157,7 +157,7 @@ int exe_first_pass(char *file_name) {
             free(command);
         }
     }
-
+    printf("Start second pass\n");
 /* Execute the second pass. If it fails, set error_found to 1 */
     if (exe_second_pass(file_name, label_table, IC, DC, label_table_line, externs_count, entries_count, code, data,
                         externs, entries, error_found) == 0) {
