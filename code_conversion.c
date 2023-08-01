@@ -21,9 +21,11 @@
  * @return Returns 1 if the memory allocation was successful, and 0 otherwise.
  */
 int inc_mem(code_conv **code, int counter) {
+    printf("in inc mem\n");
     code_conv *ptr;
     ptr = *code;
     *code = realloc(*code, (counter + 1) * sizeof(code_conv));
+    printf("in inc mem - scc to relloc\n");
     if (*code == NULL) {
         print_internal_error(ERROR_CODE_1);
         free(ptr);
@@ -210,6 +212,7 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         if (inc_mem(data, *DC) == 0) {
             return 0;
         }
+        printf("inc_mem secc\n");
         (*data)[*DC].short_num = inst->nums[i];
         (*data)[*DC].label = NULL;
         (*data)[*DC].assembly_line = am_file.line_num;
