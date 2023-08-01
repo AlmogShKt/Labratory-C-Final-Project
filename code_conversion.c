@@ -27,10 +27,12 @@ int inc_mem(code_conv **code, int counter) {
     *code = realloc(*code, (counter + 1) * sizeof(code_conv));
     printf("in inc mem - scc to relloc\n");
     if (*code == NULL) {
+        printf("in inc mem -*code == null\n");
         print_internal_error(ERROR_CODE_1);
         free(ptr);
         return 0;
     }
+    printf("in inc mem - return 1\n");
     return 1;
 }
 
@@ -213,10 +215,16 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
             return 0;
         }
         printf("inc_mem secc\n");
+
+        printf("#1\n");
         (*data)[*DC].short_num = inst->nums[i];
+        printf("#2\n");
         (*data)[*DC].label = NULL;
+        printf("#3\n");
         (*data)[*DC].assembly_line = am_file.line_num;
+        printf("#4\n");
         (*DC)++;
+        printf("#5\n");
     }
     printf("4\n");
     return 1;
