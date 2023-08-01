@@ -201,7 +201,7 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         /* Handle the error appropriately */
         return 0;
     }
-
+    i = 0;
     for (i = 0; i < inst_len; i++) {
         if (inc_mem(data, *DC) == 0) {
             return 0;
