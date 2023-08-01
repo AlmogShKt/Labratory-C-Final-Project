@@ -206,9 +206,9 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         if (inc_mem(data, *DC) == 0) {
             return 0;
         }
-        (*data)[*DC].short_num = inst->nums[i]; // Updated this line
-        (*data)[*DC].label = NULL; // Updated this line
-        (*data)[*DC].assembly_line = am_file.line_num; // Updated this line
+        (*data)[*DC].short_num = inst->nums[i];
+        (*data)[*DC].label = NULL;
+        (*data)[*DC].assembly_line = am_file.line_num;
         (*DC)++;
     }
     return 1;
