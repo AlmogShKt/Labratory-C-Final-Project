@@ -70,20 +70,26 @@ int exe_first_pass(char *file_name) {
         }
 
         if (strchr(str, '.')) {
+            printf("in strchr . \n");
             /*Copy the str*/
             strcpy(str_copy, str);
             if (strstr(str_copy, ".entry") || strstr(str_copy, ".extern")) {
                 inst = read_entry_or_extern(str_copy, &error_code);
+                printf("in extern/entry route . \n");
                 /*If the 'nums' member of the 'inst' structure is NULL, it means the line does not contain any numbers.
                 It's either an .extern or .entry directive.
                 not a .extern line --> is a .entry line */
-                if (inst->is_extern == 0)
+                if (inst->is_extern == 0) {
                     insert_other_labels(&entries, ++entries_count, inst, am_file, &error_code);
+                    printf("added insert_other_labler entry . \n");
+                }
 
 
                     /* is a .extern line */
-                else if (inst->is_extern == 1)
+                else if (inst->is_extern == 1) {
                     insert_other_labels(&externs, ++externs_count, inst, am_file, &error_code);
+                    printf("added insert_other_labler extern . \n");
+                }
 
             } else if (strstr(str_copy, ".data") != NULL || strstr(str_copy, ".string") != NULL) {
                 /* Parse the instruction */
@@ -98,10 +104,12 @@ int exe_first_pass(char *file_name) {
             }
 
             if (error_code != 0) {
+
                 print_external_error(error_code, am_file);
                 if (inst_created)
                     free(inst);
                 error_found = 1;
+                printf("error found. \n");
                 continue;
             } else {
                 /* is not .entry nor .extern --> is .data or .string
@@ -110,6 +118,7 @@ int exe_first_pass(char *file_name) {
                 set the error flag, and continue to the next line.*/
                 if (inst_created) {
                     if (add_machine_code_data(&data, inst, &DC, am_file) == 0) {
+                        printf("error find when trying coding. \n");
                         error_found = 1;
                         continue;
                     }
@@ -120,6 +129,7 @@ int exe_first_pass(char *file_name) {
                 if (inst->nums)
                     free(inst->nums);
                 free(inst);
+                printf("freed inst. \n");
             }
         } else {
             command = read_command(str, &error_code);
@@ -158,12 +168,15 @@ int exe_first_pass(char *file_name) {
             free(command);
         }
     }
-    printf("Start second pass\n");
+    printf("Start second pass\n\n");
 /* Execute the second pass. If it fails, set error_found to 1 */
     if (exe_second_pass(file_name, label_table, IC, DC, label_table_line, externs_count, entries_count, code, data,
                         externs, entries, error_found) == 0) {
         error_found = 1;
+        printf("failed in second pass\n");
+
     }
+    printf("finised 2 pass\n\n");
 
     fclose(fp);
 
