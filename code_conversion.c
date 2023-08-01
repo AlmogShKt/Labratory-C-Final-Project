@@ -194,7 +194,9 @@ int add_extra_machine_code_line(code_conv **code, command_parts *command, int *I
  */
 int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location am_file) {
     int i;
-    for (i = 0; i < inst->len; i++) {
+    int inst_len;
+    inst_len = inst->len;
+    for (i = 0; i < inst_len; i++) {
         if (inc_mem(data, *DC) == 0) {
             return 0;
         }
