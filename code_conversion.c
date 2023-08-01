@@ -23,6 +23,7 @@
 int inc_mem(code_conv **code, int counter) {
     code_conv *ptr;
     ptr = *code;
+    /* increasing memory of code for a new word */
     *code = realloc(*code, (counter + 1) * sizeof(code_conv));
     if (*code == NULL) {
         print_internal_error(ERROR_CODE_1);
@@ -45,9 +46,12 @@ int inc_mem(code_conv **code, int counter) {
 unsigned short command_to_short(command_parts *command) {
     unsigned short n_src, n_op, n_dest;
     n_src = n_op = n_dest = 0;
+    /* if the source is a register, fill in the corresponding bits */
     if (what_reg(command->source) >= 0) {
         n_src = REG_ADDRESSING << SOURCE_BITS_SHIFT;
-    } else if (legal_label(command->source)) {
+    }
+    /* else if the source is a label, fill in the corresponding bits */
+    else if (legal_label(command->source)) {
         n_src = (short) (LABEL_ADDRESSING << SOURCE_BITS_SHIFT);
     } else if (is_num(command->source)) {
         n_src = (short) (DIRECT_ADDRESSING << SOURCE_BITS_SHIFT);
@@ -83,22 +87,29 @@ unsigned short reg_to_short(command_parts *command, int reg_src) {
     unsigned short n_reg_src, n_reg_dest;
     n_reg_src = n_reg_dest = 0;
     if (reg_src) {
+        /* if the register we are converting is a source argument */
         if ((reg1 = what_reg(command->source)) >= 0) {
             n_reg_src = reg1 << SOURCE_BITS_SHIFT_REG;
         }
+        /* if the dest argument is also a register */
         if ((reg2 = what_reg(command->dest)) >= 0) {
             n_reg_dest = reg2 << DEST_BITS_SHIFT_REG;
         }
-        already_done = 1;
+        already_done = 1; /* Indicating source & dest register has been dealt with or dest is not a register */
+        /* return the combined value of both source & dest registers
+         * if dest wasn't a register than '|' with zero doesn't change */
         return (n_reg_src | n_reg_dest);
-    } else if (already_done == 0) {
+    }
+    /* Dealing with dest register, checking we didn't deal with it befor we need to check if it's a register */
+    else if (already_done == 0) {
         if ((reg2 = what_reg(command->dest)) >= 0) {
             n_reg_dest = reg2 << DEST_BITS_SHIFT_REG;
         }
         return n_reg_dest;
     }
-    already_done = 0;
-    return DOUBLE_REGS_VALUE;
+    already_done = 0; /* resetting the static variable to zero for next line */
+    /* we dealt with the dest register already so we return a value to indicate that and avoid doing it again */
+    return DOUBLE_REGS_VALUE; /*
 }
 
 
@@ -154,18 +165,25 @@ int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *
 int add_extra_machine_code_line(code_conv **code, command_parts *command, int *IC, int is_src, location am_file) {
     unsigned short num;
     char *arg;
+    /* Determine the argument based on whether the source or destination operand is being processed */
     arg = (is_src) ? command->source : command->dest;
+    /* The last condition checks if both source and dest are registers */
     if (what_reg(arg) > 0 && (num = reg_to_short(command, is_src)) != DOUBLE_REGS_VALUE) {
         (*IC)++;
+        /* Add the machine code line for the register representation */
         if (add_machine_code_line(code, num, NULL, IC, am_file) == 0) {
             return 0;
         }
-    } else if (legal_label(arg)) {
+    }
+    /* if arg is not a register it checks if it's a legal label and codes it */
+    else if (legal_label(arg)) {
         (*IC)++;
         if (add_machine_code_line(code, RELOCATABLE_VALUE, arg, IC, am_file) == 0) {
             return 0;
         }
-    } else if (is_num(arg)) {
+    }
+    /* Check if the argument is a numerical value */
+    else if (is_num(arg)) {
         (*IC)++;
         /* representing number in 2-11 bits, therefore pushing the number ARE_BITS bits to the left */
         if (add_machine_code_line(code, atoi(arg) << ARE_BITS, NULL, IC, am_file) == 0) {

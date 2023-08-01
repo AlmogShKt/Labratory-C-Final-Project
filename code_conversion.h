@@ -5,17 +5,19 @@
 #include "lexer.h"
 #include "globals.h"
 
-#define SOURCE_BITS_SHIFT 9
-#define OPCODE_BITS_SHIFT 5
-#define DEST_BITS_SHIFT 2
+#define SOURCE_BITS_SHIFT 9 /* number of shift left needed to reach the source operand LSB 9-11 */
+#define OPCODE_BITS_SHIFT 5 /* number of shift left needed to reach the opcode LSB 5-8 */
+#define DEST_BITS_SHIFT 2 /* number of shift left needed to reach the dest operand LSB 2-4 */
 
-#define SOURCE_BITS_SHIFT_REG 7
-#define DEST_BITS_SHIFT_REG 2
+#define SOURCE_BITS_SHIFT_REG 7 /* number of shift left needed to reach the source register operand LSB 7-11 */
+#define DEST_BITS_SHIFT_REG 2 /* number of shift left needed to reach the dest register operand LSB 2-6 */
 
+/* A,R,E for addressing methods values */
 #define DIRECT_ADDRESSING 1
 #define LABEL_ADDRESSING 3
 #define REG_ADDRESSING 5
 
+/* value to indicate that both registers have been dealt with already to avoid double dealing with dest register */
 #define DOUBLE_REGS_VALUE 10000
 
 #define IC_MAX 1023
