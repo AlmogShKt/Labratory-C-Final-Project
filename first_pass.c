@@ -62,6 +62,7 @@ int exe_first_pass(char *file_name) {
 
     /* Start reading the file line by line until end of file or maximum instruction count */
     while (fgets(str, MAX_LINE_LENGTH, fp) != NULL && IC + DC <= IC_MAX - IC_INIT_VALUE) {
+        printf("Start prosesing this line: %s\n",str);
         error_code = 0;
         (am_file.line_num)++;
         if (strcmp(str, "\n") == 0) {
