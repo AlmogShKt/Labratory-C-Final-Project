@@ -196,13 +196,17 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
     int i;
     int inst_len;
     inst_len = inst->len;
+    printf("1\n");
     /*Check if data pointer is NULL before proceeding*/
     if (data == NULL || *data == NULL) {
+        printf("2\n");
         /* Handle the error appropriately */
         return 0;
     }
+    printf("3\n");
 
     for (i = 0; i < inst_len; i++) {
+        printf("in add ma co - i:%d\n");
         if (inc_mem(data, *DC) == 0) {
             return 0;
         }
@@ -211,6 +215,7 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
         (*data)[*DC].assembly_line = am_file.line_num;
         (*DC)++;
     }
+    printf("4\n");
     return 1;
 }
 /*
