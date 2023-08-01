@@ -117,6 +117,7 @@ int exe_first_pass(char *file_name) {
                 If the addition fails (function returns 0), free the 'nums' member and the 'inst' structure,
                 set the error flag, and continue to the next line.*/
                 if (inst_created) {
+                    printf("trying to ass machine code\n");
                     if (add_machine_code_data(&data, inst, &DC, am_file) == 0) {
                         printf("error find when trying coding. \n");
                         error_found = 1;
