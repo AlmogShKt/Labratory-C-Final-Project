@@ -114,51 +114,8 @@ void remove_extra_spaces_str(char str[]) {
     strcpy(str, str_temp);
 }
 
-void remove_extra_spaces_str1(char str[]) {
-    int i, j;
-    char str_temp[MAX_LINE_LENGTH];
-    i = j = 0;
-    /* skipping all white-spaces in the beginning of the line */
-    while (is_space_or_tab(*(str + i))) {
-        i++;
-    }
-    while (*(str + i) != '\0') {
-        /* coping content until first white-space is found */
-        while (*(str + i) != '\0' && !is_space_or_tab(*(str + i))) {
-            *(str_temp + j) = *(str + i);
-            i++;
-            j++;
-        }
-        if (*(str + i) == '\0') {
-            *(str_temp + j) = *(str + i);
-            remove_spaces_next_to_comma(str_temp);
-            strcpy(str, str_temp);
-            return;
-        }
-        /* white-space is found, copy one space and skipping all other white-spaces */
-        if (*(str + i + 1) == '\0') {
-            *(str_temp + j) = *(str + i);
-            remove_spaces_next_to_comma(str_temp);
-            strcpy(str, str_temp);
-            return;
-        }
-        *(str_temp + j) = ' ';
-        i++;
-        j++;
-        while (*(str + i) != '\0' && is_space_or_tab(*(str + i))) {
-            i++;
-        }
-        if (*(str + i) == '\0') {
-            *(str_temp + j) = *(str + i);
-            remove_spaces_next_to_comma(str_temp);
-            strcpy(str, str_temp);
-            return;
-        }
-        /* a new non-white-space is found */
-    }
-}
-
 int is_space_or_tab(char c) {
+    /* Check if the char is a space or a tab */
     return (isspace(c) && c != '\n');
 }
 

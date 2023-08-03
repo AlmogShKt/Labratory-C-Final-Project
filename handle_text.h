@@ -20,8 +20,6 @@ char *copy_text(FILE *fp, fpos_t *pos, int length);
  */
 void remove_extra_spaces_str(char str[]);
 
-void remove_extra_spaces_str1(char str[]);
-
 /**
  * This function checks of a character is a ' ' or '\t'
  * @param c character to check
