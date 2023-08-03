@@ -14,9 +14,12 @@
 #include "second_pass.h"
 
 /**
- * This function executes the first pass process of the source file
- * @param file_name a string with the name of the source file
- * @return 1 if the first pass and second pass finished successfully, 0 if not
+ * Executes the first pass of the assembly file parsing and processing.
+ *
+ * @param file_name The name of the assembly file to process.
+ * @return An integer indicating whether an error occurred during the first pass.
+ *         - If no error occurred, it returns 0.
+ *         - If an error occurred, it returns a non-zero value.
  */
 int exe_first_pass(char *file_name);
 
@@ -32,6 +35,5 @@ int exe_first_pass(char *file_name);
  *         - If an error occurred, it returns a non-zero value.
  */
 int handle_allocation(other_table **externs, other_table **entries, code_conv **code, code_conv **data);
-
 
 #endif
