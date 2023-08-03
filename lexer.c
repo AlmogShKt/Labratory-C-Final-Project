@@ -870,7 +870,6 @@ command_parts *read_command(char *str, int *error_code) {
     if (legal_label_decl(token, error_code)) {
         flag_visited = 1;
         command->label = token;
-        /*! Need to handle this line, to detect invalid label name.. */
         token = strtok(NULL, " \n");
         if ((command->opcode = what_opcode(token)) != -1) { ;
         } else {

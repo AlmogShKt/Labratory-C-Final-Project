@@ -114,7 +114,7 @@ int add_mcros(char *file_name, node **head) {
         }
     }
 
-    /*Close ythe file and return the result*/
+    /*Close the file and return the result*/
     fclose(fp);
     return success;
 }
@@ -334,8 +334,6 @@ int mcro_call_before_decl(char file_name[], node *head) {
                 /* A macro call is found before its declaration */
                 print_internal_error(ERROR_CODE_16);
                 check = 1;
-
-                /*!printf("Macro %s call in line %d", mcro->name, line_count);*/
             }
             mcro = mcro->next;
         }
