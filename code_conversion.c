@@ -8,21 +8,10 @@
 #include "util.h"
 #include "lexer.h"
 
-/**
- * @brief This function increments the memory allocation for a code_conv array.
- *
- * The function takes a pointer to a code_conv array and increases its memory allocation
- * by reallocating the array with a larger size indicated by the counter parameter.
- * If the reallocation is successful, the function returns 1. If the reallocation fails,
- * an internal error is printed, the original memory is freed, and the function returns 0.
- *
- * @param code: A pointer to a pointer to the code_conv array.
- * @param counter: The desired new size of the array.
- * @return Returns 1 if the memory allocation was successful, and 0 otherwise.
- */
 int inc_mem(code_conv **code, int counter) {
     code_conv *ptr;
     ptr = *code;
+    /* increasing memory of code for a new word */
     *code = realloc(*code, (counter + 1) * sizeof(code_conv));
     if (*code == NULL) {
         print_internal_error(ERROR_CODE_1);
@@ -32,140 +21,123 @@ int inc_mem(code_conv **code, int counter) {
     return 1;
 }
 
-/**
- * @brief This function converts a command_parts structure to an unsigned short representing the machine code.
- *
- * The function takes a command_parts structure and converts the source and destination operands,
- * as well as the opcode, into bit representations according to the addressing modes.
- * The converted values are then combined to form the final machine code, which is returned as an unsigned short.
- *
- * @param command: A pointer to the command_parts structure containing the command information.
- * @return Returns an unsigned short representing the machine code of the command.
- */
 unsigned short command_to_short(command_parts *command) {
     unsigned short n_src, n_op, n_dest;
     n_src = n_op = n_dest = 0;
+
+    /* Check if the source is a register and set the corresponding bits. */
     if (what_reg(command->source) >= 0) {
-        n_src = REG_ADDRESSING << SOURCE_BITS_SHIFT;
-    } else if (legal_label(command->source)) {
-        n_src = (short) (LABEL_ADDRESSING << SOURCE_BITS_SHIFT);
-    } else if (is_num(command->source)) {
-        n_src = (short) (DIRECT_ADDRESSING << SOURCE_BITS_SHIFT);
+        n_src = REG_ADDRESSING << SOURCE_BITS_SHIFT;  /* Fill in register addressing bits. */
     }
+        /* Check if the source is a legal label and set the corresponding bits. */
+    else if (legal_label(command->source)) {
+        n_src = (short) (LABEL_ADDRESSING << SOURCE_BITS_SHIFT);  /* Fill in label addressing bits. */
+    }
+        /* Check if the source is a numerical value and set the corresponding bits. */
+    else if (is_num(command->source)) {
+        n_src = (short) (DIRECT_ADDRESSING << SOURCE_BITS_SHIFT);  /* Fill in direct addressing bits. */
+    }
+
+    /* Check if the destination is a register and set the corresponding bits. */
     if (what_reg(command->dest) >= 0) {
-        n_dest = (short) (REG_ADDRESSING << DEST_BITS_SHIFT);
-    } else if (legal_label(command->dest)) {
-        n_dest = (short) (LABEL_ADDRESSING << DEST_BITS_SHIFT);
-    } else if (is_num(command->dest)) {
-        n_dest = (short) (DIRECT_ADDRESSING << DEST_BITS_SHIFT);
+        n_dest = (short) (REG_ADDRESSING << DEST_BITS_SHIFT);  /* Fill in register addressing bits. */
     }
-    n_op = (short) (command->opcode) << OPCODE_BITS_SHIFT;
+        /* Check if the destination is a legal label and set the corresponding bits. */
+    else if (legal_label(command->dest)) {
+        n_dest = (short) (LABEL_ADDRESSING << DEST_BITS_SHIFT);  /* Fill in label addressing bits. */
+    }
+        /* Check if the destination is a numerical value and set the corresponding bits. */
+    else if (is_num(command->dest)) {
+        n_dest = (short) (DIRECT_ADDRESSING << DEST_BITS_SHIFT);  /* Fill in direct addressing bits. */
+    }
+
+    /* Set the opcode bits. */
+    n_op = (short) (command->opcode) << OPCODE_BITS_SHIFT;  /* Fill in opcode bits. */
+
+    /* Combine the source, opcode, and destination bits to obtain the final unsigned short representation. */
     return ((n_src | n_op) | n_dest);
 }
 
-/**
- * @brief This function converts register operands to their corresponding bit representation in the machine code.
- *
- * The function takes a command_parts structure and an indicator for the source register (reg_src).
- * If reg_src is true, the function converts both the source and destination registers to their bit representation
- * and returns the combined value.
- * If reg_src is false and the already_done flag is not set, the function converts only the destination register
- * to its bit representation and returns the value.
- * The already_done flag is used to ensure that the function returns the correct value for double-register instructions.
- *
- * @param command: A pointer to the command_parts structure containing the command information.
- * @param reg_src: An indicator to determine if both source and destination registers should be converted.
- * @return Returns the bit representation of the register operand(s) in the machine code.
- */
 unsigned short reg_to_short(command_parts *command, int reg_src) {
     static int already_done;
     int reg1, reg2;
     unsigned short n_reg_src, n_reg_dest;
     n_reg_src = n_reg_dest = 0;
     if (reg_src) {
+        /* if the register we are converting is a source argument */
         if ((reg1 = what_reg(command->source)) >= 0) {
             n_reg_src = reg1 << SOURCE_BITS_SHIFT_REG;
         }
+        /* if the dest argument is also a register */
         if ((reg2 = what_reg(command->dest)) >= 0) {
             n_reg_dest = reg2 << DEST_BITS_SHIFT_REG;
         }
-        already_done = 1;
+        already_done = 1; /* Indicating source & dest register has been dealt with or dest is not a register */
+        /* return the combined value of both source & dest registers
+         * if dest wasn't a register than '|' with zero doesn't change */
         return (n_reg_src | n_reg_dest);
-    } else if (already_done == 0) {
+    }
+    /* Dealing with dest register, checking we didn't deal with it before we need to check if it's a register */
+    else if (already_done == 0) {
         if ((reg2 = what_reg(command->dest)) >= 0) {
             n_reg_dest = reg2 << DEST_BITS_SHIFT_REG;
         }
         return n_reg_dest;
     }
-    already_done = 0;
+    already_done = 0; /* resetting the static variable to zero for next line */
+    /* we dealt with the dest register already so we return a value to indicate that and avoid doing it again */
     return DOUBLE_REGS_VALUE;
 }
 
-
-/**
- * @brief This function adds a machine code line to the code_conv array.
- *
- * The function takes a code_conv array, a machine code value (num), a string representing a label (str),
- * an instruction counter (IC), and a location structure representing the file position.
- * It allocates memory for the new code_conv element, sets its properties, and adds it to the array at the specified IC.
- * The IC is incremented accordingly.
- *
- * @param code: A pointer to a pointer to the code_conv array.
- * @param num: The machine code value to be added.
- * @param str: The label associated with the machine code line (can be NULL).
- * @param IC: A pointer to the instruction counter (IC) variable.
- * @param am_file: A location structure representing the file position.
- * @return Returns 1 if the machine code line was added successfully, and 0 otherwise.
- */
 int add_machine_code_line(code_conv **code, unsigned short num, char *str, int *IC, location am_file) {
+    /* Check if memory allocation increase for the code_conv array succeeded */
     if (inc_mem(code, *IC) == 0) {
-        return 0;
+        return 0;  /* Return 0 if memory allocation fails */
     }
+
+    /* Set the numerical value of the assembly line */
     (*code + *IC)->short_num = num;
+
+    /* Set the assembly line number */
     (*code + *IC)->assembly_line = am_file.line_num;
+
+    /* Check if a label is available in this line, and handle memory allocation for it. */
     if (str == NULL) {
-        (*code + *IC)->label = NULL;
+        (*code + *IC)->label = NULL;  /* No label provided; set label to NULL. */
     } else {
         (*code + *IC)->label = handle_malloc((strlen(str) + 1) * sizeof(char));
         if ((*code + *IC)->label == NULL) {
-            return 0;
+            return 0;  /* Return 0 if memory allocation for the label fails. */
         }
-        strcpy((*code + *IC)->label, str);
+        strcpy((*code + *IC)->label, str);  /* Copy the label string to the allocated memory. */
     }
-    return 1;
+
+    return 1;  /* Return 1 to indicate successful addition of the machine code line. */
 }
 
-
-/**
- * @brief This function adds an extra machine code line to the code_conv array based on the command and operand.
- *
- * The function takes a code_conv array, a command_parts structure, an instruction counter (IC),
- * an indicator for the source operand (is_src), and a location structure representing the file position.
- * It determines the appropriate machine code value based on the operand type and adds it as an extra line to the array.
- * The IC is incremented accordingly.
- *
- * @param code: A pointer to a pointer to the code_conv array.
- * @param command: A pointer to the command_parts structure containing the command information.
- * @param IC: A pointer to the instruction counter (IC) variable.
- * @param is_src: An indicator to determine if the source operand should be processed.
- * @param am_file: A location structure representing the file position.
- * @return Returns 1 if the extra machine code line was added successfully or had nothing to add, and 0 otherwise.
- */
 int add_extra_machine_code_line(code_conv **code, command_parts *command, int *IC, int is_src, location am_file) {
     unsigned short num;
     char *arg;
+    /* Determine the argument based on whether the source or destination operand is being processed */
     arg = (is_src) ? command->source : command->dest;
+    /* Check if the argument passed is a register, if yes set a numerical value for it,
+     * The last condition checks if both source and dest are registers and therefore have been dealt together */
     if (what_reg(arg) > 0 && (num = reg_to_short(command, is_src)) != DOUBLE_REGS_VALUE) {
         (*IC)++;
+        /* Add the machine code line for the register representation */
         if (add_machine_code_line(code, num, NULL, IC, am_file) == 0) {
             return 0;
         }
-    } else if (legal_label(arg)) {
+    }
+    /* If arg is not a register it checks if it's a legal label and codes it */
+    else if (legal_label(arg)) {
         (*IC)++;
         if (add_machine_code_line(code, RELOCATABLE_VALUE, arg, IC, am_file) == 0) {
             return 0;
         }
-    } else if (is_num(arg)) {
+    }
+    /* Check if the argument is a numerical value */
+    else if (is_num(arg)) {
         (*IC)++;
         /* representing number in 2-11 bits, therefore pushing the number ARE_BITS bits to the left */
         if (add_machine_code_line(code, atoi(arg) << ARE_BITS, NULL, IC, am_file) == 0) {
@@ -177,21 +149,6 @@ int add_extra_machine_code_line(code_conv **code, command_parts *command, int *I
 
 }
 
-
-/**
- * @brief This function adds machine code data to the data array.
- *
- * The function takes a data array, an inst_parts structure containing the data values (inst),
- * a data counter (DC), and a location structure representing the file position.
- * It iterates over the data values in the inst_parts structure and adds each value to the data array.
- * The DC is incremented accordingly.
- *
- * @param data: A pointer to a pointer to the code_conv data array.
- * @param inst: The inst_parts structure containing the data values.
- * @param DC: A pointer to the data counter (DC) variable.
- * @param am_file: A location structure representing the file position.
- * @return Returns 1 if the machine code data was added successfully, and 0 otherwise.
- */
 int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location am_file) {
     int i;
     int inst_len;
@@ -203,16 +160,23 @@ int add_machine_code_data(code_conv **data, inst_parts *inst, int *DC, location 
     }
     i = 0;
     for (i = 0; i < inst_len; i++) {
+        /* Check if memory allocation for the code_conv array succeeded */
         if (inc_mem(data, *DC) == 0) {
             return 0;
         }
+        /* Set the numerical value in the current code_conv entry */
         (*data + *DC)->short_num = *(inst->nums + i);
-        (*data + *DC)->label = NULL; /* a data line cannot include a label as an ARGUMENT */
+
+        /* a data line cannot include a label as an ARGUMENT */
+        (*data + *DC)->label = NULL;
+
+        /* Set the assembly line number associated with the code_conv */
         (*data + *DC)->assembly_line = am_file.line_num;
         (*DC)++;
     }
     return 1;
 }
+
 /*
 void print_binary_code(code_conv *code,int IC_len){
     int i;
@@ -225,55 +189,38 @@ void print_binary_code(code_conv *code,int IC_len){
 }
 */
 
-/**
- * @brief This function merges the code and data arrays into a single code array.
- *
- * The function takes a pointer to a pointer to the code_conv code array (code),
- * a code_conv data array (data), the instruction counter (IC), and the data counter (DC).
- * It expands the code array to accommodate the data array and copies the data from the data array
- * into the code array starting from the IC position.
- *
- * @param code: A pointer to a pointer to the code_conv code array.
- * @param data: The code_conv data array to be merged.
- * @param IC: The instruction counter (IC).
- * @param DC: The data counter (DC).
- * @return Returns 1 if the merge was successful, and 0 otherwise.
- */
+
 int merge_code(code_conv **code, code_conv *data, int IC, int DC) {
     int i;
     code_conv *ptr;
     ptr = *code;
+
+    /* Check if memory allocation for the code_conv array succeeded */
     if (inc_mem(code, IC + DC) == 0) {
         free(ptr);
         free(data);
         return 0;
     }
-    /* coping the info from the data lines into the end of the command code lines */
+    /* Coping the info from the data lines into the end of the command code lines */
     for (i = 0; i < DC; i++) {
         (*code + IC + i + 1)->label = (data + i)->label;
         (*code + IC + i + 1)->assembly_line = (data + i)->assembly_line;
         (*code + IC + i + 1)->short_num = (data + i)->short_num;
     }
-    free(data); /* no need anymore for the code from the data */
-    return 1;
+    free(data); /* No need anymore for the code from the data */
+    return 1; /* Return 1 to indicate successful merge of machine code and data */
 }
 
-/**
- * @brief This function frees the memory allocated for the code_conv code array.
- *
- * The function takes a pointer to the code_conv code array (code) and the count of elements in the array (code_count).
- * It iterates through the code array and frees the memory allocated for the label strings, if present.
- * Finally, it frees the memory allocated for the code array itself.
- *
- * @param code: The code_conv code array to be freed.
- * @param code_count: The count of elements in the code array.
- */
 void free_code(code_conv *code, int code_count) {
     int i;
+
+    /* Iterate through the code_conv array and free memory for label strings */
     for (i = 0; i <= code_count; i++) {
         if ((code + i)->label != NULL) {
             free((code + i)->label);
         }
     }
+
+    /* Free memory for the entire code_conv array */
     free(code);
 }

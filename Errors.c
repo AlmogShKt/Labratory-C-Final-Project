@@ -6,6 +6,9 @@
 #include "util.h"
 #include "Errors.h"
 
+/* The Following array specifies the error code numbers and the corresponding error message.
+ * Missing lines are intentionally left blank for future error codes
+ * */
 Error errors[] = {
         {ERROR_CODE_0,  "No Error"},
         {ERROR_CODE_1,  "Failed to dynamically allocate memory"},
@@ -67,27 +70,16 @@ Error errors[] = {
         {ERROR_CODE_57, "Input number in .data line is out of range"},
         {ERROR_CODE_58, "Illegal data line directive"},
         {ERROR_CODE_59, "Instruction '.data' line contains illegal chars or syntax error"},
-        {ERROR_CODE_60, ""},
 
 };
 
-/**
- * Prints error while the program
- * @param error_code the error code
- */
 void print_internal_error(int error_code) {
+    /* Print the error code number and the error message */
     printf("~~ERROR: ID:%d~~ | %s\n", error_code, errors[error_code].error_msg);
 }
 
-
-/**
- * Print errors while in the assembles files
- * @param error_code the error code
- * @param error_line the line in the assembly file the error was found
- */
 void print_external_error(int error_code, location file) {
+    /* Print the error code number, file name, assembly line number and the error message */
     printf("~~ERROR: ID:%d~~ in %s at line:%d | there is error: %s\n", error_code, \
     file.file_name, file.line_num, errors[error_code].error_msg);
 }
-
-/*todo: add another function to print erorr with the file name*/

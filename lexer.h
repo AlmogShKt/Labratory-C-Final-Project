@@ -1,9 +1,10 @@
 #ifndef C_PROJECT_LEXER_H
 #define C_PROJECT_LEXER_H
 
+/* Represents an operation code with its associated opcode and argument count */
 typedef struct op_code {
-    char *opcode;
-    int arg_num;
+    char *opcode;    /* The opcode corresponding to the operation */
+    int arg_num;     /* The number of arguments for the operation */
 } op_code;
 
 typedef struct command_parts {
