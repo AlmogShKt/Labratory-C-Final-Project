@@ -12,19 +12,27 @@ unsigned short twos_compliment(unsigned short pos_num) {
 char *short_to_binary(unsigned short num) {
     char *res, *ptr;
     int i;
+
+    /* Handle negative numbers using two's complement representation */
     if (num < 0) {
         num = twos_compliment(num);
     }
+
+    /* Allocate memory to store the binary string */
     res = handle_malloc((WORD_LEN + 1) * sizeof(char));
     if (res == NULL) {
         print_internal_error(ERROR_CODE_1);
         return NULL;
     }
+
+    /* Initialize the binary string to all '0's */
     ptr = res;
     for (i = 0; i < WORD_LEN; i++) {
         *(ptr + i) = '0';
     }
     *(ptr + WORD_LEN) = '\0';
+
+    /* Convert the unsigned short integer to binary representation */
     ptr = res + WORD_LEN - 1;
     while (num != 0) {
         *ptr = (num % 2) + '0';
@@ -52,11 +60,6 @@ char *short_to_base64(unsigned short num) {
     return res;
 }
 
-/**
- * Trying to allocate memory and check is success
- * @param object_size the object size
- * @return a pointer to the address
- */
 void *handle_malloc(long object_size) {
     void *object_ptr = malloc(object_size);
     if (object_ptr == NULL) {
