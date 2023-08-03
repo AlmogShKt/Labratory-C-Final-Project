@@ -48,9 +48,15 @@ int copy_file(char *file_name_dest, char *file_name_orig);
  * and the string or file name
  */
 void abrupt_close(int num_args, ...);
-char *short_to_binary(unsigned short num);
-int isFileExist(char file_name[]);
 
-char *merge_str_names(char *str_name_1, char *str_name_2);
+
+/**
+ * Converts an unsigned short integer to a binary string representation.
+ *
+ * @param num The unsigned short integer to be converted.
+ * @return A dynamically allocated string containing the binary representation of 'num'.
+ *         The caller is responsible for freeing the memory allocated for the string.
+ */
+char *short_to_binary(unsigned short num);
 
 #endif
