@@ -15,6 +15,8 @@ int insert_other_labels(other_table **table, int count, inst_parts *inst, locati
     other_table *ptr;
     int label_length;
 
+    if(inst->arg_label == NULL)
+        return 0;
     /* Set 'ptr' to the current table */
     ptr = *table;
 
