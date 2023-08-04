@@ -1,8 +1,8 @@
-..entry START
-.extern Z!
-MAIN: mov @r9,START
+.entry START!
+.extern Z
+MAIN!: mov @r9,START
 LOOP1: jmp L11
-prnint -4
+prn -4
 bne
 sub,@r1, @r3
 bne,L4
@@ -16,16 +16,17 @@ J: .data 33
 .extern L4
 
 
+bad comments
 LOOP2: cmp @r5,@r6
 dec @r5 @r2
 not @r2
 clr @r6
-add @r4,@r5
-red @r1
+addi @r4,4
+red @r9
 jsr LOOP2
-rts
+rtss
 END2: stop
-STR2: .string "mnopqr"
+STR2: .string "mn op q r
 DATA2: .data 10,-15,25
-L: .data 44
-.extern L5
+L: .data
+.extern L9

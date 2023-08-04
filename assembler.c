@@ -32,10 +32,11 @@ int main(int argc, char *argv[]) {
             /*If it failed, move to the next file.*/
             continue;
         }
-        printf("end\n");
+
         /*Free allocated memory*/
         free(as_file);
         free(am_file);
     }
+    printf("end\n");
     return 0;
 }
