@@ -40,43 +40,8 @@ In the second pass, the assembler generates the final machine code, replacing op
 
 Details about the algorithms for these stages can be found in the [documentation](#-documentation).
 
-___ 
 
-## ⚙️ Getting Started
-
-### Prerequisites
-
-- GCC compiler
-- Ubuntu system (but others will also work)
-
-### Installation
-
-1. Clone the repository: `git clone <repo_link>`
-2. Navigate to the cloned repository: `cd <repo_name>`
-3. Run Makefile to compile the program: `make`
-
-## 🔧 Usage
-
-Run the compiled program using the following command: `./assembler file_name_1 ... file_name_N`
-
-This will output machine code generated from the provided assembly file.
-
-This is valid input and output files:
-
-<p align="center">
-  <img src="Readme_imgs/c_master_as.png" width="200"> <img src="Readme_imgs/valid_output1.png" width="200">
-</p>
-
-And for Invalid output:
-
-<p align="center">
-  <img src="Readme_imgs/Invalid1.png" width="600">
-</p>
-
-
-___
-## 📂 Project Structure
-
+<details closed><summary>📂 Project Structure</summary>
 
 ```bash
 repo
@@ -184,6 +149,57 @@ repo
 
 8 directories, 94 files
 ```
+</details>
+___ 
+
+## ⚙️ Getting Started
+
+### ✔️ Prerequisites
+
+Before you begin, ensure that you have the following prerequisites installed:
+> - `ℹ️ GCC compiler`
+> - `ℹ️ Ubuntu system (but others will also work)`
+
+### 📦 Installation
+
+1. Clone the Labratory-C-Final-Project repository:
+```sh
+git clone https://github.com/AlmogShKt/Labratory-C-Final-Project.git
+```
+
+2. Change to the project directory:
+```sh
+cd Labratory-C-Final-Project
+```
+
+3. Run Makefile to compile the program:
+```sh
+`ℹ️  make`
+```
+
+
+## 🔧 Usage
+
+Run the compiled program using the following command: `./assembler file_name_1 ... file_name_N`
+
+This will output machine code generated from the provided assembly file.
+
+This is valid input and output files:
+
+<p align="center">
+  <img src="Readme_imgs/c_master_as.png" width="200"> <img src="Readme_imgs/valid_output1.png" width="200">
+</p>
+
+And for Invalid output:
+
+<p align="center">
+  <img src="Readme_imgs/Invalid1.png" width="600">
+</p>
+
+
+___
+
+
 
 
 ___ 
