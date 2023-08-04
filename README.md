@@ -219,3 +219,6 @@ ___
 ## 🤝 Contribution
 
 This project does not accept contributions as of now.
+
+___
+## 👏🏻 Almog Shtaimgann and Tamir Shemsh ©
