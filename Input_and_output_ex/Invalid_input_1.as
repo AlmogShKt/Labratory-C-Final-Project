@@ -28,4 +28,3 @@ rtss
 END2: stop
 STR2: .string "mn op q r
 DATA2: .data 10,-15,25
-L: .data
