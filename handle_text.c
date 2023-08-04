@@ -120,19 +120,24 @@ int is_space_or_tab(char c) {
 }
 
 void remove_spaces_next_to_comma(char *str) {
-    char *ptr;
-    if ((ptr = strchr(str, ',')) != NULL) {
-        /* space before the comma */
+    char *ptr = str;
+    /* If the line starts with ',' avoiding accessing outside the str */
+    if(*ptr == ','){
+        return;
+    }
+    while ((ptr = strchr(ptr, ',')) != NULL) {
+        /* Space before the comma */
         if (*(ptr - 1) == ' ') {
             memmove(ptr - 1, ptr, strlen(ptr) + 1);
             if (*(ptr) == ' ') {
-                /* also space after the comma */
+                /* Also space after the comma */
                 memmove(ptr, ptr + 1, strlen(ptr + 1) + 1);
             }
         }
-        if (*(ptr + 1) == ' ') {
-            /* only space after the comma */
+        else if (*(ptr + 1) == ' ') {
+            /* Only space after the comma */
             memmove(ptr + 1, ptr + 2, strlen(ptr + 2) + 1);
+            ptr++;
         }
     }
 }
