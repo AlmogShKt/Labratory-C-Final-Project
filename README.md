@@ -73,6 +73,119 @@ And for Invalid output:
   <img src="Readme_imgs/Invalid1.png" width="600">
 </p>
 
+
+___
+## 📂 Project Structure
+
+
+```bash
+repo
+├── Errors.c
+├── Errors.h
+├── Input_and_output_ex
+│   ├── Invalid_input_1.am
+│   ├── Invalid_input_1.as
+│   ├── Invalid_input_2.am
+│   ├── Invalid_input_2.as
+│   ├── Invalid_input_3.as
+│   ├── Invalid_input_4.as
+│   ├── c_master.am
+│   ├── c_master.as
+│   ├── c_master.ent
+│   ├── c_master.ext
+│   ├── c_master.ob
+│   ├── valid_input_1.am
+│   ├── valid_input_1.as
+│   ├── valid_input_1.ent
+│   ├── valid_input_1.ext
+│   ├── valid_input_1.ob
+│   ├── valid_input_2.am
+│   ├── valid_input_2.as
+│   ├── valid_input_2.ent
+│   ├── valid_input_2.ext
+│   ├── valid_input_2.ob
+│   ├── valid_input_3.as
+│   └── valid_input_4.as
+├── LICENSE
+├── README.md
+├── Readme_imgs
+│   ├── Invalid1.png
+│   ├── c_master_as.png
+│   └── valid_output1.png
+├── Tests
+│   ├── AsemblerFiles-Test
+│   │   ├── CourseExamle.am
+│   │   └── CourseExamle.ob
+│   ├── TestC.c
+│   ├── To-Test
+│   │   ├── Almog
+│   │   │   ├── AllOpcodeNames.txt
+│   │   │   ├── Test4_01.am
+│   │   │   ├── Test4_01.as
+│   │   │   ├── Test4_01.ob
+│   │   │   ├── longline.am
+│   │   │   ├── longline.as
+│   │   │   ├── test1.am
+│   │   │   ├── test1.as
+│   │   │   ├── test1.ent
+│   │   │   ├── test1.ext
+│   │   │   ├── test1.ob
+│   │   │   ├── test1_02.am
+│   │   │   ├── test1_02.as
+│   │   │   ├── test1_02.ob
+│   │   │   ├── test3_01.am
+│   │   │   ├── test3_01.as
+│   │   │   ├── test3_01.ob
+│   │   │   ├── test_macro_01.am
+│   │   │   ├── test_macro_01.as
+│   │   │   ├── test_macro_01.ent
+│   │   │   ├── test_macro_01.ext
+│   │   │   └── test_macro_01.ob
+│   │   ├── Course_master
+│   │   │   ├── c_master.am
+│   │   │   ├── c_master.ent
+│   │   │   ├── c_master.ext
+│   │   │   ├── c_master.ob
+│   │   │   └── master.ob
+│   │   ├── IdeasToTest.md
+│   │   ├── Master.am
+│   │   ├── Master.as
+│   │   └── Master.ob
+│   ├── fist_pass_test.c
+│   └── test_preproc.c
+├── assembler
+├── assembler.c
+├── code_conversion.c
+├── code_conversion.h
+├── data_strct.c
+├── data_strct.h
+├── first_pass.c
+├── first_pass.h
+├── globals.h
+├── handle_text.c
+├── handle_text.h
+├── lexer.c
+├── lexer.h
+├── makefile
+├── preproc.c
+├── preproc.h
+├── second_pass.c
+├── second_pass.h
+├── t_linuix_1.am
+├── t_linuix_1.as
+├── t_linuix_1.ent
+├── t_linuix_1.ext
+├── t_linuix_1.ob
+├── t_linuix_2.as
+├── table.c
+├── table.h
+├── util.c
+└── util.h
+
+8 directories, 94 files
+```
+
+
 ___ 
 
 ## 🧪 Testing
