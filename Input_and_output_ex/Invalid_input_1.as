@@ -1,4 +1,4 @@
-.entry START!
+.entry START
     .extern Z
 MAIN!: mov @r9, START
 LOOP1: jmp L11
@@ -29,4 +29,3 @@ END2: stop
 STR2: .string "mn op q r
 DATA2: .data 10,-15,25
 L: .data
-    .extern L9
