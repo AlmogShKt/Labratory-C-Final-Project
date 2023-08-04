@@ -138,6 +138,8 @@ void remove_spaces_next_to_comma(char *str) {
             /* Only space after the comma */
             memmove(ptr + 1, ptr + 2, strlen(ptr + 2) + 1);
             ptr++;
+        }else{
+            ptr++;
         }
     }
 }
