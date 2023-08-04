@@ -1,13 +1,22 @@
-MAIN:mov @r3 , @r2
+MS1:.string "Lets test"
+
+LENGTH:.data  6,-9,15
+
+    .extern Test
+
+MAIN:        mov @r3 ,    @r2
+
+        K:   .data  10,12  ,     13,    14
+;This is a coment, !@#&%%#+!)+$
 LOOP: jmp L1
 prn -5
-bne W
-sub @r1, @r4
-    bne L3
+sub @r6    ,      @r4
+    bne      Test
+
 L1:  inc K
+
+
     .entry LOOP
-jmp W
+
+
 END: stop
-STR:.string "abcdef"
-LENGTH:.data  6,-9,15
-K:.data  10,12,13,14
