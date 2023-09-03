@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "second_pass.h"
-#include "table.h"
-#include "Errors.h"
-#include "util.h"
+#include "../Header Files /second_pass.h"
+#include "../Header Files /table.h"
+#include "../Header Files /Errors.h"
+#include "../Header Files /util.h"
 
 void free_all_memory(code_conv *code, label_address *label_table, other_table *entries, other_table *externs, \
     int code_count, int label_table_line, int entries_count, int externs_count) {

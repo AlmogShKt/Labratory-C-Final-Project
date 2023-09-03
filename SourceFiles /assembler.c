@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "preproc.h"
-#include "first_pass.h"
-#include "util.h"
+#include "../Header Files /preproc.h"
+#include "../Header Files /first_pass.h"
+#include "../Header Files /util.h"
 
 /**
  * This is the main function that processes the input files.

@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "data_strct.h"
-#include "util.h"
-#include "Errors.h"
+#include "../Header Files /data_strct.h"
+#include "../Header Files /util.h"
+#include "../Header Files /Errors.h"
 
 node *make_node(char *name, char *content, int line_num){
     node *temp;

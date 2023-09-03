@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "lexer.h"
-#include "globals.h"
-#include "Errors.h"
+#include "../Header Files /lexer.h"
+#include "../Header Files /globals.h"
+#include "../Header Files /Errors.h"
 
 /* Define the opcodes */
 op_code OPCODES[] = {
@@ -44,8 +44,9 @@ int lines_too_long(char *file_name) {
 
     /* Read lines from the file and check their lengths */
     while (fgets(str, BIG_NUMBER_CONST, fp) != NULL) {
-        (am_file.line_num)++;
         if (strlen(str) > MAX_LINE_LENGTH) {
+        (am_file.line_num)++;
+
             /* Line is too long */
             print_external_error(ERROR_CODE_30, am_file);
             too_long = 1; /* Set the flag to indicate a line is too long */
