@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "code_conversion.h"
-#include "Errors.h"
-#include "globals.h"
-#include "table.h"
-#include "util.h"
-#include "lexer.h"
+#include "../Header Files /code_conversion.h"
+#include "../Header Files /Errors.h"
+#include "../Header Files /globals.h"
+#include "../Header Files /table.h"
+#include "../Header Files /util.h"
+#include "../Header Files /lexer.h"
 
 int inc_mem(code_conv **code, int counter) {
     code_conv *ptr;

@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "table.h"
-#include "util.h"
-#include "Errors.h"
+#include "../Header Files /table.h"
+#include "../Header Files /util.h"
+#include "../Header Files /Errors.h"
 
 /* The Following array specifies the error code numbers and the corresponding error message.
  * Missing lines are intentionally left blank for future error codes

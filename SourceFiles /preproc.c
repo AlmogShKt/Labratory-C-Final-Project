@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "preproc.h"
-#include "util.h"
-#include "globals.h"
-#include "handle_text.h"
-#include "Errors.h"
-#include "lexer.h"
+#include "../Header Files /preproc.h"
+#include "../Header Files /util.h"
+#include "../Header Files /globals.h"
+#include "../Header Files /handle_text.h"
+#include "../Header Files /Errors.h"
+#include "../Header Files /lexer.h"
 
 char *save_mcro_content(FILE *fp, fpos_t *pos, int *line_count) {
     int mcro_length;

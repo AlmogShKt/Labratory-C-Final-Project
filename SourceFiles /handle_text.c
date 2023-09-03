@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "preproc.h"
-#include "util.h"
-#include "globals.h"
-#include "handle_text.h"
-#include "Errors.h"
+#include "../Header Files /preproc.h"
+#include "../Header Files /util.h"
+#include "../Header Files /globals.h"
+#include "../Header Files /handle_text.h"
+#include "../Header Files /Errors.h"
 
 char *remove_extra_spaces_file(char file_name[]) {
     char *new_file_name;

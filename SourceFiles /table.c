@@ -4,11 +4,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "table.h"
-#include "globals.h"
-#include "Errors.h"
-#include "code_conversion.h"
-#include "util.h"
+#include "../Header Files /table.h"
+#include "../Header Files /globals.h"
+#include "../Header Files /Errors.h"
+#include "../Header Files /code_conversion.h"
+#include "../Header Files /util.h"
 
 
 int insert_other_labels(other_table **table, int count, inst_parts *inst, location am_file, int *error_code) {

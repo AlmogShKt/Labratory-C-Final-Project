@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "Errors.h"
-#include "globals.h"
-#include "table.h"
-#include "util.h"
-#include "first_pass.h"
-#include "lexer.h"
-#include "code_conversion.h"
-#include "second_pass.h"
+#include "../Header Files /Errors.h"
+#include "../Header Files /globals.h"
+#include "../Header Files /table.h"
+#include "../Header Files /util.h"
+#include "../Header Files /first_pass.h"
+#include "../Header Files /lexer.h"
+#include "../Header Files /code_conversion.h"
+#include "../Header Files /second_pass.h"
 
 
 int exe_first_pass(char *file_name) {
