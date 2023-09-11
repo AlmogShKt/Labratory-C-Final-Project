@@ -1,5 +1,6 @@
 # 🚀 Labratory-C-Final-Project 🚀
 ## Project Grade - 💯
+<p align="center"> <img src="https://komarev.com/ghpvc/?username=BreadcrumbsLabratory-C-Final-Project&label=Repo%20views&color=0e75b6&style=flat" alt="C-Final-Project" /> </p>
 
 This is the Final project (mmn 14) in Laboratory C 20465- 2023B course at the Open University. This project was developed as part of the "20465 - Systems Programming Laboratory" 2023B course at the Open University. It's a comprehensive assembler program for a specific assembly language, written in C. The purpose is to simulate the operation of common system programs, and thus experience writing a large-scale software project.
 
