@@ -174,7 +174,12 @@ git clone https://github.com/AlmogShKt/Labratory-C-Final-Project.git
 cd Labratory-C-Final-Project
 ```
 
-3. Run Makefile to compile the program:
+3. Checkout the Linux branch:
+```sh
+git checkout linux
+```
+
+5. Run Makefile to compile the program:
 ```sh
 `ℹ️  make`
 ```
