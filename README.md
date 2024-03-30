@@ -158,6 +158,9 @@ ___
 
 ### ✔️ Prerequisites
 
+**Please switch to the `linux` branch to run the project. Use the following instructions:**
+
+
 Before you begin, ensure that you have the following prerequisites installed:
 > - `ℹ️ GCC compiler`
 > - `ℹ️ Ubuntu system (but others will also work)`
@@ -174,14 +177,14 @@ git clone https://github.com/AlmogShKt/Labratory-C-Final-Project.git
 cd Labratory-C-Final-Project
 ```
 
-3. Checkout the Linux branch:
+3. *Checkout the Linux branch:!*
 ```sh
 git checkout linux
 ```
 
 5. Run Makefile to compile the program:
 ```sh
-`ℹ️  make`
+`make`
 ```
 
 
