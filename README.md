@@ -4,7 +4,8 @@
 
 This is the Final project (mmn 14) in Laboratory C 20465- 2023B course at the Open University. This project was developed as part of the "20465 - Systems Programming Laboratory" 2023B course at the Open University. It's a comprehensive assembler program for a specific assembly language, written in C. The purpose is to simulate the operation of common system programs, and thus experience writing a large-scale software project.
 
-___
+
+☎️ For private lessons and project assistance, please contact me at: **a.shtaigmann@gmail.com**
 
 ## 📖 Table of Contents
 - [Project Structure](#-project-structure)
