@@ -7,6 +7,12 @@ This is the Final project (mmn 14) in Laboratory C 20465- 2023B course at the Op
 
 ❇️ - ☎️ For private lessons and project assistance, please contact me at: **a.shtaigmann@gmail.com** ❇️ 
 
+___
+**Love this project? Has it helped you throughout the course? Please consider support. I put a lot of effort into making this project readable and easy to use!❤️**  
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ALmogShtaigmann)
+
+___
+
 ## 📖 Table of Contents
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
