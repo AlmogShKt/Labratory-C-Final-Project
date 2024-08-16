@@ -1,7 +1,16 @@
 # 🚀 Labratory-C-Final-Project 🚀
+## Project Grade - 💯
+<p align="center"> <img src="https://komarev.com/ghpvc/?username=BreadcrumbsLabratory-C-Final-Project&label=Repo%20views&color=0e75b6&style=flat" alt="C-Final-Project" /> </p>
 
 This is the Final project (mmn 14) in Laboratory C 20465- 2023B course at the Open University. This project was developed as part of the "20465 - Systems Programming Laboratory" 2023B course at the Open University. It's a comprehensive assembler program for a specific assembly language, written in C. The purpose is to simulate the operation of common system programs, and thus experience writing a large-scale software project.
 
+
+❇️ - ☎️ For private lessons and project assistance, please contact me at: **a.shtaigmann@gmail.com** ❇️ 
+
+___
+**Love this project? Has it helped you throughout the course? Please consider support. I put a lot of effort into making this project readable and easy to use!❤️**  
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ALmogShtaigmann)
+> **Buy Me A Coffee** is a simple way to support creators by buying them a virtual coffee. It's a platform where you can make small, one-time donations to show your appreciation.
 ___
 
 ## 📖 Table of Contents
@@ -156,6 +165,9 @@ ___
 
 ### ✔️ Prerequisites
 
+**Please switch to the `linux` branch to run the project. Use the following instructions:**
+
+
 Before you begin, ensure that you have the following prerequisites installed:
 > - `ℹ️ GCC compiler`
 > - `ℹ️ Ubuntu system (but others will also work)`
@@ -172,9 +184,14 @@ git clone https://github.com/AlmogShKt/Labratory-C-Final-Project.git
 cd Labratory-C-Final-Project
 ```
 
-3. Run Makefile to compile the program:
+3. *Checkout the Linux branch:!*
 ```sh
-`ℹ️  make`
+git checkout linux
+```
+
+5. Run Makefile to compile the program:
+```sh
+`make`
 ```
 
 
